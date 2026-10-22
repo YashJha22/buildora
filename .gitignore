@@ -17,3 +17,10 @@ Thumbs.db
 lighthouse-*.json
 report*.json
 .playwright-mcp/
+
+# Agent runtime caches and local skill bundles
+.agent
+.agents/
+.claude/
+agent/
+skills-lock.json
