@@ -1,0 +1,474 @@
+import { sound } from './audio';
+import { updateChapters } from './chapters';
+import { holdAfterPlan, remapSideways } from './chapters/plan';
+import { initCursor, updateCursor } from './cursor';
+import { ring } from './dom';
+import { initInput } from './input';
+import { seekIntroClock, startIntro } from './intro';
+import { initRouter, setRouterSceneApi } from './router';
+import { loadScene, type SceneApi } from './scene';
+import { S, classic, reduce, st, touch, type Progress } from './state';
+import { idle, scroll, smooth } from './tokens/motion';
+import { $, clamp } from './utils';
+import { initTypographyEngine, revealHeroTypography } from './typography';
+
+// Three.js is loaded lazily; until it resolves `gl` is null and frames skip drawing (like the original no-WebGL path).
+let gl: SceneApi | null = null;
+
+function setStudio(open: boolean) {
+  st.studioOpen = open;
+  const studioEl = $('#studio');
+  studioEl.classList.toggle('open', open);
+  studioEl.setAttribute('aria-hidden', String(!open));
+}
+
+function initStudioControls() {
+  const openBtn = document.getElementById('open-studio');
+  const openMatBtn = document.getElementById('open-materials');
+  const fcardMatBtn = document.getElementById('fcard-open-materials');
+  const navStudioBtn = document.getElementById('nav-studio');
+  const closeBtn = document.getElementById('close-studio');
+  const solarRange = document.getElementById('solar-range') as HTMLInputElement | null;
+  const solarAutoBtn = document.getElementById('solar-auto');
+  const sndBtn = document.getElementById('snd');
+
+  const openHandler = (e: Event) => {
+    e.preventDefault();
+    setStudio(!st.studioOpen);
+  };
+  openBtn?.addEventListener('click', openHandler);
+  
+  const openMaterialsAction = (e: Event) => {
+    e.preventDefault();
+    S.p = 0;
+    setStudio(true);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+  openMatBtn?.addEventListener('click', openMaterialsAction);
+  fcardMatBtn?.addEventListener('click', openMaterialsAction);
+  closeBtn?.addEventListener('click', () => setStudio(false));
+
+  const markManualSolar = () => {
+    st.solarAuto = false;
+    solarAutoBtn?.classList.remove('on');
+    solarAutoBtn?.setAttribute('aria-pressed', 'false');
+  };
+
+  solarAutoBtn?.addEventListener('click', () => {
+    st.solarAuto = !st.solarAuto;
+    solarAutoBtn.classList.toggle('on', st.solarAuto);
+    solarAutoBtn.setAttribute('aria-pressed', String(st.solarAuto));
+    gl?.setSolarAuto(st.solarAuto);
+  });
+
+  solarRange?.addEventListener('pointerdown', markManualSolar);
+  solarRange?.addEventListener('input', () => {
+    markManualSolar();
+    gl?.setSolarHour(Number(solarRange.value), true);
+  });
+  solarRange?.addEventListener('change', markManualSolar);
+
+  document.querySelectorAll<HTMLButtonElement>('.st-beats button[data-hour]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      markManualSolar();
+      gl?.setSolarHour(Number(btn.dataset.hour), true);
+    });
+  });
+
+  document.querySelectorAll<HTMLButtonElement>('.st-pals button').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      gl?.setPalette(Number(btn.dataset.pal));
+    });
+  });
+
+  sndBtn?.addEventListener('click', () => {
+    const on = sound.toggle();
+    sndBtn.classList.toggle('on', on);
+    sndBtn.setAttribute('aria-pressed', String(on));
+    sndBtn.textContent = on ? 'Sound On' : 'Sound Off';
+  });
+
+  initPullCordLight();
+  initMobileNav();
+  initApproachInteractions();
+}
+
+function initApproachInteractions() {
+  const words = document.querySelectorAll<HTMLButtonElement>('.ap-word[data-stage]');
+  const cards = document.querySelectorAll<HTMLElement>('.approach-strip .strip-card');
+
+  const setStage = (stage: string) => {
+    words.forEach((w) => {
+      const active = w.dataset.stage === stage;
+      w.classList.toggle('is-active', active);
+      w.setAttribute('aria-pressed', String(active));
+    });
+    cards.forEach((c) => {
+      const highlight = c.dataset.stage === stage;
+      c.classList.toggle('is-highlighted', highlight);
+    });
+  };
+
+  words.forEach((btn) => {
+    const stage = btn.dataset.stage || '01';
+    btn.addEventListener('mouseenter', () => {
+      setStage(stage);
+      if (stage === '03') {
+        sound.playWordShimmer(2);
+      } else {
+        sound.playDraftingStroke();
+      }
+    });
+
+    btn.addEventListener('click', (e) => {
+      e.preventDefault();
+      setStage(stage);
+      const targetCard = document.getElementById(`stage-card-${stage}`);
+      if (targetCard && window.innerWidth <= 900) {
+        targetCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    });
+  });
+
+  cards.forEach((card) => {
+    const stage = card.dataset.stage || '01';
+    card.addEventListener('mouseenter', () => {
+      setStage(stage);
+    });
+  });
+}
+
+function initPullCordLight() {
+  const pullCordWrap = document.getElementById('pull-cord-wrap');
+  const cordHandle = document.getElementById('cord-handle') as HTMLButtonElement | null;
+  const ciState = document.getElementById('ci-state');
+  const roomLightBtn = document.getElementById('room-light-btn');
+  const slbText = roomLightBtn?.querySelector('.slb-text');
+
+  if (!cordHandle) return;
+
+  const updateLightUI = (isRoomLightOn: boolean) => {
+    pullCordWrap?.classList.toggle('light-on', isRoomLightOn);
+    cordHandle.setAttribute('aria-checked', String(isRoomLightOn));
+    cordHandle.setAttribute(
+      'aria-label',
+      isRoomLightOn
+        ? 'Switch to Table Lamp (Main Room Light currently ON)'
+        : 'Switch to Main Room Light (Table Lamp currently ON)'
+    );
+    if (ciState) {
+      ciState.textContent = isRoomLightOn ? 'MAIN ON' : 'LAMP ON';
+    }
+
+    if (roomLightBtn) {
+      roomLightBtn.classList.toggle('on', isRoomLightOn);
+      roomLightBtn.setAttribute('aria-pressed', String(isRoomLightOn));
+      if (slbText) {
+        slbText.textContent = isRoomLightOn ? 'Main Light · ON' : 'Table Lamp · ON';
+      }
+    }
+  };
+
+  const toggleLightingState = () => {
+    st.roomLightOn = !st.roomLightOn;
+    gl?.setRoomLight(st.roomLightOn);
+    sound.playPullCord(st.roomLightOn);
+    updateLightUI(st.roomLightOn);
+  };
+
+  // Coalesced single-trigger coordinator to prevent double-firing
+  let lastToggleMs = 0;
+  const TOGGLE_COOLDOWN = 180; // ms
+
+  const handleUserToggle = () => {
+    const now = performance.now();
+    if (now - lastToggleMs < TOGGLE_COOLDOWN) return;
+    lastToggleMs = now;
+    toggleLightingState();
+  };
+
+  // Click handler (handles mouse click and touch tap)
+  cordHandle.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    handleUserToggle();
+  });
+
+  // Dedicated keyboard handler for Enter and Space
+  cordHandle.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      handleUserToggle();
+    }
+  });
+
+  // Global hotkey 'L' / 'l' to toggle light (except in editable inputs)
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'l' || e.key === 'L') {
+      const active = document.activeElement;
+      if (active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA' || active.hasAttribute('contenteditable'))) {
+        return;
+      }
+      handleUserToggle();
+    }
+  });
+
+  // Studio Drawer Button sync
+  roomLightBtn?.addEventListener('click', (e) => {
+    e.preventDefault();
+    handleUserToggle();
+  });
+
+  // Set initial state matching state.ts (Main Light ON, Table Lamp OFF)
+  updateLightUI(st.roomLightOn);
+}
+
+function initMobileNav() {
+  const toggleBtn = document.getElementById('mobile-nav-toggle');
+  const header = document.getElementById('site-header');
+  const nav = document.getElementById('site-nav');
+  if (!toggleBtn || !header || !nav) return;
+
+  const setOpen = (open: boolean) => {
+    header.classList.toggle('nav-open', open);
+    toggleBtn.setAttribute('aria-expanded', String(open));
+    toggleBtn.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+  };
+
+  toggleBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const isOpen = header.classList.contains('nav-open');
+    setOpen(!isOpen);
+  });
+
+  nav.querySelectorAll('a, button').forEach((el) => {
+    el.addEventListener('click', () => {
+      setOpen(false);
+    });
+  });
+
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && header.classList.contains('nav-open')) {
+      setOpen(false);
+      toggleBtn.focus();
+    }
+  });
+
+  document.addEventListener('click', (e) => {
+    if (header.classList.contains('nav-open')) {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest('#site-header')) {
+        setOpen(false);
+      }
+    }
+  });
+
+  window.addEventListener('resize', () => {
+    if (window.innerWidth > 768 && header.classList.contains('nav-open')) {
+      setOpen(false);
+    }
+  });
+}
+
+function layout() {
+  st.w = innerWidth;
+  st.h = innerHeight;
+  const isMobile = st.w < 768;
+  st.R0 = isMobile ? Math.min(st.w, st.h) * 0.22 : Math.min(st.w, st.h) * 0.15;
+  ring.style.width = ring.style.height = st.R0 * 2 + 'px';
+  gl && gl.size();
+}
+addEventListener('resize', layout);
+layout();
+
+if (classic) {
+  startIntro();
+}
+
+loadScene().then((api) => {
+  gl = api;
+  setRouterSceneApi(api);
+  if (gl) {
+    gl.size();
+  } else {
+    const webglNotice = document.createElement('div');
+    webglNotice.id = 'webgl-fallback-banner';
+    webglNotice.setAttribute('role', 'status');
+    webglNotice.style.cssText =
+      'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9000;background:rgba(18,15,13,0.92);border:1px solid rgba(223,186,115,0.35);color:#f7f3ed;padding:0.6rem 1.2rem;border-radius:6px;font-family:Manrope,sans-serif;font-size:0.75rem;letter-spacing:0.04em;backdrop-filter:blur(10px);pointer-events:none;';
+    webglNotice.textContent = 'WebGL acceleration is unavailable in this environment. Showing architectural plan view.';
+    document.body.appendChild(webglNotice);
+  }
+  if (!classic) {
+    startIntro();
+  }
+  const dbg = (
+    window as unknown as {
+      __buildora?: { setFront?: (v: number | null) => void; setDraw?: (v: number | null) => void; setT?: (sec: number) => void };
+    }
+  ).__buildora;
+  if (dbg) {
+    dbg.setT = (sec: number) => {
+      if (sec >= 8.4) {
+        dbg.setFront?.(1.0);
+      } else {
+        dbg.setFront?.(null);
+      }
+      dbg.setDraw?.(null);
+      seekIntroClock(sec);
+    };
+  }
+});
+
+initInput();
+initStudioControls();
+initCursor();
+initRouter();
+initTypographyEngine();
+
+// Synchronize virtual 3D progress S.p with natural page scroll through the complete architectural build journey
+let cachedJH = 2400;
+let scrollTicking = false;
+
+function measureJourneyHeight() {
+  const studioSec = document.getElementById('studio-section');
+  cachedJH = studioSec ? Math.max(studioSec.offsetHeight - window.innerHeight, 1600) : 2400;
+}
+window.addEventListener('resize', measureJourneyHeight, { passive: true });
+measureJourneyHeight();
+
+function updateScrollProgress() {
+  if (!st.ready) return;
+  const scrollY = window.scrollY || window.pageYOffset;
+  const jH = cachedJH;
+
+  // Map scroll through studio section (0..jH) smoothly into S.p = 0..3.0
+  S.p = clamp((scrollY / jH) * 3.0, 0, 3.0);
+
+  // Transition UI elements as user scrolls past the completed build journey into Selected Works
+  const exitProgress = clamp((scrollY - jH) / 250, 0, 1);
+  const footEl = document.querySelector<HTMLElement>('.foot');
+  const bldEl = document.getElementById('bld');
+  const capEl = document.getElementById('cap');
+  const heroEl = document.querySelector<HTMLElement>('main');
+  const pullCordWrap = document.getElementById('pull-cord-wrap');
+  const heroTelemetry = document.getElementById('hero-telemetry');
+
+  if (exitProgress > 0) {
+    if (footEl) footEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (bldEl) {
+      bldEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+      if (exitProgress >= 1) bldEl.style.visibility = 'hidden';
+    }
+    if (capEl) capEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (heroEl) {
+      heroEl.style.opacity = '0';
+      heroEl.style.visibility = 'hidden';
+    }
+    if (pullCordWrap) {
+      pullCordWrap.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
+      pullCordWrap.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
+    }
+    if (heroTelemetry) {
+      heroTelemetry.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
+      heroTelemetry.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
+    }
+  } else {
+    if (footEl) footEl.style.opacity = '';
+    if (bldEl) {
+      bldEl.style.opacity = '';
+      bldEl.style.visibility = '';
+    }
+    if (heroEl) heroEl.style.visibility = '';
+    if (pullCordWrap) {
+      pullCordWrap.style.opacity = '';
+      pullCordWrap.style.pointerEvents = '';
+    }
+    if (heroTelemetry) {
+      heroTelemetry.style.opacity = '';
+      heroTelemetry.style.pointerEvents = '';
+    }
+  }
+}
+
+window.addEventListener(
+  'scroll',
+  () => {
+    if (!scrollTicking) {
+      scrollTicking = true;
+      requestAnimationFrame(() => {
+        updateScrollProgress();
+        scrollTicking = false;
+      });
+    }
+  },
+  { passive: true },
+);
+updateScrollProgress();
+
+let lastFrameMs = 0;
+
+function frame(ms: number) {
+  requestAnimationFrame(frame);
+  if (document.hidden) return;
+
+  if (lastFrameMs === 0) lastFrameMs = ms;
+  const dt = Math.min((ms - lastFrameMs) * 0.001, 0.1);
+  lastFrameMs = ms;
+
+  const t = ms * 0.001,
+    isIdle = reduce || t - st.last > idle.after;
+  if (isIdle) {
+    st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
+    st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));
+  }
+  st.lx += (st.tx - st.lx) * smooth.lens;
+  st.ly += (st.ty - st.ly) * smooth.lens;
+  updateCursor(t, dt);
+
+  // If user is currently browsing a dedicated case study overlay or 404, canvases are hidden
+  const isModalActive = window.location.pathname.startsWith('/projects/') || window.location.pathname === '/404' || window.location.pathname === '/status';
+  if (isModalActive) {
+    return;
+  }
+
+  // When scrolled past the Studio into Projects / Contact / Footer, canvases are hidden behind solid background.
+  // Skipping WebGL draw calls completely eliminates GPU fillrate and battery consumption when not visible.
+  const isStudioVisible = (window.scrollY || window.pageYOffset) <= cachedJH + 350;
+  if (!isStudioVisible) {
+    return;
+  }
+
+  st.P += (Math.max(0, S.p - scroll.lead) * scroll.span - st.P) * smooth.progress;
+  st.mL += (st.mx - st.mL) * smooth.tilt;
+  st.nL += (st.my - st.nL) * smooth.tilt;
+  const P = holdAfterPlan(st.P),
+    P1 = Math.min(P, 1),
+    e = P1 * P1 * (3 - 2 * P1),
+    q = clamp(P - 1, 0, 1),
+    c0 = clamp(q / 0.3, 0, 1),
+    cs = c0 * c0 * (3 - 2 * c0),
+    q2 = remapSideways(clamp((q - 0.3) / 0.7, 0, 1)),
+    bq = clamp(P - 2, 0, 1),
+    cb0 = clamp(bq / 0.15, 0, 1),
+    cb = cb0 * cb0 * (3 - 2 * cb0);
+  const p: Progress = { t, P, e, q, cs, q2, bq, cb };
+  updateChapters(p);
+
+  // Smooth automatic solar progression through daylight, golden hour, dusk, night, and dawn
+  if (st.ready && st.solarAuto && !reduce && gl) {
+    if (cb > 0.6 && bq >= 0.75) {
+      const targetHour = 17.5;
+      st.solarHour += (targetHour - st.solarHour) * Math.min(dt * 1.8, 0.08);
+    } else {
+      st.solarHour += dt * 0.22;
+      if (st.solarHour > 22.0) {
+        st.solarHour = 6.0 + (st.solarHour - 22.0);
+      }
+    }
+    gl.setSolarHour(st.solarHour, false);
+  }
+
+  gl && gl.draw(t, e, q, cs * (1 - cb), q2, bq, cb);
+}
+requestAnimationFrame(frame);

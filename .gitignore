@@ -1,0 +1,19 @@
+# Dependencies
+node_modules/
+
+# Production output
+dist/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Test reports & Lighthouse caches
+lighthouse-*.json
+report*.json
+.playwright-mcp/
