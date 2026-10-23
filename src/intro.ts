@@ -35,6 +35,11 @@ export function seekIntroClock(sec: number) {
 
 /** Preloader + hero intro. Unlocks scrolling (`st.ready`) when the timeline completes. */
 export function startIntro() {
+  if (activeTimeline) {
+    activeTimeline.kill();
+    activeTimeline = null;
+  }
+
   const pre = $('#pre'),
     n = $('#n'),
     bar = $('#bar'),

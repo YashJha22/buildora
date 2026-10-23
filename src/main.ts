@@ -289,7 +289,16 @@ function layout() {
   st.w = innerWidth;
   st.h = innerHeight;
   const isMobile = st.w < 768;
-  st.R0 = isMobile ? Math.min(st.w, st.h) * 0.125 : Math.min(st.w, st.h) * 0.15;
+  if (isMobile) {
+    const headerEl = document.getElementById('site-header');
+    const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : (st.h > 800 ? 103 : 72);
+    const stageH = Math.min(130, Math.max(100, st.h * 0.16));
+    st.tx = st.w * 0.5;
+    st.ty = headerBottom + stageH * 0.5;
+    st.R0 = Math.min(st.w, st.h) * 0.115;
+  } else {
+    st.R0 = Math.min(st.w, st.h) * 0.15;
+  }
   ring.style.width = ring.style.height = st.R0 * 2 + 'px';
   gl && gl.size();
 }
@@ -435,8 +444,12 @@ function frame(ms: number) {
     isIdle = reduce || t - st.last > idle.after;
   if (isIdle) {
     if (st.w < 768) {
-      st.tx = st.w * (0.5 + 0.02 * Math.sin(t * 0.4));
-      st.ty = Math.max(88, Math.min(145, st.h * 0.15 + 6 * Math.cos(t * 0.5)));
+      const headerEl = document.getElementById('site-header');
+      const headerBottom = headerEl ? headerEl.getBoundingClientRect().bottom : (st.h > 800 ? 103 : 72);
+      const stageH = Math.min(130, Math.max(100, st.h * 0.16));
+      const targetCenterY = headerBottom + stageH * 0.5;
+      st.tx = st.w * (0.5 + 0.015 * Math.sin(t * 0.35));
+      st.ty = targetCenterY + 4 * Math.cos(t * 0.45);
     } else {
       st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
       st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));

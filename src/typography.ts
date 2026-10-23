@@ -482,12 +482,15 @@ export function updateHeroTypographyScroll(progress: number) {
   }
 }
 
+let activeRotTimeline: gsap.core.Timeline | null = null;
+
 /**
  * 3. HERO WORD-FLOW KEYWORD ROTATOR WITH CHAR-LEVEL MORPHING
  * Transitions rotating keywords dynamically:
- * - Exiting chars fly up/down smoothly.
- * - Entering chars assemble with blueprint tracking & monolithic 3D mass.
- * - Absolute positioning guarantees ZERO layout shifts or line wrapping.
+ * - Clean sequential hand-off guarantees ZERO overlapping letters or ghost words.
+ * - Outgoing chars exit completely before incoming chars enter.
+ * - Font loading detection guarantees mathematically exact container widths.
+ * - Absolute positioning inside overflow:hidden guarantees zero layout shift.
  */
 export function initHeroKeywordRotator() {
   if (typeof document === 'undefined' || reduce) return;
@@ -505,12 +508,26 @@ export function initHeroKeywordRotator() {
   const activeOrigin = rotOrigin.querySelector<HTMLElement>('.rot-item.is-active') || originItems[0];
   const activeDest = rotDest.querySelector<HTMLElement>('.rot-item.is-active') || destItems[0];
 
+  let currentIdx = originItems.indexOf(activeOrigin);
+  if (currentIdx === -1) currentIdx = 0;
+
   const setInitialWidth = (container: HTMLElement, activeItem: HTMLElement) => {
     const w = activeItem.offsetWidth || activeItem.getBoundingClientRect().width;
     if (w > 0) container.style.width = `${Math.ceil(w)}px`;
   };
+
   setInitialWidth(rotOrigin, activeOrigin);
   setInitialWidth(rotDest, activeDest);
+
+  // Recalculate accurately once web fonts (Instrument Serif) have fully finished loading
+  if (typeof document !== 'undefined' && 'fonts' in document) {
+    document.fonts.ready.then(() => {
+      const curActiveOrigin = rotOrigin.querySelector<HTMLElement>('.rot-item.is-active') || originItems[currentIdx];
+      const curActiveDest = rotDest.querySelector<HTMLElement>('.rot-item.is-active') || destItems[currentIdx];
+      if (curActiveOrigin) setInitialWidth(rotOrigin, curActiveOrigin);
+      if (curActiveDest) setInitialWidth(rotDest, curActiveDest);
+    });
+  }
 
   window.addEventListener('resize', () => {
     const curActiveOrigin = rotOrigin.querySelector<HTMLElement>('.rot-item.is-active') || originItems[currentIdx];
@@ -519,15 +536,7 @@ export function initHeroKeywordRotator() {
     if (curActiveDest) setInitialWidth(rotDest, curActiveDest);
   }, { passive: true });
 
-  if (rotatorTimer) {
-    clearInterval(rotatorTimer);
-    rotatorTimer = null;
-  }
-
-  let currentIdx = originItems.indexOf(activeOrigin);
-  if (currentIdx === -1) currentIdx = 0;
-
-  rotatorTimer = window.setInterval(() => {
+  const executeRotation = () => {
     if (document.hidden) return;
 
     // Do not rotate while preloader is active
@@ -541,91 +550,138 @@ export function initHeroKeywordRotator() {
     const curDest = destItems[currentIdx];
     const nextDest = destItems[nextIdx];
 
-    // Smoothly animate container widths
-    const nextOriginWidth = nextOrigin.offsetWidth || nextOrigin.getBoundingClientRect().width;
-    const nextDestWidth = nextDest.offsetWidth || nextDest.getBoundingClientRect().width;
-    if (nextOriginWidth > 0) {
-      gsap.to(rotOrigin, { width: Math.ceil(nextOriginWidth), duration: 0.5, ease: 'power3.out' });
-    }
-    if (nextDestWidth > 0) {
-      gsap.to(rotDest, { width: Math.ceil(nextDestWidth), duration: 0.5, ease: 'power3.out' });
+    // Kill any existing rotation timeline to prevent overlapping transitions
+    if (activeRotTimeline) {
+      activeRotTimeline.kill();
+      activeRotTimeline = null;
     }
 
-    // Origin transition
     const curOriginChars = Array.from(curOrigin.querySelectorAll<HTMLElement>('.kt-char'));
     const nextOriginChars = Array.from(nextOrigin.querySelectorAll<HTMLElement>('.kt-char'));
+    const curDestChars = Array.from(curDest.querySelectorAll<HTMLElement>('.kt-char'));
+    const nextDestChars = Array.from(nextDest.querySelectorAll<HTMLElement>('.kt-char'));
 
     gsap.killTweensOf(curOriginChars);
     gsap.killTweensOf(nextOriginChars);
+    gsap.killTweensOf(curDestChars);
+    gsap.killTweensOf(nextDestChars);
 
-    gsap.to(curOriginChars, {
-      y: -24,
-      opacity: 0,
-      duration: 0.45,
-      stagger: 0.02,
-      ease: 'power2.in',
+    // Measure target widths
+    const nextOriginWidth = nextOrigin.offsetWidth || nextOrigin.getBoundingClientRect().width;
+    const nextDestWidth = nextDest.offsetWidth || nextDest.getBoundingClientRect().width;
+
+    const tl = gsap.timeline({
       onComplete() {
+        // Complete deactivation of outgoing items
         curOrigin.classList.remove('is-active');
         curOrigin.style.visibility = 'hidden';
+        curDest.classList.remove('is-active');
+        curDest.style.visibility = 'hidden';
         gsap.set(curOriginChars, { y: 0, opacity: 0 });
+        gsap.set(curDestChars, { y: 0, opacity: 0, rotateX: 0 });
+
+        // Ensure incoming items are solidly settled and active
+        nextOrigin.classList.add('is-active');
+        nextOrigin.style.visibility = 'visible';
+        nextDest.classList.add('is-active');
+        nextDest.style.visibility = 'visible';
+
+        activeRotTimeline = null;
       },
     });
 
-    nextOrigin.style.visibility = 'visible';
-    nextOrigin.classList.add('is-active');
-    gsap.fromTo(
+    activeRotTimeline = tl;
+
+    // Smooth container width transition
+    if (nextOriginWidth > 0) {
+      tl.to(rotOrigin, { width: Math.ceil(nextOriginWidth), duration: 0.45, ease: 'power3.inOut' }, 0);
+    }
+    if (nextDestWidth > 0) {
+      tl.to(rotDest, { width: Math.ceil(nextDestWidth), duration: 0.45, ease: 'power3.inOut' }, 0);
+    }
+
+    // Phase 1 (0 -> 0.26s): Outgoing words exit upwards and fade to zero
+    tl.to(curOriginChars, {
+      y: -24,
+      opacity: 0,
+      duration: 0.24,
+      stagger: 0.015,
+      ease: 'power2.in',
+    }, 0);
+
+    tl.to(curDestChars, {
+      y: -24,
+      opacity: 0,
+      rotateX: 40,
+      duration: 0.24,
+      stagger: 0.015,
+      ease: 'power2.in',
+    }, 0);
+
+    // Hand-off at 0.26s: Clean state swap so outgoing and incoming NEVER overlap in the DOM
+    tl.add(() => {
+      curOrigin.classList.remove('is-active');
+      curOrigin.style.visibility = 'hidden';
+      curDest.classList.remove('is-active');
+      curDest.style.visibility = 'hidden';
+
+      nextOrigin.style.visibility = 'visible';
+      nextOrigin.classList.add('is-active');
+      nextDest.style.visibility = 'visible';
+      nextDest.classList.add('is-active');
+    }, 0.26);
+
+    // Phase 2 (0.26s -> 0.68s): Incoming words enter smoothly from below
+    tl.fromTo(
       nextOriginChars,
       { y: 24, opacity: 0 },
       {
         y: 0,
         opacity: 1,
-        duration: 0.65,
-        stagger: 0.03,
+        duration: 0.40,
+        stagger: 0.02,
         ease: 'power3.out',
-        delay: 0.1,
-      }
+      },
+      0.26
     );
 
-    // Dest transition
-    const curDestChars = Array.from(curDest.querySelectorAll<HTMLElement>('.kt-char'));
-    const nextDestChars = Array.from(nextDest.querySelectorAll<HTMLElement>('.kt-char'));
-
-    gsap.killTweensOf(curDestChars);
-    gsap.killTweensOf(nextDestChars);
-
-    gsap.to(curDestChars, {
-      y: 28,
-      opacity: 0,
-      rotateX: 45,
-      duration: 0.45,
-      stagger: 0.02,
-      ease: 'power2.in',
-      onComplete() {
-        curDest.classList.remove('is-active');
-        curDest.style.visibility = 'hidden';
-        gsap.set(curDestChars, { y: 0, opacity: 0, rotateX: 0 });
-      },
-    });
-
-    nextDest.style.visibility = 'visible';
-    nextDest.classList.add('is-active');
-    gsap.fromTo(
+    tl.fromTo(
       nextDestChars,
-      { y: -30, opacity: 0, rotateX: -70, scale: 0.92 },
+      { y: 26, opacity: 0, rotateX: -60, scale: 0.94 },
       {
         y: 0,
         opacity: 1,
         rotateX: 0,
         scale: 1,
-        duration: 0.75,
-        stagger: 0.03,
-        ease: 'back.out(1.4)',
-        delay: 0.12,
-      }
+        duration: 0.44,
+        stagger: 0.02,
+        ease: 'back.out(1.3)',
+      },
+      0.28
     );
 
     currentIdx = nextIdx;
-  }, 4000);
+  };
+
+  const startRotatorLoop = () => {
+    if (rotatorTimer) clearInterval(rotatorTimer);
+    rotatorTimer = window.setInterval(executeRotation, 4000);
+  };
+
+  startRotatorLoop();
+
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      if (rotatorTimer) {
+        clearInterval(rotatorTimer);
+        rotatorTimer = null;
+      }
+    } else {
+      if (!rotatorTimer) {
+        startRotatorLoop();
+      }
+    }
+  });
 }
 
 /**

@@ -42,9 +42,11 @@ export function updateHero({ t, P, e, q }: Progress) {
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
     hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
-    vig.style.opacity = String(heroOpacity);
+    // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
+    vig.style.opacity = String(scrollFade);
+    const isMobile = st.w < 768;
     const exitBlur = clamp((P - 0.2) * 8, 0, 4);
-    hero.style.filter = exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
+    hero.style.filter = !isMobile && exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
   }
   hero.style.transform = `translateY(${-P * 32}px)`;
 
