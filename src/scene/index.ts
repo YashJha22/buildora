@@ -89,7 +89,7 @@ function create(
   rL.outputEncoding = THREE.sRGBEncoding;
   rL.toneMapping = THREE.ACESFilmicToneMapping;
   rL.shadowMap.enabled = true;
-  rL.shadowMap.type = THREE.PCFSoftShadowMap;
+  rL.shadowMap.type = st.w <= 640 ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
   const sw = new THREE.Scene(),
     sl = new THREE.Scene();
   if (!classic) {
@@ -126,7 +126,7 @@ function create(
   const shaftGoldenColor = new THREE.Color(0xffa854);
   const shaftDawnColor = new THREE.Color(0xffcba0);
 
-  sl.fog = new THREE.Fog(fogColor.getHex(), 14, 32);
+  sl.fog = new THREE.Fog(fogColor.getHex(), st.w < 768 ? 24 : 14, st.w < 768 ? 52 : 32);
   const cam = new THREE.PerspectiveCamera(38, st.w / st.h, 0.1, 60);
 
   const front = classic ? null : makeFront(THREE);
@@ -161,7 +161,9 @@ function create(
   const buildPartLanded = new Array(parts.length).fill(false);
 
   const size = () => {
-    const d = Math.min(devicePixelRatio || 1, st.w < 768 ? 1.25 : 1.75);
+    const isMobile = st.w <= 640;
+    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.25 : 1.75);
+    rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
       r.setSize(st.w, st.h, false);

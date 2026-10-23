@@ -36,15 +36,15 @@ export function updateHero({ t, P, e, q }: Progress) {
     ring.style.transform = `translate(${st.lx - R0}px,${st.ly - R0}px) scale(${ringScale})`;
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
-    const scrollFade = clamp(1 - (P - 0.25) * 2, 0, 1);
+    const isMobile = st.w <= 640;
+    const scrollFade = isMobile ? clamp(1 - P * 2.5, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
     const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.4, 0, 1);
     const heroOpacity = scrollFade * introTextGate;
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
-    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
+    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : (isMobile ? 'none' : 'auto');
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
     vig.style.opacity = String(scrollFade);
-    const isMobile = st.w < 768;
     const exitBlur = clamp((P - 0.2) * 8, 0, 4);
     hero.style.filter = !isMobile && exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
   }

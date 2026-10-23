@@ -85,7 +85,7 @@ float lensMetaballSdf(vec2 fragXY){
 const FRAG_DISCARD = /* glsl */ `
 if (uSectionActive > 0.01 && vFrontW.z > uSectionZ) discard;
 float fDist = frontField();
-float fFw = clamp(fwidth(fDist), 0.003, 0.05);
+float fFw = clamp(fwidth(fDist), 0.012, 0.06);
 float fPx = (frontThr() - fDist) / fFw;
 float frontAlpha = uFront > 0.001 ? clamp(fPx / 1.5, 0.0, 1.0) : 0.0;
 float lSdf = lensMetaballSdf(gl_FragCoord.xy);

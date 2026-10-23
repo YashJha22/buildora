@@ -1,6 +1,6 @@
 import { sound } from '../audio';
 import { L, W } from '../dom';
-import type { Progress } from '../state';
+import { st, type Progress } from '../state';
 import { plan } from '../tokens/motion';
 import { $, clamp, triggerWordAnimation } from '../utils';
 import { animatePlanPanelHeading } from '../typography';
@@ -47,15 +47,34 @@ panels.forEach((p) =>
 );
 
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
-export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
-  const on = clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
+export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
+  const isMobile = st.w <= 640;
+  // On mobile: Shorten cross-fade window. Strictly active between P=0.42 and cb < 0.04.
+  // Never overlap with Build chapter or Hero chapter!
+  const on = isMobile
+    ? (P >= 0.42 && cb < 0.04
+        ? clamp((P - 0.42) * 6, 0, 1) * (1 - clamp(cb / 0.04, 0, 1))
+        : 0)
+    : clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
     secShow = clamp((q2 - 0.45) / 0.35, 0, 1) * clamp(c * 1.5, 0, 1) * (1 - cb);
   planEl.style.opacity = String(on);
-  planEl.style.visibility = on > 0 ? 'visible' : 'hidden';
+  planEl.style.visibility = on > 0.001 ? 'visible' : 'hidden';
+  planEl.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
   L.style.opacity = String(Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb));
   W.style.opacity = String((1 - 0.32 * sm) * (1 - 0.7 * cb));
   track.style.transform = `translate3d(${-q2 * 200}vw,0,0)`;
+
+  if (isMobile) {
+    panels.forEach((p, i) => {
+      const isCurrent = Math.abs(q2 * 2 - i) < 0.65;
+      p.style.visibility = isCurrent ? 'visible' : 'hidden';
+    });
+  } else {
+    panels.forEach((p) => {
+      p.style.visibility = '';
+    });
+  }
 
   // Subtle chapter slide sound when transitioning between panels
   if (on > 0.35) {

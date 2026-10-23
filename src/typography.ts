@@ -550,6 +550,70 @@ export function initHeroKeywordRotator() {
     const curDest = destItems[currentIdx];
     const nextDest = destItems[nextIdx];
 
+    const isMobile = typeof window !== 'undefined' && window.innerWidth <= 640;
+    if (isMobile) {
+      if (activeRotTimeline) {
+        activeRotTimeline.kill();
+        activeRotTimeline = null;
+      }
+      gsap.killTweensOf([curOrigin, curDest, nextOrigin, nextDest]);
+
+      const nextOriginWidth = nextOrigin.offsetWidth || nextOrigin.getBoundingClientRect().width;
+      const nextDestWidth = nextDest.offsetWidth || nextDest.getBoundingClientRect().width;
+
+      const tl = gsap.timeline({
+        onComplete() {
+          curOrigin.classList.remove('is-active');
+          curOrigin.style.visibility = 'hidden';
+          curDest.classList.remove('is-active');
+          curDest.style.visibility = 'hidden';
+
+          nextOrigin.classList.add('is-active');
+          nextOrigin.style.visibility = 'visible';
+          nextDest.classList.add('is-active');
+          nextDest.style.visibility = 'visible';
+
+          currentIdx = nextIdx;
+          activeRotTimeline = null;
+        },
+      });
+      activeRotTimeline = tl;
+
+      // 1. Fade out current outgoing words completely before incoming starts
+      tl.to([curOrigin, curDest], {
+        opacity: 0,
+        y: -10,
+        duration: 0.28,
+        ease: 'power2.in',
+        onComplete() {
+          curOrigin.classList.remove('is-active');
+          curOrigin.style.visibility = 'hidden';
+          curDest.classList.remove('is-active');
+          curDest.style.visibility = 'hidden';
+
+          gsap.set([nextOrigin, nextDest], { opacity: 0, y: 12, visibility: 'visible' });
+        },
+      });
+
+      // 2. Adjust container widths smoothly
+      if (nextOriginWidth > 0) tl.to(rotOrigin, { width: Math.ceil(nextOriginWidth), duration: 0.22, ease: 'power2.out' }, '+=0.02');
+      if (nextDestWidth > 0) tl.to(rotDest, { width: Math.ceil(nextDestWidth), duration: 0.22, ease: 'power2.out' }, '<');
+
+      // 3. Clean fade-up of incoming words
+      tl.to(
+        [nextOrigin, nextDest],
+        {
+          opacity: 1,
+          y: 0,
+          duration: 0.35,
+          ease: 'power2.out',
+        },
+        '+=0.04',
+      );
+
+      return;
+    }
+
     // Kill any existing rotation timeline to prevent overlapping transitions
     if (activeRotTimeline) {
       activeRotTimeline.kill();

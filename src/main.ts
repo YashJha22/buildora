@@ -352,14 +352,28 @@ initTypographyEngine();
 
 // Synchronize virtual 3D progress S.p with natural page scroll through the complete architectural build journey
 let cachedJH = 2400;
+let lastMeasuredWidth = 0;
 let scrollTicking = false;
 
-function measureJourneyHeight() {
-  const studioSec = document.getElementById('studio-section');
-  cachedJH = studioSec ? Math.max(studioSec.offsetHeight - window.innerHeight, 1600) : 2400;
+export function getJourneyHeight(): number {
+  return cachedJH;
 }
-window.addEventListener('resize', measureJourneyHeight, { passive: true });
-measureJourneyHeight();
+
+function measureJourneyHeight(force = false) {
+  const currentWidth = window.innerWidth;
+  // Stop track-height drift: ignore height-only resize events (such as iOS Safari address bar collapsing/expanding)
+  if (!force && lastMeasuredWidth > 0 && Math.abs(currentWidth - lastMeasuredWidth) < 2) {
+    return;
+  }
+  lastMeasuredWidth = currentWidth;
+
+  const studioSec = document.getElementById('studio-section');
+  // Use stable viewport height for mobile calculation
+  const baseH = typeof window !== 'undefined' && 'innerHeight' in window ? window.innerHeight : 844;
+  cachedJH = studioSec ? Math.max(studioSec.offsetHeight - baseH, 1600) : 2400;
+}
+window.addEventListener('resize', () => measureJourneyHeight(false), { passive: true });
+measureJourneyHeight(true);
 
 function updateScrollProgress() {
   if (!st.ready) return;
