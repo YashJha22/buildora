@@ -16,6 +16,9 @@ Thumbs.db
 # Test reports & Lighthouse caches
 lighthouse-*.json
 report*.json
+axe-audit-results.json
+playwright-report/
+test-results/
 .playwright-mcp/
 
 # Agent runtime caches and local skill bundles

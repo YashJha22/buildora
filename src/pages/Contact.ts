@@ -126,7 +126,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
                   No remote transmission endpoint is configured in this deployment (<code>VITE_CONTACT_ENDPOINT</code>). Your brief has been verified locally. You can send it directly to Yash via email or copy the brief:
                 </p>
                 <div class="cbh-actions">
-                  <a href="#" id="cbh-mailto-btn" class="cpc-submit-btn">Send via Email Client ↗</a>
+                  <a href="mailto:iyashjha@gmail.com" id="cbh-mailto-btn" class="cpc-submit-btn">Send via Email Client ↗</a>
                   <button type="button" id="cbh-copy-btn" class="cpc-secondary-btn">Copy Formatted Brief</button>
                   <div class="cbh-copy-status" id="cbh-copy-status"></div>
                   <button type="button" id="cbh-edit-btn" class="cbh-back-link">← Edit Brief Details</button>

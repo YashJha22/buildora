@@ -203,7 +203,7 @@ export function startIntro() {
     }, introClock.chromeAt)
     .from('header', { opacity: 0, y: -16, duration: 0.85, ease: lockedEase }, introClock.chromeAt)
     .from('.sub', { opacity: 0, y: 16, filter: 'blur(4px)', duration: 0.9, ease: lockedEase, clearProps: 'filter' }, introClock.chromeAt + 0.12)
-    .from('#hero .cta, .hero-actions .cta', { opacity: 0, y: 16, duration: 0.85, ease: lockedEase }, introClock.chromeAt + 0.22)
+    .from('#hero .cta, .hero-actions .cta', { opacity: 0, y: 16, duration: 0.85, ease: lockedEase, clearProps: 'opacity,transform' }, introClock.chromeAt + 0.22)
     .to('.foot', { opacity: T.footOpacity, duration: introClock.footDuration }, introClock.footAt);
 
   skip.onclick = () => {

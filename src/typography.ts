@@ -30,6 +30,9 @@ export function splitTextIntoChars(el: HTMLElement): SplitResult {
         const raw = el.getAttribute('aria-label') || el.textContent || '';
         el.textContent = raw;
         el.removeAttribute('aria-label');
+        if (el.getAttribute('role') === 'text') {
+          el.removeAttribute('role');
+        }
       },
     };
   }
@@ -37,6 +40,9 @@ export function splitTextIntoChars(el: HTMLElement): SplitResult {
   const rawText = el.textContent || '';
   if (!el.getAttribute('aria-label')) {
     el.setAttribute('aria-label', rawText.trim());
+  }
+  if (!el.getAttribute('role')) {
+    el.setAttribute('role', 'text');
   }
 
   const chars: HTMLElement[] = [];
@@ -505,6 +511,13 @@ export function initHeroKeywordRotator() {
   };
   setInitialWidth(rotOrigin, activeOrigin);
   setInitialWidth(rotDest, activeDest);
+
+  window.addEventListener('resize', () => {
+    const curActiveOrigin = rotOrigin.querySelector<HTMLElement>('.rot-item.is-active') || originItems[currentIdx];
+    const curActiveDest = rotDest.querySelector<HTMLElement>('.rot-item.is-active') || destItems[currentIdx];
+    if (curActiveOrigin) setInitialWidth(rotOrigin, curActiveOrigin);
+    if (curActiveDest) setInitialWidth(rotDest, curActiveDest);
+  }, { passive: true });
 
   if (rotatorTimer) {
     clearInterval(rotatorTimer);

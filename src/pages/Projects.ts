@@ -15,7 +15,7 @@ function renderProjectSvg(p: ProjectItem, idx: number): string {
   if (idx === 0) {
     // 01 · The Nordic Pavilion (Orthographic Floor Plan + Interior Spatial Layout + Solar Ray)
     return `
-      <svg viewBox="0 0 720 460" class="card-art-svg" aria-label="Architectural floor plan of The Nordic Pavilion">
+      <svg viewBox="0 0 720 460" class="card-art-svg" aria-hidden="true" role="img">
         <defs>
           <linearGradient id="solar-nordic-beam" x1="0%" y1="0%" x2="100%" y2="85%">
             <stop offset="0%" stop-color="#dfba73" stop-opacity="0.38"/>
@@ -112,7 +112,7 @@ function renderProjectSvg(p: ProjectItem, idx: number): string {
   if (idx === 1) {
     // 02 · The Smoked Atelier (Transverse Section Cut + Acoustic Diffusers + Sound Decay)
     return `
-      <svg viewBox="0 0 720 460" class="card-art-svg" aria-label="Architectural transverse section of The Smoked Atelier">
+      <svg viewBox="0 0 720 460" class="card-art-svg" aria-hidden="true" role="img">
         <defs>
           <linearGradient id="golden-hour-beam" x1="0%" y1="0%" x2="100%" y2="40%">
             <stop offset="0%" stop-color="#d89658" stop-opacity="0.45"/>
@@ -216,7 +216,7 @@ function renderProjectSvg(p: ProjectItem, idx: number): string {
 
   // 03 · The Monolithic Cloister (True 3D Isometric / Axonometric Architectural Projection)
   return `
-    <svg viewBox="0 0 720 460" class="card-art-svg" aria-label="Isometric architectural projection of The Monolithic Cloister">
+    <svg viewBox="0 0 720 460" class="card-art-svg" aria-hidden="true" role="img">
       <defs>
         <linearGradient id="concrete-shadow-iso" x1="0%" y1="0%" x2="60%" y2="80%">
           <stop offset="0%" stop-color="#cbd5e1" stop-opacity="0.32"/>
@@ -406,12 +406,12 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
               </div>
 
               <div class="card-visual-col">
-                <a href="/projects/${p.slug}" class="card-visual-frame" data-link aria-label="Explore ${p.title} full case study">
+                <div class="card-visual-frame">
                   ${renderProjectSvg(p, idx)}
-                  <div class="card-visual-lens">
+                  <a href="/projects/${p.slug}" class="card-visual-lens" data-link aria-label="Open Full Case Study ↗ — ${p.title}">
                     <span class="lens-label">Open Full Case Study ↗</span>
-                  </div>
-                </a>
+                  </a>
+                </div>
               </div>
             </div>
           </article>

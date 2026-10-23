@@ -20,6 +20,11 @@ function setStudio(open: boolean) {
   const studioEl = $('#studio');
   studioEl.classList.toggle('open', open);
   studioEl.setAttribute('aria-hidden', String(!open));
+  const backdrop = document.getElementById('studio-backdrop');
+  if (backdrop) {
+    backdrop.classList.toggle('active', open);
+  }
+  document.body.classList.toggle('studio-drawer-open', open);
 }
 
 function initStudioControls() {
@@ -47,6 +52,7 @@ function initStudioControls() {
   openMatBtn?.addEventListener('click', openMaterialsAction);
   fcardMatBtn?.addEventListener('click', openMaterialsAction);
   closeBtn?.addEventListener('click', () => setStudio(false));
+  document.getElementById('studio-backdrop')?.addEventListener('click', () => setStudio(false));
 
   const markManualSolar = () => {
     st.solarAuto = false;
@@ -227,12 +233,15 @@ function initMobileNav() {
   const toggleBtn = document.getElementById('mobile-nav-toggle');
   const header = document.getElementById('site-header');
   const nav = document.getElementById('site-nav');
+  const backdrop = document.getElementById('mobile-nav-backdrop');
   if (!toggleBtn || !header || !nav) return;
 
   const setOpen = (open: boolean) => {
     header.classList.toggle('nav-open', open);
     toggleBtn.setAttribute('aria-expanded', String(open));
     toggleBtn.setAttribute('aria-label', open ? 'Close navigation menu' : 'Open navigation menu');
+    if (backdrop) backdrop.classList.toggle('active', open);
+    document.body.classList.toggle('nav-menu-open', open);
   };
 
   toggleBtn.addEventListener('click', (e) => {
@@ -241,6 +250,8 @@ function initMobileNav() {
     setOpen(!isOpen);
   });
 
+  backdrop?.addEventListener('click', () => setOpen(false));
+
   nav.querySelectorAll('a, button').forEach((el) => {
     el.addEventListener('click', () => {
       setOpen(false);
@@ -248,16 +259,20 @@ function initMobileNav() {
   });
 
   window.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape' && header.classList.contains('nav-open')) {
-      setOpen(false);
-      toggleBtn.focus();
+    if (e.key === 'Escape') {
+      if (header.classList.contains('nav-open')) {
+        setOpen(false);
+        toggleBtn.focus();
+      } else if (st.studioOpen) {
+        setStudio(false);
+      }
     }
   });
 
   document.addEventListener('click', (e) => {
     if (header.classList.contains('nav-open')) {
       const target = e.target as HTMLElement | null;
-      if (!target?.closest('#site-header')) {
+      if (!target?.closest('#site-header') && !target?.closest('#mobile-nav-backdrop')) {
         setOpen(false);
       }
     }
@@ -436,6 +451,12 @@ function frame(ms: number) {
   // Skipping WebGL draw calls completely eliminates GPU fillrate and battery consumption when not visible.
   const isStudioVisible = (window.scrollY || window.pageYOffset) <= cachedJH + 350;
   if (!isStudioVisible) {
+    const heroEl = document.querySelector<HTMLElement>('main');
+    if (heroEl) {
+      heroEl.style.opacity = '0';
+      heroEl.style.visibility = 'hidden';
+      heroEl.style.pointerEvents = 'none';
+    }
     return;
   }
 

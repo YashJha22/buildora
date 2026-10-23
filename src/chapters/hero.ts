@@ -38,8 +38,11 @@ export function updateHero({ t, P, e, q }: Progress) {
     ring.style.opacity = String(ringFade);
     const scrollFade = clamp(1 - (P - 0.25) * 2, 0, 1);
     const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.4, 0, 1);
-    hero.style.opacity = String(scrollFade * introTextGate);
-    vig.style.opacity = String(scrollFade * introTextGate);
+    const heroOpacity = scrollFade * introTextGate;
+    hero.style.opacity = String(heroOpacity);
+    hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
+    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
+    vig.style.opacity = String(heroOpacity);
     const exitBlur = clamp((P - 0.2) * 8, 0, 4);
     hero.style.filter = exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
   }

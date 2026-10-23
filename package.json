@@ -8,6 +8,8 @@
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
     "test": "node --experimental-strip-types --test tests/tokens.test.ts tests/content.test.ts tests/utils.test.ts",
+    "test:mobile": "playwright test tests/e2e/mobile.spec.ts",
+    "test:ci-mobile": "node tests/ci-mobile-check.mjs",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
@@ -15,6 +17,7 @@
     "three": "0.128.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.64.1",
     "@types/three": "0.128.0",
     "typescript": "5.9.3",
     "vite": "^6.4.5"
