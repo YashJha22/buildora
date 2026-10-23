@@ -53,6 +53,7 @@ export function initRouter() {
     document.querySelector('.vig'),
     document.querySelector('.grain'),
   ];
+  const navHomeLink = document.getElementById('nav-home');
   const navProjectsLink = document.getElementById('nav-projects');
   const navContactLink = document.getElementById('nav-contact');
   const navStudioLink = document.getElementById('nav-studio');
@@ -114,6 +115,8 @@ export function initRouter() {
         navProjectsLink?.classList.remove('active');
         navContactLink?.classList.remove('active');
         navStudioLink?.classList.remove('active');
+        navHomeLink?.classList.remove('active');
+        navHomeLink?.removeAttribute('aria-current');
         setMeta('Our Approach — Buildora · Build with Yash', 'From orthographic drawings to physical living spaces: Draw. Design. Experience. Technical precision meets spatial emotion.');
       } else if (path === '/projects' || path === '/project') {
         projectsSection?.scrollIntoView({ behavior: 'smooth' });
@@ -121,6 +124,8 @@ export function initRouter() {
         navApproachLink?.classList.remove('active');
         navContactLink?.classList.remove('active');
         navStudioLink?.classList.remove('active');
+        navHomeLink?.classList.remove('active');
+        navHomeLink?.removeAttribute('aria-current');
         setMeta('Selected Works & Case Studies — Buildora · Build with Yash', 'Architectural commissions portfolio: The Nordic Pavilion, The Smoked Atelier, and The Monolithic Cloister.');
       } else if (path === '/contact') {
         contactSection?.scrollIntoView({ behavior: 'smooth' });
@@ -128,6 +133,8 @@ export function initRouter() {
         navApproachLink?.classList.remove('active');
         navContactLink?.classList.add('active');
         navStudioLink?.classList.remove('active');
+        navHomeLink?.classList.remove('active');
+        navHomeLink?.removeAttribute('aria-current');
         setMeta('Contact & Spatial Enquiries — Buildora · Build with Yash', 'Enquire regarding architectural commissions, residential renovations, and interactive living spaces with Build with Yash.');
       } else {
         const isStudioRoute = path === '/studio';
@@ -136,6 +143,12 @@ export function initRouter() {
         navApproachLink?.classList.remove('active');
         navContactLink?.classList.remove('active');
         navStudioLink?.classList.toggle('active', isStudioRoute);
+        navHomeLink?.classList.toggle('active', !isStudioRoute);
+        if (!isStudioRoute) {
+          navHomeLink?.setAttribute('aria-current', 'page');
+        } else {
+          navHomeLink?.removeAttribute('aria-current');
+        }
 
         if (isStudioRoute) {
           setMeta('Studio — Buildora · Build with Yash', 'Interactive architectural studio: solar daylight simulation, material palettes, and 3D space choreography.');
@@ -175,6 +188,8 @@ export function initRouter() {
       navProjectsLink?.classList.add('active');
       navContactLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     } else if (path === '/status') {
       pullCordWrap?.classList.add('is-hidden');
       if (landingFlow) landingFlow.style.display = 'none';
@@ -191,6 +206,8 @@ export function initRouter() {
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     } else {
       // 404 Not Found route with interactive hammer game
       pullCordWrap?.classList.add('is-hidden');
@@ -208,6 +225,8 @@ export function initRouter() {
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     }
   };
 
@@ -229,6 +248,10 @@ export function initRouter() {
     const scrollTarget = anchor.getAttribute('data-scroll');
     if (scrollTarget === 'studio') {
       e.preventDefault();
+      if (window.location.pathname !== '/' && window.location.pathname !== '') {
+        window.history.pushState(null, '', '/');
+        handleRoute();
+      }
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
@@ -264,14 +287,27 @@ export function initRouter() {
     }
 
     // Check if link is an internal app route
-    if (href.startsWith('/') || anchor.hasAttribute('data-link') || anchor.id === 'nav-projects' || anchor.id === 'nav-studio' || anchor.id === 'nav-contact') {
+    if (href.startsWith('/') || anchor.hasAttribute('data-link') || anchor.id === 'nav-projects' || anchor.id === 'nav-studio' || anchor.id === 'nav-contact' || anchor.id === 'nav-home') {
       e.preventDefault();
       const currentFull = window.location.pathname + window.location.search;
       if (href !== currentFull) {
         window.history.pushState(null, '', href);
         handleRoute();
-      } else if (href === '/studio' || href === '/') {
-        // Toggle studio drawer if already on home/studio
+        if (href === '/') {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      } else if (href === '/') {
+        // If already on Home: smoothly scroll to top
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        // Close studio dock if open so the flagship hero view is pristine
+        const studioEl = document.getElementById('studio');
+        if (studioEl && st.studioOpen) {
+          st.studioOpen = false;
+          studioEl.classList.remove('open');
+          studioEl.setAttribute('aria-hidden', 'true');
+        }
+      } else if (href === '/studio') {
+        // Toggle studio drawer if already on /studio
         const studioEl = document.getElementById('studio');
         if (studioEl) {
           st.studioOpen = !st.studioOpen;
@@ -303,18 +339,31 @@ export function initRouter() {
       navProjectsLink?.classList.remove('active');
       navApproachLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     } else if (scrollY >= projectsTop - 350) {
       navProjectsLink?.classList.add('active');
       navContactLink?.classList.remove('active');
       navApproachLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     } else if (scrollY >= approachTop - 350) {
       navApproachLink?.classList.add('active');
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     } else {
-      navStudioLink?.classList.add('active');
+      const isStudio = st.studioOpen;
+      navStudioLink?.classList.toggle('active', isStudio);
+      navHomeLink?.classList.toggle('active', !isStudio);
+      if (!isStudio) {
+        navHomeLink?.setAttribute('aria-current', 'page');
+      } else {
+        navHomeLink?.removeAttribute('aria-current');
+      }
       navApproachLink?.classList.remove('active');
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
