@@ -55,7 +55,12 @@ export function placeCamera(
   const lookZ = lerp(0, -0.9, elevBlend);
   const upAmt = c * (1 - elevBlend);
 
+  // Mobile portrait hero framing: center room in upper lens aperture without overlapping text
+  const heroLookY = isMobile ? lerp(-5.0, 0, c) : ay;
+  const heroCamY = isMobile ? lerp(2.2, py, c) : py;
+  const heroCamX = isMobile ? (lerp(7.2, 3.6, e) + (mL - 0.5) * 1.0) * k * a : px;
+
   cam.up.set(0, 1 - upAmt, -upAmt);
-  cam.position.set(lerp(px, planX, c), lerp(py, planY, c), lerp(pz, planZ, c));
-  cam.lookAt(lerp(ax, planX, c), lerp(ay, lookY, c), lerp(az, lookZ, c));
+  cam.position.set(lerp(heroCamX, planX, c), lerp(heroCamY, planY, c), lerp(pz, planZ, c));
+  cam.lookAt(lerp(ax, planX, c), lerp(heroLookY, lookY, c), lerp(az, lookZ, c));
 }

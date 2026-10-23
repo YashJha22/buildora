@@ -289,7 +289,7 @@ function layout() {
   st.w = innerWidth;
   st.h = innerHeight;
   const isMobile = st.w < 768;
-  st.R0 = isMobile ? Math.min(st.w, st.h) * 0.22 : Math.min(st.w, st.h) * 0.15;
+  st.R0 = isMobile ? Math.min(st.w, st.h) * 0.125 : Math.min(st.w, st.h) * 0.15;
   ring.style.width = ring.style.height = st.R0 * 2 + 'px';
   gl && gl.size();
 }
@@ -434,8 +434,13 @@ function frame(ms: number) {
   const t = ms * 0.001,
     isIdle = reduce || t - st.last > idle.after;
   if (isIdle) {
-    st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
-    st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));
+    if (st.w < 768) {
+      st.tx = st.w * (0.5 + 0.02 * Math.sin(t * 0.4));
+      st.ty = Math.max(88, Math.min(145, st.h * 0.15 + 6 * Math.cos(t * 0.5)));
+    } else {
+      st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
+      st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));
+    }
   }
   st.lx += (st.tx - st.lx) * smooth.lens;
   st.ly += (st.ty - st.ly) * smooth.lens;

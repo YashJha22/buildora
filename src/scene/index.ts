@@ -83,7 +83,8 @@ function create(
   } catch (e) {
     return null;
   }
-  rW.setClearColor(classic ? colors.ink : colors.bone, 1);
+  const isMobilePortraitInit = typeof window !== 'undefined' && (window.innerWidth < 768 || window.innerWidth / window.innerHeight < 1.0);
+  rW.setClearColor(classic || isMobilePortraitInit ? colors.ink : colors.bone, 1);
   rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
   rL.outputEncoding = THREE.sRGBEncoding;
   rL.toneMapping = THREE.ACESFilmicToneMapping;
@@ -425,15 +426,28 @@ function create(
         sketch.uniforms.uBuildChapter.value = clamp(c + bq * 5, 0, 1);
         sketch.uniforms.uPlanBlend.value = c;
 
-        // Smoothly transition W paper/ink to dark blueprint table during Plan chapter (c: 0 -> 1) so white Plan text/SVGs stay high-contrast.
-        clearColorW.copy(boneColor).lerp(inkColor, c);
-        rW.setClearColor(clearColorW, 1);
-        sketchMat.color.copy(clearColorW);
-        lineMat.color.copy(inkColor).lerp(boneColor, c);
-        lineMat.opacity = 0.78 * (1 - c) + 0.5 * c;
-        gridMat.color.copy(inkColor).lerp(boneColor, c);
-        gridMat.opacity = 0.075 * (1 - c) + 0.16 * c;
-        guideMat.color.copy(inkColor).lerp(boneColor, c);
+        // Blueprint background handling: on mobile portrait, keep dark obsidian drafting desk so text has pristine contrast and zero milky glare.
+        const isMobilePortrait = st.w < 768 || st.w / st.h < 1.0;
+        if (isMobilePortrait) {
+          clearColorW.copy(inkColor);
+          rW.setClearColor(clearColorW, 1);
+          sketchMat.color.copy(clearColorW);
+          lineMat.color.copy(boneColor);
+          lineMat.opacity = 0.55;
+          gridMat.color.copy(boneColor);
+          gridMat.opacity = 0.10;
+          guideMat.color.copy(boneColor);
+        } else {
+          // Smoothly transition W paper/ink to dark blueprint table during Plan chapter (c: 0 -> 1) so white Plan text/SVGs stay high-contrast.
+          clearColorW.copy(boneColor).lerp(inkColor, c);
+          rW.setClearColor(clearColorW, 1);
+          sketchMat.color.copy(clearColorW);
+          lineMat.color.copy(inkColor).lerp(boneColor, c);
+          lineMat.opacity = 0.78 * (1 - c) + 0.5 * c;
+          gridMat.color.copy(inkColor).lerp(boneColor, c);
+          gridMat.opacity = 0.075 * (1 - c) + 0.16 * c;
+          guideMat.color.copy(inkColor).lerp(boneColor, c);
+        }
 
         // Solar Path calculation (default st.solarHour = 14.5 reproduces exact baseline sun pose (-9, 5.5, 1.5))
         const hr = st.solarHour;

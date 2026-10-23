@@ -17,15 +17,16 @@ export const S = { p: 0, draw: classic ? 1 : 0, intro: 0, build: classic ? 0 : 1
 
 const w0 = innerWidth;
 const h0 = innerHeight;
+const isMob0 = w0 < 768;
 
 export const st = {
   ready: false,
   w: w0,
   h: h0,
-  tx: w0 * 0.64,
-  ty: h0 * 0.5,
-  lx: w0 * 0.64,
-  ly: h0 * 0.5,
+  tx: isMob0 ? w0 * 0.5 : w0 * 0.64,
+  ty: isMob0 ? Math.max(88, Math.min(145, h0 * 0.15)) : h0 * 0.5,
+  lx: isMob0 ? w0 * 0.5 : w0 * 0.64,
+  ly: isMob0 ? Math.max(88, Math.min(145, h0 * 0.15)) : h0 * 0.5,
   lr: 0,
   P: 0,
   mx: 0.5,

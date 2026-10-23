@@ -709,19 +709,30 @@ body.studio-drawer-open {
     border-radius: 99px;
   }
 
+  /* Mobile Portrait Vignette & Ambient Light */
+  .vig {
+    background:
+      radial-gradient(ellipse at 50% 16%, rgba(223, 186, 115, 0.08) 0%, transparent 55%),
+      radial-gradient(circle at 50% 48%, rgba(10, 9, 8, 0.45) 0%, rgba(10, 9, 8, 0.88) 100%),
+      linear-gradient(180deg, rgba(10, 9, 8, 0.75) 0%, rgba(10, 9, 8, 0.35) 16%, rgba(10, 9, 8, 0.82) 48%, #0a0908 92%) !important;
+  }
+
   /* Hero Section on Mobile */
   .studio-hero-main, main {
     left: clamp(16px, 4.5vw, 32px);
     right: clamp(16px, 4.5vw, 32px);
     max-width: calc(100vw - 32px);
-    top: calc(84px + env(safe-area-inset-top, 0px));
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-    justify-content: center;
+    top: calc(72px + env(safe-area-inset-top, 0px));
+    bottom: calc(64px + env(safe-area-inset-bottom, 0px));
+    padding-top: clamp(100px, 17.5vh, 136px);
+    justify-content: flex-start;
   }
   .hero-h1 {
-    font-size: clamp(38px, 11.5vw, 64px);
+    font-size: clamp(34px, 10vw, 56px);
     line-height: 1.04;
     margin: 0 0 10px;
+    color: #ffffff;
+    text-shadow: 0 2px 24px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.85);
   }
   .hero-h1 .ln-inner {
     gap: 0.22em;
@@ -730,13 +741,25 @@ body.studio-drawer-open {
     font-size: 8px;
     letter-spacing: 0.14em;
     top: -1.05em;
+    color: #dfba73;
   }
   .sub {
     font-size: clamp(13.5px, 3.8vw, 15px);
     line-height: 1.6;
     max-width: 100%;
-    margin: 14px 0 20px;
-    text-shadow: 0 1px 8px rgba(10, 9, 8, 0.95), 0 2px 14px rgba(10, 9, 8, 0.85);
+    margin: 12px 0 18px;
+    color: rgba(255, 255, 255, 0.88);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 2px 14px rgba(10, 9, 8, 0.85);
+  }
+  .bwy-credit-tag {
+    display: block;
+    margin-top: 8px;
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: #dfba73;
+    font-weight: 600;
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
   }
   .hero-actions {
     flex-direction: column;
@@ -744,9 +767,23 @@ body.studio-drawer-open {
     gap: 10px;
     width: 100%;
     max-width: 320px;
-    margin-top: 18px;
+    margin-top: 14px;
   }
-  .hero-actions .cta,
+  .hero-actions .cta {
+    width: 100%;
+    min-height: 48px;
+    justify-content: center;
+    text-align: center;
+    box-sizing: border-box;
+    padding: 0 20px;
+    background: linear-gradient(135deg, rgba(28, 22, 17, 0.95), rgba(16, 13, 10, 0.98)) padding-box,
+                linear-gradient(135deg, #dfba73, rgba(223, 186, 115, 0.45) 50%, rgba(255, 250, 235, 0.6)) border-box;
+    border: 1.5px solid transparent;
+    color: #ffffff !important;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(223, 186, 115, 0.25);
+  }
   .hero-scroll-btn {
     width: 100%;
     min-height: 48px;
@@ -754,10 +791,40 @@ body.studio-drawer-open {
     text-align: center;
     box-sizing: border-box;
     padding: 0 20px;
+    background: rgba(18, 15, 13, 0.85);
+    border: 1px solid rgba(223, 186, 115, 0.35);
+    color: var(--bone);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
   }
   .hero-chapter-stepper {
-    margin-top: 20px;
-    max-width: 200px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    padding: 7px 16px;
+    border-radius: 99px;
+    background: rgba(18, 15, 13, 0.78);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(223, 186, 115, 0.22);
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
+    width: fit-content;
+    max-width: 220px;
+  }
+  .hero-chapter-stepper .hcs-step {
+    font-size: 10.5px;
+    letter-spacing: 0.18em;
+    color: rgba(255, 255, 255, 0.65);
+  }
+  .hero-chapter-stepper .hcs-step.is-active {
+    color: var(--warm) !important;
+    font-weight: 700;
+    text-shadow: 0 0 10px rgba(223, 186, 115, 0.5);
+  }
+  .hero-chapter-stepper .hcs-bar {
+    background: rgba(223, 186, 115, 0.35);
   }
   .hero-telemetry {
     top: calc(72px + env(safe-area-inset-top, 0px));
