@@ -76,7 +76,7 @@ function create(
     rW = new THREE.WebGLRenderer({
       canvas: W,
       antialias: !isMobileDevice,
-      powerPreference: 'high-performance',
+      powerPreference: isMobileDevice ? 'default' : 'high-performance',
       preserveDrawingBuffer: false,
     });
     rL = new THREE.WebGLRenderer({
@@ -84,7 +84,7 @@ function create(
       antialias: classic && !isMobileDevice,
       alpha: !classic,
       premultipliedAlpha: classic,
-      powerPreference: 'high-performance',
+      powerPreference: isMobileDevice ? 'default' : 'high-performance',
       preserveDrawingBuffer: false,
     });
   } catch (e) {
@@ -166,9 +166,28 @@ function create(
   const introPartLanded = new Array(parts.length).fill(false);
   const buildPartLanded = new Array(parts.length).fill(false);
 
+  let contextLost = false;
+  const onContextLost = (e: Event) => {
+    e.preventDefault();
+    contextLost = true;
+  };
+  const onContextRestored = () => {
+    contextLost = false;
+    try {
+      rW.compile(sw, cam);
+      rL.compile(sl, cam);
+    } catch (_) {
+      // Ignore if context is still stabilizing
+    }
+  };
+  W.addEventListener('webglcontextlost', onContextLost, false);
+  L.addEventListener('webglcontextlost', onContextLost, false);
+  W.addEventListener('webglcontextrestored', onContextRestored, false);
+  L.addEventListener('webglcontextrestored', onContextRestored, false);
+
   const size = () => {
     const isMobile = st.w < 768;
-    const d = Math.min(devicePixelRatio || 1, isMobile ? 2 : 1.75);
+    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.5 : 1.75);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
@@ -179,9 +198,15 @@ function create(
   };
   size();
 
-  // Pre-compile shaders upfront so the front transition has no runtime compile hitch (P3).
+  // Pre-compile shaders upfront; split across frames on mobile to prevent long main-thread stalls on iOS Safari.
   rW.compile(sw, cam);
-  rL.compile(sl, cam);
+  if (st.w < 768 && debugT === null && debugDraw === null && debugFront === null) {
+    requestAnimationFrame(() => {
+      if (!contextLost) rL.compile(sl, cam);
+    });
+  } else {
+    rL.compile(sl, cam);
+  }
 
   let frontOverride: number | null = debugFront !== null ? debugFront : (debugT !== null && debugT >= 8.4 ? 1.0 : null);
   let drawOverride: number | null = debugDraw;
@@ -625,6 +650,7 @@ function create(
         rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
       }
 
+      if (contextLost) return;
       rW.render(sw, cam);
       rL.render(sl, cam);
     },

@@ -179,6 +179,9 @@ export function startIntro() {
       opacity: 0.98,
       duration: 0.65,
       ease: 'expo.inOut',
+      onStart() {
+        pre.style.pointerEvents = 'none';
+      },
       onComplete() {
         pre.style.display = 'none';
       },
@@ -212,10 +215,23 @@ export function startIntro() {
     .to('.foot', { opacity: T.footOpacity, duration: introClock.footDuration }, introClock.footAt);
 
   skip.onclick = () => {
-    tl.timeScale(introClock.skipTimeScale);
+    pre.style.pointerEvents = 'none';
+    pre.style.display = 'none';
+    st.ready = true;
+    tl.progress(1, false);
   };
 
   activeTimeline = tl;
+
+  // Fail-safe for iOS Safari / WebKit backgrounded tabs or throttled RAF: ensure preloader never traps the viewport
+  if (debugT === null && debugDraw === null && debugFront === null) {
+    window.setTimeout(() => {
+      if (pre.style.display !== 'none') {
+        pre.style.pointerEvents = 'none';
+        pre.style.display = 'none';
+      }
+    }, 2400);
+  }
 
   if (debugT !== null && !Number.isNaN(debugT)) {
     seekIntroClock(debugT);

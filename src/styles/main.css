@@ -1331,9 +1331,7 @@ body.studio-drawer-open {
     rgba(255, 250, 235, 0.07) 53%,
     transparent 58%
   );
-  transform:rotate(22deg) translate3d(-65%, -65%, 0);
-  animation:cardShineFlow 6.8s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-  will-change:transform;
+  transform:rotate(22deg) translate3d(-12%, -12%, 0);
 }
 @keyframes cardShineFlow{
   0%{
@@ -1344,7 +1342,7 @@ body.studio-drawer-open {
   }
 }
 .editorial-card:hover .card-shine-flow::before{
-  animation-duration:4.2s;
+  animation:cardShineFlow 4.2s cubic-bezier(0.4, 0, 0.2, 1) infinite;
   background:linear-gradient(
     115deg,
     transparent 35%,

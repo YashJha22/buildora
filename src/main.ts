@@ -7,8 +7,8 @@ import { initInput } from './input';
 import { seekIntroClock, startIntro } from './intro';
 import { initRouter, setRouterSceneApi } from './router';
 import { loadScene, type SceneApi } from './scene';
-import { S, classic, reduce, st, touch, type Progress } from './state';
-import { idle, scroll, smooth } from './tokens/motion';
+import { S, classic, debugDraw, debugFront, debugT, reduce, st, touch, type Progress } from './state';
+import { idle, introClock, scroll, smooth } from './tokens/motion';
 import { $, clamp } from './utils';
 import { initTypographyEngine, revealHeroTypography } from './typography';
 
@@ -405,8 +405,22 @@ window.addEventListener('resize', () => measureJourneyHeight(false), { passive: 
 measureJourneyHeight(true);
 
 function updateScrollProgress() {
-  if (!st.ready) return;
   const scrollY = window.scrollY || window.pageYOffset;
+  if (!st.ready) {
+    if (scrollY <= 4) return;
+    // If the visitor actively scrolls while the intro clock is still running, unlock immediately so touch scroll never feels stuck
+    if (debugT === null && debugDraw === null && debugFront === null) {
+      st.ready = true;
+      const pre = document.getElementById('pre');
+      if (pre) {
+        pre.style.pointerEvents = 'none';
+        pre.style.display = 'none';
+      }
+      seekIntroClock(introClock.total);
+    } else {
+      return;
+    }
+  }
   const jH = cachedJH;
 
   // Map scroll through studio section (0..jH) smoothly into S.p = 0..3.0
