@@ -15,22 +15,28 @@ export function placeCamera(
 ) {
   const { mL, nL } = st;
   const isMobile = st.w < 768;
-  const mobileCamScale = isMobile ? 1.15 : a;
-  let px = (lerp(8.2, 3.6, e) + (mL - 0.5) * 2.4) * k * (isMobile ? 1.05 : a),
-    py = (lerp(isMobile ? 3.6 : 4.2, 2, e) - (nL - 0.5) * 1.2) * k,
-    pz = lerp(isMobile ? 12.8 : 11, 5.6, e) * k * mobileCamScale,
+  let px = isMobile
+    ? (lerp(9.2, 4.2, e) + (mL - 0.5) * 1.5) * k
+    : (lerp(8.2, 3.6, e) + (mL - 0.5) * 2.4) * k * a,
+    py = isMobile
+      ? (lerp(4.8, 2.6, e) - (nL - 0.5) * 0.8) * k
+      : (lerp(4.2, 2, e) - (nL - 0.5) * 1.2) * k,
+    pz = isMobile
+      ? lerp(16.5, 8.0, e) * k
+      : lerp(11, 5.6, e) * k * a,
     ax = lerp(0, -0.4, e),
-    ay = lerp(isMobile ? 0.95 : 1.2, 1.3, e),
+    ay = isMobile ? lerp(1.4, 1.4, e) : lerp(1.2, 1.3, e),
     az = lerp(-0.6, -1.2, e);
   const cx = -3.6 + q2 * 3.6;
   const oa = lerp(-0.9, 0.7, bq);
-  const mobileScale = isMobile ? 1.06 : 1.0;
-  const orr = lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.25) * mobileScale;
+  const orr = isMobile
+    ? lerp(24.5, 21.0, bq)
+    : lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.25);
   px = lerp(px, Math.sin(oa) * orr + (mL - 0.5), cb);
-  py = lerp(py, lerp(isMobile ? 4.2 : 5.4, isMobile ? 2.8 : 3.3, bq) * (1 + (a - 1) * 0.18), cb);
+  py = lerp(py, isMobile ? lerp(6.6, 4.8, bq) : lerp(5.4, 3.3, bq) * (1 + (a - 1) * 0.18), cb);
   pz = lerp(pz, Math.cos(oa) * orr - 0.5, cb);
   ax = lerp(ax, 0, cb);
-  ay = lerp(ay, isMobile ? 0.95 : 1.1, cb);
+  ay = lerp(ay, isMobile ? 1.05 : 1.1, cb);
   az = lerp(az, -0.8, cb);
 
   if (classic) {

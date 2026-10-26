@@ -37,8 +37,10 @@ export function updateHero({ t, P, e, q }: Progress) {
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
     const isMobile = st.w < 768;
-    const scrollFade = isMobile ? clamp(1 - P * 2.2, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
-    const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.4, 0, 1);
+    const scrollFade = isMobile ? clamp(1 - (P - 0.20) * 3.2, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
+    // On mobile: let the stick structure finish drawing before fading the headline in
+    const headlineStartTime = isMobile ? 2.75 : introClock.headlineAt;
+    const introTextGate = debugFront !== null ? 1 : clamp((S.T - headlineStartTime) / 0.5, 0, 1);
     const heroOpacity = scrollFade * introTextGate;
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';

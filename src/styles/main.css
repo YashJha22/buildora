@@ -749,7 +749,8 @@ body.studio-drawer-open {
   .hero-chapter-stepper,
   .hero-scroll-btn,
   .bwy-credit-tag,
-  #cap {
+  #cap,
+  .foot {
     display: none !important;
   }
   .vig {

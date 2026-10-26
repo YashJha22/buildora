@@ -90,7 +90,7 @@ float fPx = (frontThr() - fDist) / fFw;
 float frontAlpha = uFront > 0.001 ? clamp(fPx / 1.5, 0.0, 1.0) : 0.0;
 float lSdf = lensMetaballSdf(gl_FragCoord.xy);
 float lensAlpha = uLens.z > 0.5 ? (1.0 - smoothstep(-uFeather * 0.65, uFeather * 0.35, lSdf)) : 0.0;
-float revealAlpha = max(lensAlpha, frontAlpha);
+float revealAlpha = uFront >= 0.98 ? 1.0 : max(lensAlpha, frontAlpha);
 if (revealAlpha <= 0.004) discard;
 `;
 
@@ -99,17 +99,17 @@ if (uSectionActive > 0.01 && vFrontW.z > uSectionZ) discard;
 float frontAlpha = (uFront > 0.001 && frontThr() - frontField() > 0.0) ? 1.0 : 0.0;
 float lSdf = lensMetaballSdf(gl_FragCoord.xy);
 float lensAlpha = uLens.z > 0.5 ? (1.0 - smoothstep(-uFeather * 0.65, uFeather * 0.35, lSdf)) : 0.0;
-float revealAlpha = max(lensAlpha, frontAlpha);
+float revealAlpha = uFront >= 0.98 ? 1.0 : max(lensAlpha, frontAlpha);
 if (revealAlpha <= 0.004) discard;
 `;
 
 const FRAG_DISCARD_DEPTH = /* glsl */ `
-if (frontThr() - frontField() <= 0.0) discard;
+if (uFront < 0.98 && frontThr() - frontField() <= 0.0) discard;
 `;
 
 // Construction front warm section line + liquid lens rim glow + 3D material shockwave ring + 3D laser section cut.
 const FRAG_EDGE = /* glsl */ `
-if (uFront > 0.001 && fPx > 0.0 && fPx < 6.5 && lensAlpha < 0.85) {
+if (uFront > 0.001 && uFront < 0.98 && fPx > 0.0 && fPx < 6.5 && lensAlpha < 0.85) {
   vec3 paper = vec3(0.925, 0.902, 0.859);
   vec3 w = vec3(
     smoothstep(0.8, 3.6, fPx),
@@ -142,7 +142,7 @@ export function makeFront(THREE: ThreeNS): Front {
     uFront: { value: 0 },
     uOrigin: { value: new THREE.Vector3(-4.0, 1.75, -0.2) }, // centre of the window
     uBand: { value: 0.35 },
-    uMaxD: { value: 11.2 },
+    uMaxD: { value: 24.0 },
     uTime: { value: 0 },
     uLens: { value: new THREE.Vector3(0, 0, 0) },
     uTrail0: { value: new THREE.Vector3(0, 0, 0) },

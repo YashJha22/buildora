@@ -49,10 +49,10 @@ panels.forEach((p) =>
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
 export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
   const isMobile = st.w < 768;
-  // On mobile: seamlessly cross-fade Plan in as Hero fades out (P >= 0.45) with ZERO dead gaps
+  // On mobile: seamlessly cross-fade Plan in as Hero tilts into top-down (P >= 0.55)
   const on = isMobile
-    ? (P >= 0.45 && cb < 0.1
-        ? clamp((P - 0.45) * 3.5, 0, 1) * (1 - clamp(cb / 0.1, 0, 1))
+    ? (P >= 0.55 && cb < 0.1
+        ? clamp((P - 0.55) * 3.5, 0, 1) * (1 - clamp(cb / 0.1, 0, 1))
         : 0)
     : clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
