@@ -1,6 +1,16 @@
+@import "./settings.css";
 :root{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22);--f-mono:"Space Mono",monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}}
 :root[data-theme="dark"]{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}
+:root[data-theme="light"]{--ink:#f4eee2;--surface:#ffffff;--bone:#141210;--muted:rgba(20, 18, 16, 0.62);--warm:#235843;--bronze:rgba(35, 88, 67, 0.22)}
+:root[data-theme="light"] #site-header nav a,
+:root[data-theme="light"] .site-nav a,
+:root[data-theme="light"] .bwy-nav {
+  text-shadow: none;
+}
+:root[data-theme="light"] .bwy-monogram path:nth-child(2) {
+  stroke: #141210;
+}
 html{width:100%;max-width:100%;overflow-x:clip;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;scroll-behavior:smooth}*{box-sizing:border-box}
 body{margin:0;width:100%;max-width:100%;min-height:100%;position:relative;background:var(--ink);color:var(--bone);font-family:Manrope,system-ui,sans-serif;overflow-x:clip;scroll-behavior:smooth}
 .landing-flow{width:100%;max-width:100%;overflow-x:clip;position:relative}

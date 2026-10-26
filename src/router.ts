@@ -1,6 +1,7 @@
 import { renderProjectsPage, renderProjectDetail } from './pages/Projects';
 import { renderNotFoundPage, renderStatusPage } from './pages/NotFound';
 import { renderContactPage } from './pages/Contact';
+import { renderSettingsPage } from './pages/Settings';
 import { PROJECTS } from './data/content';
 import { st } from './state';
 import type { SceneApi } from './scene';
@@ -203,6 +204,24 @@ export function initRouter() {
       });
       document.body.style.overflow = '';
       setMeta('System Status — Buildora · Build with Yash', 'Diagnostics and live status for Buildora architectural runtime, WebGL renderers, and spatial assets.');
+      navProjectsLink?.classList.remove('active');
+      navContactLink?.classList.remove('active');
+      navStudioLink?.classList.remove('active');
+      navHomeLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
+    } else if (path === '/settings') {
+      pullCordWrap?.classList.add('is-hidden');
+      if (landingFlow) landingFlow.style.display = 'none';
+      if (subpageRoot) {
+        subpageRoot.style.display = 'block';
+        subpageRoot.scrollTop = 0;
+        currentCleanup = renderSettingsPage(subpageRoot);
+      }
+      homeElements.forEach((el) => {
+        if (el) (el as HTMLElement).style.display = 'none';
+      });
+      document.body.style.overflow = '';
+      setMeta('Settings — Buildora · Build with Yash', 'Interactive lamp-inspired settings: dark mode, light mode, system default, spatial audio, and preferences.');
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
       navStudioLink?.classList.remove('active');
