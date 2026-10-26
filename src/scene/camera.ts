@@ -14,22 +14,23 @@ export function placeCamera(
   a: number,
 ) {
   const { mL, nL } = st;
-  let px = (lerp(8.2, 3.6, e) + (mL - 0.5) * 2.4) * k * a,
-    py = (lerp(4.2, 2, e) - (nL - 0.5) * 1.2) * k,
-    pz = lerp(11, 5.6, e) * k * a,
+  const isMobile = st.w < 768;
+  const mobileCamScale = isMobile ? 1.15 : a;
+  let px = (lerp(8.2, 3.6, e) + (mL - 0.5) * 2.4) * k * (isMobile ? 1.05 : a),
+    py = (lerp(isMobile ? 3.6 : 4.2, 2, e) - (nL - 0.5) * 1.2) * k,
+    pz = lerp(isMobile ? 12.8 : 11, 5.6, e) * k * mobileCamScale,
     ax = lerp(0, -0.4, e),
-    ay = lerp(1.2, 1.3, e),
+    ay = lerp(isMobile ? 0.95 : 1.2, 1.3, e),
     az = lerp(-0.6, -1.2, e);
   const cx = -3.6 + q2 * 3.6;
-  const isMobile = st.w < 768;
   const oa = lerp(-0.9, 0.7, bq);
   const mobileScale = isMobile ? 1.06 : 1.0;
   const orr = lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.25) * mobileScale;
   px = lerp(px, Math.sin(oa) * orr + (mL - 0.5), cb);
-  py = lerp(py, lerp(isMobile ? 4.5 : 5.4, isMobile ? 3.0 : 3.3, bq) * (1 + (a - 1) * 0.18), cb);
+  py = lerp(py, lerp(isMobile ? 4.2 : 5.4, isMobile ? 2.8 : 3.3, bq) * (1 + (a - 1) * 0.18), cb);
   pz = lerp(pz, Math.cos(oa) * orr - 0.5, cb);
   ax = lerp(ax, 0, cb);
-  ay = lerp(ay, isMobile ? 1.05 : 1.1, cb);
+  ay = lerp(ay, isMobile ? 0.95 : 1.1, cb);
   az = lerp(az, -0.8, cb);
 
   if (classic) {
@@ -75,10 +76,10 @@ export function placeCamera(
   }
 
   const planY = isMobile
-    ? lerp(16 * a, lerp(3.2, 2.5, secBlend) * a, elevBlend)
+    ? lerp(17.5, lerp(3.0, 2.2, secBlend) * 1.25, elevBlend)
     : lerp(14 * a, deskCamY, elevBlend);
   const planZ = isMobile
-    ? lerp(0.001, lerp(10.5, 12.0, secBlend) * a, elevBlend)
+    ? lerp(0.001, lerp(8.5, 10.0, secBlend), elevBlend)
     : lerp(0.001, deskCamZ, elevBlend);
   // On desktop: room aligns with .drw SVG blueprint frame. On mobile: room is horizontally centered.
   const planX = isMobile ? 0 : lerp(cx, deskCamX, elevBlend);

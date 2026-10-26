@@ -37,12 +37,19 @@ export function updateHero({ t, P, e, q }: Progress) {
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
     const isMobile = st.w < 768;
-    const scrollFade = isMobile ? clamp(1 - P * 2.5, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
+    const scrollFade = isMobile ? clamp(1 - P * 2.2, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
     const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.4, 0, 1);
     const heroOpacity = scrollFade * introTextGate;
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
     hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : (isMobile ? 'none' : 'auto');
+
+    // Header adapts color as paper transitions to obsidian drafting table
+    const siteHeader = document.getElementById('site-header');
+    if (siteHeader) {
+      siteHeader.classList.toggle('header-dark-table', P > 0.35);
+    }
+
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
     vig.style.opacity = String(scrollFade);
     const exitBlur = clamp((P - 0.2) * 8, 0, 4);
@@ -56,7 +63,14 @@ export function updateHero({ t, P, e, q }: Progress) {
     if (subEl) subEl.style.transform = P > 0.001 ? `translateY(${(P * 14).toFixed(1)}px)` : '';
   }
 
-  cap.style.opacity = String(clamp((P - 0.65) * 3, 0, 1) * (1 - clamp(q * 6, 0, 1)));
+  // On mobile, hide #cap completely to prevent superimposing over headline words
+  if (st.w < 768) {
+    cap.style.opacity = '0';
+    cap.style.visibility = 'hidden';
+  } else {
+    cap.style.opacity = String(clamp((P - 0.65) * 3, 0, 1) * (1 - clamp(q * 6, 0, 1)));
+    cap.style.visibility = '';
+  }
   prog.style.transform = `scaleX(${P / 3})`;
 
   const hcs01 = document.getElementById('hcs-01');

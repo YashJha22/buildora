@@ -491,7 +491,8 @@ function create(
         const sceneLit = frontOverride !== null ? 1 : clamp(Math.max(S.intro, frontVal * 2), 0, 1);
         (sl.fog as InstanceType<ThreeNS['Fog']>).color
           .copy(boneColor)
-          .lerp(litClearColor, sceneLit)
+          .lerp(inkColor, c)
+          .lerp(litClearColor, Math.max(sceneLit * (1 - c), c))
           .lerp(nightClearColor, clamp(nightAmt * 0.65, 0, 1));
 
         sun.intensity = 2 * sceneLit * (0.15 + 0.85 * dayArc) * (1 - nightAmt * 0.75) * lq;
@@ -604,6 +605,13 @@ function create(
         pg.attributes.position.needsUpdate = true;
       }
       const isMobile = st.w < 768;
+      // In Plan and Build chapters (c > 0.05 or cb > 0), ensure rL uses the deep obsidian drafting table clear color
+      if (c > 0.05 || cb > 0) {
+        rL.setClearColor(colors.ink, 1);
+      } else {
+        rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
+      }
+
       // On mobile: intelligently cull occluded or invisible scenes to eliminate redundant draw calls and halve GPU fillrate
       const needW = !isMobile || S.intro < 0.95 || c < 0.95;
       const needL = !isMobile || S.intro > 0.005;
