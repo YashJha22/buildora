@@ -1,5 +1,6 @@
 import { sound } from './audio';
 import { initThemeWatcher } from './preferences';
+import { initSettingsPanel } from './settingsPanel';
 import { updateChapters } from './chapters';
 import { holdAfterPlan, remapSideways } from './chapters/plan';
 import { initCursor, updateCursor } from './cursor';
@@ -100,6 +101,7 @@ function initStudioControls() {
   initApproachInteractions();
   initLegalModal();
   initThemeWatcher();
+  initSettingsPanel();
 }
 
 function initLegalModal() {
@@ -580,8 +582,8 @@ function frame(ms: number) {
   st.ly += (st.ty - st.ly) * smooth.lens;
   updateCursor(t, dt);
 
-  // If user is currently browsing a dedicated case study overlay, status, or settings, canvases are hidden
-  const isModalActive = window.location.pathname.startsWith('/projects/') || window.location.pathname === '/404' || window.location.pathname === '/status' || window.location.pathname === '/settings';
+  // If user is currently browsing a dedicated case study overlay or 404, canvases are hidden
+  const isModalActive = window.location.pathname.startsWith('/projects/') || window.location.pathname === '/404' || window.location.pathname === '/status';
   if (isModalActive) {
     return;
   }
