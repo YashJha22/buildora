@@ -80,6 +80,7 @@ export function updateBuild(bq: number, cb: number) {
     : clamp((cb - 0.35) * 1.8, 0, 1);
   bld.style.opacity = String(on);
   bld.style.visibility = on > 0.001 ? 'visible' : 'hidden';
+  bld.style.display = on > 0.001 ? (isMobile ? 'flex' : 'block') : 'none';
   bld.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
   if (blt && !isMobile) {
     blt.style.transform = `translateY(${((1 - on) * 20).toFixed(1)}px)`;

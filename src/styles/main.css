@@ -1055,19 +1055,26 @@ body.studio-drawer-open {
     width: 100% !important;
     max-width: 100% !important;
     flex: none !important;
-    min-height: auto !important;
-    background: rgba(14, 12, 10, 0.72) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(223, 186, 115, 0.2) !important;
+    height: 196px !important;
+    min-height: 196px !important;
+    max-height: 196px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: space-between !important;
+    background: linear-gradient(145deg, rgba(22, 18, 15, 0.84) 0%, rgba(12, 10, 9, 0.90) 100%) padding-box,
+      linear-gradient(135deg, rgba(255, 248, 230, 0.55) 0%, rgba(223, 186, 115, 0.35) 35%, rgba(223, 186, 115, 0.12) 70%, rgba(255, 248, 230, 0.32) 100%) border-box !important;
+    backdrop-filter: blur(18px) saturate(135%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(135%) !important;
+    border: 1.5px solid transparent !important;
     border-radius: 18px !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 250, 235, 0.15) !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.78), inset 0 1px 1px rgba(255, 250, 235, 0.25) !important;
     padding: 16px 18px !important;
     box-sizing: border-box !important;
     z-index: 10 !important;
     pointer-events: auto !important;
-    will-change: transform, opacity;
     transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   #plan .txt .eyebrow {
     margin: 0 0 6px !important;
@@ -1108,6 +1115,8 @@ body.studio-drawer-open {
   }
   #plan .txt a.cta {
     display: inline-flex !important;
+    align-self: flex-start !important;
+    width: auto !important;
     min-height: 38px !important;
     padding: 0 18px !important;
     font-size: 10px !important;
@@ -1140,24 +1149,26 @@ body.studio-drawer-open {
     bottom: auto !important;
     width: 100% !important;
     max-width: 100% !important;
-    height: auto !important;
-    min-height: auto !important;
-    max-height: none !important;
-    background: rgba(14, 12, 10, 0.75) !important;
-    backdrop-filter: blur(20px) !important;
-    -webkit-backdrop-filter: blur(20px) !important;
-    border: 1px solid rgba(223, 186, 115, 0.22) !important;
+    height: 196px !important;
+    min-height: 196px !important;
+    max-height: 196px !important;
+    background: linear-gradient(145deg, rgba(22, 18, 15, 0.84) 0%, rgba(12, 10, 9, 0.90) 100%) padding-box,
+      linear-gradient(135deg, rgba(255, 248, 230, 0.55) 0%, rgba(223, 186, 115, 0.35) 35%, rgba(223, 186, 115, 0.12) 70%, rgba(255, 248, 230, 0.32) 100%) border-box !important;
+    backdrop-filter: blur(18px) saturate(135%) !important;
+    -webkit-backdrop-filter: blur(18px) saturate(135%) !important;
+    border: 1.5px solid transparent !important;
     border-radius: 18px !important;
-    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 250, 235, 0.15) !important;
-    padding: 14px 16px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.78), inset 0 1px 1px rgba(255, 250, 235, 0.25) !important;
+    padding: 16px 18px !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
+    justify-content: space-between !important;
     pointer-events: auto !important;
     z-index: 10 !important;
-    will-change: transform, opacity;
     transform: translateZ(0);
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
   }
   #bld .st {
     position: static !important;

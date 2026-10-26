@@ -69,12 +69,14 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
       const op = ops[i];
       p.style.opacity = op.toFixed(3);
       p.style.visibility = on > 0.01 && op > 0.01 ? 'visible' : 'hidden';
+      p.style.display = on > 0.01 && op > 0.01 ? 'flex' : 'none';
       p.style.pointerEvents = on > 0.2 && op > 0.4 ? 'auto' : 'none';
     });
   } else {
     track.style.transform = `translate3d(${-q2 * 200}vw,0,0)`;
     panels.forEach((p) => {
       p.style.visibility = '';
+      p.style.display = '';
       p.style.opacity = '';
       p.style.pointerEvents = '';
     });
@@ -131,19 +133,19 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
       a.style.opacity = String(clamp(dr * 2 - 1, 0, 1));
     });
     const txtEl = p.querySelector<HTMLElement>('.txt');
-    if (txtEl && !isMobile) {
+    if (txtEl) {
       const eyebrow = txtEl.querySelector<HTMLElement>('.eyebrow');
       if (eyebrow) {
         const eo = clamp(dr * 1.95 - 0.05, 0, 1);
-        const ey = (1 - eo) * 14;
+        const ey = (1 - eo) * (isMobile ? 8 : 14);
         eyebrow.style.opacity = String(eo);
         eyebrow.style.transform = `translateY(${ey.toFixed(1)}px)`;
       }
       const h2 = txtEl.querySelector<HTMLHeadingElement>('h2');
       if (h2) {
         const h2o = clamp(dr * 1.82 - 0.1, 0, 1);
-        const h2y = (1 - h2o) * 26;
-        const h2b = (1 - h2o) * 6;
+        const h2y = (1 - h2o) * (isMobile ? 12 : 26);
+        const h2b = isMobile ? 0 : (1 - h2o) * 6;
         h2.style.opacity = String(h2o);
         h2.style.transform = `translateY(${h2y.toFixed(1)}px)`;
         h2.style.filter = h2b > 0.15 ? `blur(${h2b.toFixed(1)}px)` : 'none';
@@ -151,23 +153,23 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
       const desc = txtEl.querySelector<HTMLParagraphElement>('p:not(.eyebrow)');
       if (desc) {
         const po = clamp(dr * 1.65 - 0.18, 0, 1);
-        const py = (1 - po) * 20;
-        const pb = (1 - po) * 4;
-        desc.style.opacity = String(po * 0.85);
+        const py = (1 - po) * (isMobile ? 10 : 20);
+        const pb = isMobile ? 0 : (1 - po) * 4;
+        desc.style.opacity = String(po * 0.88);
         desc.style.transform = `translateY(${py.toFixed(1)}px)`;
         desc.style.filter = pb > 0.15 ? `blur(${pb.toFixed(1)}px)` : 'none';
       }
       const dl = txtEl.querySelector<HTMLElement>('dl');
       if (dl) {
         const dlo = clamp(dr * 1.5 - 0.25, 0, 1);
-        const dly = (1 - dlo) * 18;
+        const dly = (1 - dlo) * (isMobile ? 8 : 18);
         dl.style.opacity = String(dlo);
         dl.style.transform = `translateY(${dly.toFixed(1)}px)`;
       }
       const cta = txtEl.querySelector<HTMLElement>('.cta');
       if (cta) {
         const ctao = clamp(dr * 1.6 - 0.2, 0, 1);
-        const ctay = (1 - ctao) * 18;
+        const ctay = (1 - ctao) * (isMobile ? 8 : 18);
         cta.style.opacity = String(ctao);
         cta.style.transform = `translateY(${ctay.toFixed(1)}px)`;
         cta.style.pointerEvents = ctao > 0.4 ? 'auto' : 'none';
