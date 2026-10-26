@@ -285,9 +285,41 @@ function initMobileNav() {
   });
 }
 
+let layoutW = 0;
+let stableH = 0;
+/** Height of the *large* viewport (address bar collapsed) so the canvas never needs to grow mid-scroll. */
+function largeViewportHeight() {
+  const probe = document.createElement('div');
+  probe.style.cssText = 'position:fixed;top:0;left:0;width:0;height:100lvh;visibility:hidden;pointer-events:none';
+  document.body.appendChild(probe);
+  const h = probe.getBoundingClientRect().height;
+  probe.remove();
+  return Math.max(innerHeight, Math.round(h));
+}
 function layout() {
-  st.w = innerWidth;
-  st.h = innerHeight;
+  const nextW = innerWidth;
+  const nextIsMobile = nextW < 768;
+  if (nextIsMobile) {
+    // iOS Safari fires `resize` (height-only) whenever the address bar collapses/expands. Re-laying out the
+    // canvas + camera + scene targets on each of those makes the scene stretch, blur and jitter mid-scroll.
+    // Lock to the large-viewport height for this width (reset on rotation) and ignore height-only changes.
+    if (nextW === layoutW && stableH) {
+      stableH = Math.max(stableH, innerHeight);
+      if (stableH === st.h) return;
+    } else {
+      stableH = largeViewportHeight();
+    }
+    layoutW = nextW;
+    st.w = nextW;
+    st.h = stableH;
+    document.documentElement.style.setProperty('--stable-vh', stableH + 'px');
+  } else {
+    layoutW = nextW;
+    stableH = 0;
+    st.w = nextW;
+    st.h = innerHeight;
+    document.documentElement.style.removeProperty('--stable-vh');
+  }
   const isMobile = st.w < 768;
   if (isMobile) {
     st.tx = st.w * 0.5;

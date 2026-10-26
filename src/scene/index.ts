@@ -168,7 +168,7 @@ function create(
 
   const size = () => {
     const isMobile = st.w < 768;
-    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.25 : 1.75);
+    const d = Math.min(devicePixelRatio || 1, isMobile ? 2 : 1.75);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
@@ -329,7 +329,7 @@ function create(
       gr.scale.set(lf, 1, isFrontGridScale(classic) * lf);
 
       const isMobile = st.w < 768;
-      const dropHeight = isMobile ? 32 : 12;
+      const dropHeight = isMobile ? 2.4 : 12;
 
       parts.forEach((p, i) => {
         const s = Math.max(eo(clamp(bt * 1.7 - (i / parts.length) * 0.7, 0, 1)), 0.001),
@@ -353,7 +353,7 @@ function create(
           p.o.position.y = p.by - (1 - s) * p.hh;
         }
         p.o.position.y += dp * dropHeight;
-        if (!p.flat) p.o.rotation.y = p.ry + dp * 1.3;
+        if (!p.flat) p.o.rotation.y = p.ry + (isMobile ? 0 : dp * 1.3);
         if (p.e) {
           p.e.scale.copy(p.o.scale);
           p.e.position.copy(p.o.position);
