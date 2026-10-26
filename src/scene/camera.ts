@@ -25,7 +25,7 @@ export function placeCamera(
       ? lerp(16.5, 8.0, e) * k
       : lerp(11, 5.6, e) * k * a,
     ax = lerp(0, -0.4, e),
-    ay = isMobile ? lerp(1.4, 1.4, e) : lerp(1.2, 1.3, e),
+    ay = isMobile ? lerp(0.15, 0.75, e) : lerp(1.2, 1.3, e),
     az = lerp(-0.6, -1.2, e);
   const cx = -3.6 + q2 * 3.6;
   const oa = lerp(-0.9, 0.7, bq);

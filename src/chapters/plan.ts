@@ -47,18 +47,14 @@ panels.forEach((p) =>
 );
 
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
-export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
+export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
   const isMobile = st.w < 768;
-  // On mobile: seamlessly cross-fade Plan in as Hero tilts into top-down (P >= 0.55)
-  const on = isMobile
-    ? (P >= 0.55 && cb < 0.1
-        ? clamp((P - 0.55) * 3.5, 0, 1) * (1 - clamp(cb / 0.1, 0, 1))
-        : 0)
-    : clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
+  const on = clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
     secShow = clamp((q2 - 0.45) / 0.35, 0, 1) * clamp(c * 1.5, 0, 1) * (1 - cb);
   planEl.style.opacity = String(on);
   planEl.style.visibility = on > 0.001 ? 'visible' : 'hidden';
+  planEl.style.display = on > 0.001 ? 'block' : 'none';
   planEl.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
   L.style.opacity = String(Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb));
   W.style.opacity = String((1 - 0.32 * sm) * (1 - 0.7 * cb));
@@ -72,8 +68,8 @@ export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
     panels.forEach((p, i) => {
       const op = ops[i];
       p.style.opacity = op.toFixed(3);
-      p.style.visibility = op > 0.01 ? 'visible' : 'hidden';
-      p.style.pointerEvents = op > 0.4 ? 'auto' : 'none';
+      p.style.visibility = on > 0.01 && op > 0.01 ? 'visible' : 'hidden';
+      p.style.pointerEvents = on > 0.2 && op > 0.4 ? 'auto' : 'none';
     });
   } else {
     track.style.transform = `translate3d(${-q2 * 200}vw,0,0)`;

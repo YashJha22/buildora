@@ -622,16 +622,8 @@ function create(
         rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
       }
 
-      // On mobile: intelligently cull occluded or invisible scenes to eliminate redundant draw calls and halve GPU fillrate
-      const needW = !isMobile || S.intro < 0.95 || c < 0.95;
-      const needL = !isMobile || S.intro > 0.005;
-
-      if (needW) {
-        rW.render(sw, cam);
-      }
-      if (needL) {
-        rL.render(sl, cam);
-      }
+      rW.render(sw, cam);
+      rL.render(sl, cam);
     },
   };
 

@@ -322,9 +322,9 @@ function layout() {
   }
   const isMobile = st.w < 768;
   if (isMobile) {
-    st.tx = st.w * 0.5;
-    st.ty = st.h * 0.24;
-    st.R0 = Math.max(st.w, st.h) * 0.75;
+    st.tx = st.w * 0.54;
+    st.ty = st.h * 0.36;
+    st.R0 = Math.min(st.w, st.h) * 0.21;
   } else {
     st.R0 = Math.min(st.w, st.h) * 0.15;
   }
@@ -487,8 +487,8 @@ function frame(ms: number) {
     isIdle = reduce || t - st.last > idle.after;
   if (isIdle) {
     if (st.w < 768) {
-      st.tx = st.w * 0.5;
-      st.ty = st.h * 0.24;
+      st.tx = st.w * (0.54 + 0.08 * Math.sin(t * 0.5));
+      st.ty = st.h * (0.36 + 0.04 * Math.cos(t * 0.7));
     } else {
       st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
       st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));

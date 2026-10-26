@@ -37,15 +37,13 @@ export function updateHero({ t, P, e, q }: Progress) {
     ring.style.transform = `translate(${st.lx - R0}px,${st.ly - R0}px) scale(${ringScale})`;
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
-    const scrollFade = isMobile ? clamp(1 - (P - 0.20) * 3.2, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
-    // On mobile: let the stick structure finish drawing before fading the headline in
-    const headlineStartTime = isMobile ? 2.75 : introClock.headlineAt;
-    const introTextGate = debugFront !== null ? 1 : clamp((S.T - headlineStartTime) / 0.5, 0, 1);
+    const scrollFade = clamp(1 - (P - 0.25) * 2, 0, 1);
+    const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.5, 0, 1);
     const heroOpacity = scrollFade * introTextGate;
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
     hero.style.display = heroOpacity <= 0.001 ? 'none' : 'flex';
-    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : (isMobile ? 'none' : 'auto');
+    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
 
     // Header adapts color strictly when paper transitions to obsidian drafting table (q > 0.05)
     const siteHeader = document.getElementById('site-header');
