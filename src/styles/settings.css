@@ -1,0 +1,729 @@
+/* ==========================================================================
+   Buildora — Lamp-Inspired Settings Interface Styles
+   Exact recreation of the dark & light mode hanging lamp UI with:
+   - Deep charcoal background (Dark) & warm ivory drafting paper (Light)
+   - Translucent dark cards (Dark) & crisp white cards (Light)
+   - Hanging green vintage lampshade with brass accents & pull cord
+   - Gold switches (Dark) & forest-green switches (Light)
+   - Dark, Light, and System Default segmented controls
+   ========================================================================== */
+
+.settings-page-wrapper {
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: clamp(24px, 4vw, 48px) clamp(16px, 4vw, 24px) 64px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  overflow-x: clip;
+  transition: background-color 0.35s cubic-bezier(0.16, 1, 0.3, 1), color 0.35s ease;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Light & Dark Page Themes */
+:root[data-theme="dark"] .settings-page-wrapper,
+:root:not([data-theme="light"]) .settings-page-wrapper {
+  background-color: #0b0e14;
+  color: #f7f3ed;
+}
+
+:root[data-theme="light"] .settings-page-wrapper {
+  background-color: #f4eee2;
+  color: #161412;
+}
+
+/* Localized Ambient Light Cone cast by Lamp */
+.settings-backdrop-cone {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(720px, 100vw);
+  height: 480px;
+  pointer-events: none;
+  z-index: 0;
+  transition: background 0.4s ease, opacity 0.4s ease;
+}
+
+:root[data-theme="dark"] .settings-backdrop-cone,
+:root:not([data-theme="light"]) .settings-backdrop-cone {
+  background: radial-gradient(ellipse at 50% 115px, rgba(245, 194, 107, 0.35) 0%, rgba(223, 186, 115, 0.12) 38%, transparent 72%);
+  opacity: 1;
+}
+
+:root[data-theme="light"] .settings-backdrop-cone {
+  background: radial-gradient(ellipse at 50% 115px, rgba(255, 255, 255, 0.75) 0%, rgba(226, 218, 203, 0.35) 45%, transparent 70%);
+  opacity: 0.9;
+}
+
+/* Inner Layout Column */
+.settings-inner {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Top Bar: Settings Title & Close Action */
+.settings-top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 4px 10px;
+}
+
+.settings-title {
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: clamp(32px, 7vw, 42px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin: 0;
+  line-height: 1.1;
+  transition: color 0.3s ease;
+}
+
+:root[data-theme="dark"] .settings-title,
+:root:not([data-theme="light"]) .settings-title {
+  color: #f7f3ed;
+  text-shadow: 0 2px 20px rgba(0, 0, 0, 0.6);
+}
+
+:root[data-theme="light"] .settings-title {
+  color: #12100d;
+}
+
+.settings-close-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 0 16px;
+  border-radius: 99px;
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="dark"] .settings-close-btn,
+:root:not([data-theme="light"]) .settings-close-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #f7f3ed;
+}
+
+:root[data-theme="dark"] .settings-close-btn:hover,
+:root:not([data-theme="light"]) .settings-close-btn:hover {
+  background: rgba(223, 186, 115, 0.2);
+  border-color: #dfba73;
+  color: #dfba73;
+  transform: translateY(-1px);
+}
+
+:root[data-theme="light"] .settings-close-btn {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  color: #12100d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+:root[data-theme="light"] .settings-close-btn:hover {
+  background: #235843;
+  border-color: #235843;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
+/* ==========================================================================
+   Hanging Architectural Lamp
+   ========================================================================== */
+.settings-lamp-stage {
+  position: relative;
+  width: 100%;
+  height: 175px;
+  margin-top: -10px;
+  margin-bottom: 2px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  pointer-events: none;
+}
+
+.settings-lamp-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  pointer-events: auto;
+}
+
+/* Suspension Cord */
+.lamp-suspension-cord {
+  width: 2px;
+  height: 48px;
+  background: linear-gradient(180deg, rgba(223, 186, 115, 0.7) 0%, #caa45a 100%);
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+/* Socket & Shade Assembly */
+.lamp-shade-assembly {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.lamp-brass-socket {
+  width: 12px;
+  height: 10px;
+  background: linear-gradient(90deg, #a47d33 0%, #f5d78e 50%, #caa45a 100%);
+  border-radius: 2px 2px 0 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+.lamp-shade-svg {
+  display: block;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.45));
+}
+
+.shade-body {
+  transition: fill 0.3s ease;
+}
+
+:root[data-theme="dark"] .shade-body,
+:root:not([data-theme="light"]) .shade-body {
+  fill: url(#shade-green-dark);
+}
+
+:root[data-theme="light"] .shade-body {
+  fill: url(#shade-green-light);
+}
+
+.shade-interior {
+  fill: #141f1a;
+}
+
+/* Exposed Bulb & Halo */
+.lamp-bulb-wrap {
+  position: absolute;
+  bottom: 0px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.lamp-bulb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transition: all 0.35s ease;
+}
+
+.lamp-bulb-halo {
+  position: absolute;
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  pointer-events: none;
+  transition: all 0.35s ease;
+}
+
+:root[data-theme="dark"] .lamp-bulb,
+:root:not([data-theme="light"]) .lamp-bulb {
+  background: radial-gradient(circle at 40% 40%, #ffffff 0%, #ffeed1 45%, #f5c26b 100%);
+  box-shadow: 0 0 16px #ffeed1, 0 0 32px #f5c26b;
+}
+
+:root[data-theme="dark"] .lamp-bulb-halo,
+:root:not([data-theme="light"]) .lamp-bulb-halo {
+  background: radial-gradient(circle, rgba(245, 194, 107, 0.45) 0%, rgba(245, 194, 107, 0.15) 50%, transparent 80%);
+}
+
+:root[data-theme="light"] .lamp-bulb {
+  background: radial-gradient(circle at 40% 40%, #ffffff 0%, #faf8f2 60%, #e8e0cc 100%);
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.9);
+}
+
+:root[data-theme="light"] .lamp-bulb-halo {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.5) 0%, transparent 70%);
+}
+
+/* Hanging Pull Cord Button */
+.lamp-pull-cord-btn {
+  position: absolute;
+  top: 54px;
+  right: -8px;
+  width: 40px;
+  height: 160px;
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  touch-action: manipulation;
+  color: #caa45a;
+  transform-origin: top center;
+  transition: transform 0.15s ease-out;
+}
+
+.lamp-pull-cord-btn:hover {
+  transform: translateY(3px);
+}
+
+.lamp-pull-cord-btn.is-pulled {
+  animation: pullCordSnap 0.32s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+}
+
+@keyframes pullCordSnap {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(22px); }
+  75% { transform: translateY(-4px); }
+  100% { transform: translateY(0); }
+}
+
+.pull-cord-svg {
+  display: block;
+  overflow: visible;
+}
+
+#pull-cord-bead {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.4));
+  transition: transform 0.2s ease;
+}
+
+.lamp-pull-cord-btn:hover #pull-cord-bead {
+  filter: drop-shadow(0 4px 10px rgba(223, 186, 115, 0.6));
+}
+
+/* ==========================================================================
+   Profile Card (AM · Alex Morgan)
+   ========================================================================== */
+.settings-card {
+  width: 100%;
+  border-radius: 28px;
+  box-sizing: border-box;
+  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+:root[data-theme="dark"] .settings-card,
+:root:not([data-theme="light"]) .settings-card {
+  background: rgba(22, 26, 33, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+
+:root[data-theme="light"] .settings-card {
+  background: #ffffff;
+  border: 1px solid rgba(0, 0, 0, 0.04);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02);
+}
+
+.profile-card {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 20px 22px;
+}
+
+.profile-avatar {
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+  transition: all 0.35s ease;
+}
+
+:root[data-theme="dark"] .profile-avatar,
+:root:not([data-theme="light"]) .profile-avatar {
+  background: #e0b159;
+  color: #12100d;
+  box-shadow: 0 4px 16px rgba(224, 177, 89, 0.35);
+}
+
+:root[data-theme="light"] .profile-avatar {
+  background: #235843;
+  color: #ffffff;
+  box-shadow: 0 4px 16px rgba(35, 88, 67, 0.25);
+}
+
+.profile-initials {
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 20px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.profile-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.profile-name {
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 19px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.2;
+}
+
+:root[data-theme="dark"] .profile-name,
+:root:not([data-theme="light"]) .profile-name {
+  color: #f7f3ed;
+}
+
+:root[data-theme="light"] .profile-name {
+  color: #12100d;
+}
+
+.profile-handle {
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 13.5px;
+  font-weight: 500;
+  margin: 0;
+  line-height: 1.3;
+}
+
+:root[data-theme="dark"] .profile-handle,
+:root:not([data-theme="light"]) .profile-handle {
+  color: rgba(247, 243, 237, 0.52);
+}
+
+:root[data-theme="light"] .profile-handle {
+  color: rgba(22, 20, 18, 0.52);
+}
+
+/* ==========================================================================
+   Controls Card & Switch Controls
+   ========================================================================== */
+.controls-card {
+  padding: 10px 22px 14px;
+}
+
+.setting-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 60px;
+  padding: 10px 0;
+  gap: 16px;
+}
+
+.theme-setting-row {
+  padding-bottom: 6px;
+}
+
+.setting-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.setting-label {
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  line-height: 1.3;
+}
+
+:root[data-theme="dark"] .setting-label,
+:root:not([data-theme="light"]) .setting-label {
+  color: #f7f3ed;
+}
+
+:root[data-theme="light"] .setting-label {
+  color: #12100d;
+}
+
+.setting-status-caption {
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  transition: color 0.3s ease;
+}
+
+:root[data-theme="dark"] .setting-status-caption,
+:root:not([data-theme="light"]) .setting-status-caption {
+  color: #caa45a;
+}
+
+:root[data-theme="light"] .setting-status-caption {
+  color: #235843;
+}
+
+.setting-divider {
+  width: 100%;
+  height: 1px;
+}
+
+:root[data-theme="dark"] .setting-divider,
+:root:not([data-theme="light"]) .setting-divider {
+  background: rgba(255, 255, 255, 0.07);
+}
+
+:root[data-theme="light"] .setting-divider {
+  background: rgba(0, 0, 0, 0.06);
+}
+
+/* ==========================================================================
+   Switch Control (Exact Recreation of Reference Screenshots)
+   ========================================================================== */
+.settings-switch {
+  background: none;
+  border: none;
+  padding: 4px;
+  margin: 0;
+  cursor: pointer;
+  outline: none;
+  touch-action: manipulation;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 99px;
+  transition: transform 0.15s ease;
+}
+
+.settings-switch:active {
+  transform: scale(0.96);
+}
+
+.settings-switch:focus-visible {
+  outline: 2px solid #dfba73;
+  outline-offset: 3px;
+}
+
+.switch-track {
+  position: relative;
+  width: 52px;
+  height: 32px;
+  border-radius: 99px;
+  transition: background-color 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s ease;
+  display: flex;
+  align-items: center;
+  padding: 3px;
+  box-sizing: border-box;
+}
+
+.switch-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.28s ease, box-shadow 0.28s ease;
+}
+
+/* --- Dark Mode Switch Styling --- */
+:root[data-theme="dark"] .settings-switch .switch-track,
+:root:not([data-theme="light"]) .settings-switch .switch-track {
+  background-color: #353842;
+}
+
+:root[data-theme="dark"] .settings-switch .switch-thumb,
+:root:not([data-theme="light"]) .settings-switch .switch-thumb {
+  background-color: #5c6270;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* Active in Dark Mode: Rich Warm Gold (Screenshot 1) */
+:root[data-theme="dark"] .settings-switch.is-active .switch-track,
+:root:not([data-theme="light"]) .settings-switch.is-active .switch-track {
+  background-color: #e5b567;
+  box-shadow: 0 0 14px rgba(229, 181, 103, 0.35);
+}
+
+:root[data-theme="dark"] .settings-switch.is-active .switch-thumb,
+:root:not([data-theme="light"]) .settings-switch.is-active .switch-thumb {
+  background-color: #ffffff;
+  transform: translateX(20px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* --- Light Mode Switch Styling --- */
+:root[data-theme="light"] .settings-switch .switch-track {
+  background-color: #d8d2c4;
+}
+
+:root[data-theme="light"] .settings-switch .switch-thumb {
+  background-color: #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.16);
+}
+
+/* Active in Light Mode: Forest Green (Screenshot 2) */
+:root[data-theme="light"] .settings-switch.is-active .switch-track {
+  background-color: #2d6a4f;
+  box-shadow: 0 0 12px rgba(45, 106, 79, 0.25);
+}
+
+:root[data-theme="light"] .settings-switch.is-active .switch-thumb {
+  background-color: #ffffff;
+  transform: translateX(20px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* ==========================================================================
+   3-Way Theme Segment Pills: [ Dark | Light | System ]
+   ========================================================================== */
+.theme-segment-container {
+  padding: 0 0 12px;
+}
+
+.theme-segment-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 4px;
+  border-radius: 99px;
+  transition: all 0.3s ease;
+}
+
+:root[data-theme="dark"] .theme-segment-pills,
+:root:not([data-theme="light"]) .theme-segment-pills {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+:root[data-theme="light"] .theme-segment-pills {
+  background: #f0ebe0;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.theme-pill-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 34px;
+  padding: 0 10px;
+  border-radius: 99px;
+  border: none;
+  background: transparent;
+  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.pill-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  opacity: 0.4;
+  transition: opacity 0.2s, background-color 0.2s;
+}
+
+:root[data-theme="dark"] .theme-pill-btn,
+:root:not([data-theme="light"]) .theme-pill-btn {
+  color: rgba(247, 243, 237, 0.65);
+}
+
+:root[data-theme="dark"] .theme-pill-btn .pill-dot,
+:root:not([data-theme="light"]) .theme-pill-btn .pill-dot {
+  background: #dfba73;
+}
+
+:root[data-theme="dark"] .theme-pill-btn.is-selected,
+:root:not([data-theme="light"]) .theme-pill-btn.is-selected {
+  background: #dfba73;
+  color: #12100d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .theme-pill-btn.is-selected .pill-dot,
+:root:not([data-theme="light"]) .theme-pill-btn.is-selected .pill-dot {
+  background: #12100d;
+  opacity: 1;
+}
+
+:root[data-theme="light"] .theme-pill-btn {
+  color: rgba(22, 20, 18, 0.65);
+}
+
+:root[data-theme="light"] .theme-pill-btn .pill-dot {
+  background: #235843;
+}
+
+:root[data-theme="light"] .theme-pill-btn.is-selected {
+  background: #235843;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(35, 88, 67, 0.25);
+}
+
+:root[data-theme="light"] .theme-pill-btn.is-selected .pill-dot {
+  background: #ffffff;
+  opacity: 1;
+}
+
+/* Subtle Footer Note */
+.settings-bottom-note {
+  text-align: center;
+  padding: 12px 10px 0;
+}
+
+.settings-bottom-note p {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin: 0;
+  opacity: 0.78;
+}
+
+:root[data-theme="dark"] .settings-bottom-note p,
+:root:not([data-theme="light"]) .settings-bottom-note p {
+  color: rgba(247, 243, 237, 0.72);
+}
+
+:root[data-theme="light"] .settings-bottom-note p {
+  color: rgba(22, 20, 18, 0.72);
+}
+
+/* Accessibility: Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Ensure clean standard cursor inside Settings */
+body:has(.settings-page-wrapper) #cur-wrap {
+  display: none !important;
+}
+body:has(.settings-page-wrapper),
+body:has(.settings-page-wrapper) * {
+  cursor: auto !important;
+}
+body:has(.settings-page-wrapper) button,
+body:has(.settings-page-wrapper) [role="button"],
+body:has(.settings-page-wrapper) [role="switch"],
+body:has(.settings-page-wrapper) [role="radio"] {
+  cursor: pointer !important;
+}
