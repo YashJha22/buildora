@@ -105,7 +105,7 @@ export function initRouter() {
       homeElements.forEach((el) => {
         if (el) (el as HTMLElement).style.display = '';
       });
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       pullCordWrap?.classList.remove('is-hidden');
 
       if (path === '/approach') {
@@ -179,7 +179,7 @@ export function initRouter() {
       homeElements.forEach((el) => {
         if (el) (el as HTMLElement).style.display = 'none';
       });
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       if (project) {
         setMeta(`${project.title} — Buildora · Build with Yash`, `${project.concept} Located in ${project.location}. Interactive architectural case study by Build with Yash.`);
       } else {
@@ -201,7 +201,7 @@ export function initRouter() {
       homeElements.forEach((el) => {
         if (el) (el as HTMLElement).style.display = 'none';
       });
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       setMeta('System Status — Buildora · Build with Yash', 'Diagnostics and live status for Buildora architectural runtime, WebGL renderers, and spatial assets.');
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');
@@ -220,7 +220,7 @@ export function initRouter() {
       homeElements.forEach((el) => {
         if (el) (el as HTMLElement).style.display = 'none';
       });
-      document.body.style.overflow = 'auto';
+      document.body.style.overflow = '';
       setMeta('404 Page Not Found — Buildora · Build with Yash', 'The requested architectural drawing or spatial coordinate does not exist.');
       navProjectsLink?.classList.remove('active');
       navContactLink?.classList.remove('active');

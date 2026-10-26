@@ -674,31 +674,78 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
     });
   });
 
-  // Watermark parallax using cached geometry (eliminates forced reflow)
+  // Layered plank progression & watermark parallax (supports both window scroll on `/` and subpage scroll on `/projects`)
   let ticking = false;
   let rafId: number | null = null;
+  const stickyTops = [82, 108, 134];
+  const updatePlanksAndWatermarks = () => {
+    const vh = window.innerHeight || 900;
+    const isDesktop = window.innerWidth > 960;
+    const rects = Array.from(cards, (c) => c.getBoundingClientRect());
+
+    cards.forEach((card, idx) => {
+      const rect = rects[idx];
+      if (!rect) return;
+
+      // Watermark parallax when in or near viewport
+      if (rect.bottom > -200 && rect.top < vh + 200) {
+        const offset = (rect.top - vh * 0.35) * 0.1;
+        const watermark = card.querySelector<HTMLElement>('.card-watermark');
+        if (watermark) {
+          watermark.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+        }
+      }
+
+      if (!isDesktop) {
+        card.style.removeProperty('--plank-scale');
+        card.style.removeProperty('--plank-rot-x');
+        card.style.removeProperty('--plank-bright');
+        return;
+      }
+
+      // 1. Entry roll-down into sticky slot
+      const targetTop = stickyTops[idx] ?? 82;
+      const entryRange = Math.max(240, vh - targetTop);
+      const entryDist = Math.max(0, Math.min(1, (rect.top - targetTop) / entryRange));
+      const rotX = (-5.5 * entryDist).toFixed(2);
+
+      // 2. Depth recession as subsequent planks slide over this pinned plank
+      let overlapSum = 0;
+      for (let j = idx + 1; j < cards.length; j++) {
+        const nextRect = rects[j];
+        const nextTargetTop = stickyTops[j] ?? 108;
+        const startY = Math.max(nextTargetTop + 260, rect.bottom);
+        const progress = Math.max(0, Math.min(1, (startY - nextRect.top) / Math.max(180, startY - nextTargetTop)));
+        overlapSum += progress;
+      }
+
+      const scale = Math.max(0.92, 1 - overlapSum * 0.032).toFixed(4);
+      const bright = Math.max(0.68, 1 - overlapSum * 0.15).toFixed(3);
+
+      card.style.setProperty('--plank-rot-x', `${rotX}deg`);
+      card.style.setProperty('--plank-scale', scale);
+      card.style.setProperty('--plank-bright', bright);
+    });
+  };
+
   const onScroll = () => {
     if (!ticking) {
       rafId = requestAnimationFrame(() => {
-        const scrollTop = targetEl.scrollTop;
-        cards.forEach((card) => {
-          const offset = (card.offsetTop - scrollTop - 120) * 0.12;
-          const watermark = card.querySelector<HTMLElement>('.card-watermark');
-          if (watermark) {
-            watermark.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
-          }
-        });
+        updatePlanksAndWatermarks();
         ticking = false;
       });
       ticking = true;
     }
   };
 
+  window.addEventListener('scroll', onScroll, { passive: true });
   targetEl.addEventListener('scroll', onScroll, { passive: true });
+  updatePlanksAndWatermarks();
   activateContinuousTypography(targetEl);
 
   return () => {
     if (rafId !== null) cancelAnimationFrame(rafId);
+    window.removeEventListener('scroll', onScroll);
     targetEl.removeEventListener('scroll', onScroll);
     if (observer) observer.disconnect();
   };

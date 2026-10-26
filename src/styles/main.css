@@ -1,10 +1,10 @@
 :root{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22);--f-mono:"Space Mono",monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}}
 :root[data-theme="dark"]{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}
-html{height:100%;width:100%;max-width:100%;overflow-x:hidden;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;scroll-behavior:smooth}*{box-sizing:border-box}
-body{margin:0;width:100%;max-width:100%;min-height:100%;position:relative;background:var(--ink);color:var(--bone);font-family:Manrope,system-ui,sans-serif;overflow-x:hidden;overflow-y:auto;scroll-behavior:smooth}
-.landing-flow{width:100%;max-width:100%;overflow-x:hidden;position:relative}
-.landing-section{width:100%;max-width:100%;overflow-x:hidden;box-sizing:border-box}
+html{width:100%;max-width:100%;overflow-x:clip;scroll-padding-top:env(safe-area-inset-top,0px);-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%;scroll-behavior:smooth}*{box-sizing:border-box}
+body{margin:0;width:100%;max-width:100%;min-height:100%;position:relative;background:var(--ink);color:var(--bone);font-family:Manrope,system-ui,sans-serif;overflow-x:clip;scroll-behavior:smooth}
+.landing-flow{width:100%;max-width:100%;overflow-x:clip;position:relative}
+.landing-section{width:100%;max-width:100%;overflow-x:clip;box-sizing:border-box}
 button,a,[role="button"],input{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 button,[role="button"]{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 button:active,.cta:active{transform:scale(.97)}
@@ -1299,12 +1299,12 @@ body.studio-drawer-open {
 .quick-jump-btn:hover .qj-arrow{transform:translateY(2px)}
 
 /* Section B & C: Sequential Editorial Stacking Cards — Liquid Champagne Glass Slabs */
-.editorial-projects-stack{display:flex;flex-direction:column;gap:clamp(32px,5vw,64px);margin-bottom:clamp(60px,10vw,110px)}
-.editorial-card{position:sticky;top:calc(88px + env(safe-area-inset-top,0px));border-radius:clamp(24px,3.2vw,32px);overflow:hidden;padding:clamp(28px,4.5vw,52px);border:1.5px solid transparent;box-sizing:border-box;backdrop-filter:blur(24px) saturate(135%);-webkit-backdrop-filter:blur(24px) saturate(135%);transition:transform .4s cubic-bezier(.16,1,.3,1),box-shadow .4s cubic-bezier(.16,1,.3,1);margin-bottom:clamp(64px,9vw,120px);cursor:pointer}
+.editorial-projects-stack{display:flex;flex-direction:column;gap:clamp(32px,5vw,64px);margin-bottom:clamp(60px,10vw,110px);perspective:1400px}
+.editorial-card{position:sticky;top:calc(82px + env(safe-area-inset-top,0px));border-radius:clamp(24px,3.2vw,32px);overflow:hidden;padding:clamp(28px,4.5vw,52px);border:1.5px solid transparent;box-sizing:border-box;backdrop-filter:blur(24px) saturate(135%);-webkit-backdrop-filter:blur(24px) saturate(135%);transform-origin:center top;transform:translate3d(0,var(--plank-y,0px),0) scale(var(--plank-scale,1)) rotateX(var(--plank-rot-x,0deg));filter:brightness(var(--plank-bright,1));transition:transform .22s cubic-bezier(.16,1,.3,1),box-shadow .4s cubic-bezier(.16,1,.3,1),filter .22s ease;margin-bottom:clamp(64px,9vw,120px);cursor:pointer;will-change:transform}
 
-.editorial-card:nth-child(1){z-index:2}
-.editorial-card:nth-child(2){z-index:3}
-.editorial-card:nth-child(3){z-index:4}
+.editorial-card:nth-child(1){top:calc(82px + env(safe-area-inset-top,0px));z-index:2}
+.editorial-card:nth-child(2){top:calc(108px + env(safe-area-inset-top,0px));z-index:3}
+.editorial-card:nth-child(3){top:calc(134px + env(safe-area-inset-top,0px));z-index:4}
 
 /* Ambient Liquid Shine Flow (Ethereal diagonal light sweep across glass slab) */
 .card-shine-flow{
@@ -1373,7 +1373,7 @@ body.studio-drawer-open {
     0 16px 42px -6px rgba(0,0,0,0.75),
     0 0 22px -2px rgba(223,186,115,0.18),
     inset 0 1.5px 1.5px 0 rgba(255,252,240,0.65);
-  transform:translateY(-2px);
+  transform:translate3d(0,calc(var(--plank-y,0px) - 2px),0) scale(var(--plank-scale,1)) rotateX(var(--plank-rot-x,0deg));
 }
 
 .editorial-card.pal-1{
@@ -1392,7 +1392,7 @@ body.studio-drawer-open {
     0 16px 42px -6px rgba(0,0,0,0.75),
     0 0 22px -2px rgba(216,150,88,0.18),
     inset 0 1.5px 1.5px 0 rgba(255,248,235,0.65);
-  transform:translateY(-2px);
+  transform:translate3d(0,calc(var(--plank-y,0px) - 2px),0) scale(var(--plank-scale,1)) rotateX(var(--plank-rot-x,0deg));
 }
 
 .editorial-card.pal-2{
@@ -1411,7 +1411,7 @@ body.studio-drawer-open {
     0 16px 42px -6px rgba(0,0,0,0.75),
     0 0 22px -2px rgba(203,213,225,0.18),
     inset 0 1.5px 1.5px 0 rgba(255,255,255,0.65);
-  transform:translateY(-2px);
+  transform:translate3d(0,calc(var(--plank-y,0px) - 2px),0) scale(var(--plank-scale,1)) rotateX(var(--plank-rot-x,0deg));
 }
 
 /* Glass Shatter & Fracture Destruction Effect */
@@ -1488,7 +1488,7 @@ body.studio-drawer-open {
 .card-main-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:clamp(28px,4vw,56px);align-items:center;position:relative;z-index:2}
 @media (max-width: 960px){
   .card-main-grid{grid-template-columns:1fr;gap:28px}
-  .editorial-card{position:relative;top:auto;margin-bottom:32px}
+  .editorial-card{position:relative;top:auto!important;transform:none!important;filter:none!important;margin-bottom:32px}
 }
 @media (max-width: 640px){
   .card-specs-matrix{grid-template-columns:1fr!important;gap:10px!important}
