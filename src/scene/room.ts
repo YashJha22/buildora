@@ -497,7 +497,8 @@ export function buildRoom(
   sun.position.set(-9, 5.5, 1.5);
   sun.target.position.set(0, 0, -0.2);
   sun.castShadow = true;
-  const shadowDim = typeof window !== 'undefined' && window.innerWidth <= 640 ? 512 : 2048;
+  const isLowEndCpu = typeof navigator !== 'undefined' && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
+  const shadowDim = typeof window !== 'undefined' && window.innerWidth <= 640 ? 512 : isLowEndCpu ? 1024 : 1536;
   sun.shadow.mapSize.set(shadowDim, shadowDim);
   const sc = sun.shadow.camera;
   sc.left = -7;

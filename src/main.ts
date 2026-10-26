@@ -2,7 +2,7 @@ import { sound } from './audio';
 import { updateChapters } from './chapters';
 import { holdAfterPlan, remapSideways } from './chapters/plan';
 import { initCursor, updateCursor } from './cursor';
-import { ring } from './dom';
+import { L, W, ring } from './dom';
 import { initInput } from './input';
 import { seekIntroClock, startIntro } from './intro';
 import { initRouter, setRouterSceneApi } from './router';
@@ -97,6 +97,70 @@ function initStudioControls() {
   initPullCordLight();
   initMobileNav();
   initApproachInteractions();
+  initLegalModal();
+}
+
+function initLegalModal() {
+  const modal = document.getElementById('legal-modal') as HTMLDialogElement | null;
+  const closeBtn = document.getElementById('close-legal-modal');
+  const titleEl = document.getElementById('legal-modal-title');
+  const bodyEl = document.getElementById('legal-modal-body');
+  if (!modal || !titleEl || !bodyEl) return;
+
+  const LEGAL_CONTENT: Record<string, { title: string; html: string }> = {
+    about: {
+      title: 'About Buildora & Build with Yash',
+      html: `
+        <p><strong>Buildora</strong> is an interactive architectural design and 3D spatial visualization studio created by <strong>Yash Jha (Build with Yash)</strong>, based in Patna, Bihar, India and working with clients worldwide.</p>
+        <p>We bridge the gap between two-dimensional floor plans and lived architectural spaces. Using real-time WebGL daylight simulation, physical material palettes, and exact orthographic geometry, we let homeowners, architects, and cultural institutions experience and refine every room before construction begins.</p>
+        <p><strong>Direct Atelier Contact:</strong> <a href="mailto:iyashjha@gmail.com">iyashjha@gmail.com</a></p>
+      `,
+    },
+    privacy: {
+      title: 'Privacy Policy',
+      html: `
+        <p><strong>Effective Date:</strong> January 2026</p>
+        <p>Buildora (operated by Build with Yash) respects your privacy. We do not sell, rent, or trade any personal information.</p>
+        <p><strong>Information We Collect:</strong> When you submit a project enquiry through our contact form or email us directly at <code>iyashjha@gmail.com</code>, we receive only the contact details and project brief you choose to share so we can respond to your commission enquiry.</p>
+        <p><strong>Cookies &amp; Local Storage:</strong> Buildora does not use third-party advertising trackers. Any client-side state (such as theme, lighting, or studio preferences) stays locally in your browser session.</p>
+      `,
+    },
+    terms: {
+      title: 'Terms of Service',
+      html: `
+        <p><strong>Effective Date:</strong> January 2026</p>
+        <p>All architectural drawings, 3D spatial models, custom shaders, and case study visualizations on Buildora are the intellectual property of <strong>Build with Yash (Yash Jha)</strong> unless otherwise noted in a client commission agreement.</p>
+        <p><strong>Use of Interactive Studio:</strong> You may freely explore the interactive 3D studio and case studies for personal evaluation and project inspiration. Commercial redistribution or reproduction of the 3D assets, code, or architectural drawings requires prior written permission.</p>
+      `,
+    },
+  };
+
+  document.querySelectorAll<HTMLButtonElement>('[data-legal]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const key = btn.dataset.legal || 'privacy';
+      const entry = LEGAL_CONTENT[key] || LEGAL_CONTENT.privacy;
+      titleEl.textContent = entry.title;
+      bodyEl.innerHTML = entry.html;
+      if (typeof modal.showModal === 'function') {
+        modal.showModal();
+      } else {
+        modal.setAttribute('open', 'true');
+      }
+    });
+  });
+
+  const closeModal = () => {
+    if (typeof modal.close === 'function' && modal.open) {
+      modal.close();
+    } else {
+      modal.removeAttribute('open');
+    }
+  };
+
+  closeBtn?.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 }
 
 function initApproachInteractions() {
@@ -404,6 +468,14 @@ function measureJourneyHeight(force = false) {
 window.addEventListener('resize', () => measureJourneyHeight(false), { passive: true });
 measureJourneyHeight(true);
 
+const cachedFootEl = document.querySelector<HTMLElement>('.foot');
+const cachedBldEl = document.getElementById('bld');
+const cachedCapEl = document.getElementById('cap');
+const cachedHeroEl = document.querySelector<HTMLElement>('main');
+const cachedPullCordWrap = document.getElementById('pull-cord-wrap');
+const cachedHeroTelemetry = document.getElementById('hero-telemetry');
+let studioCanvasesCulled = false;
+
 function updateScrollProgress() {
   const scrollY = window.scrollY || window.pageYOffset;
   if (!st.ready) {
@@ -428,46 +500,40 @@ function updateScrollProgress() {
 
   // Transition UI elements as user scrolls past the completed build journey into Selected Works
   const exitProgress = clamp((scrollY - jH) / 250, 0, 1);
-  const footEl = document.querySelector<HTMLElement>('.foot');
-  const bldEl = document.getElementById('bld');
-  const capEl = document.getElementById('cap');
-  const heroEl = document.querySelector<HTMLElement>('main');
-  const pullCordWrap = document.getElementById('pull-cord-wrap');
-  const heroTelemetry = document.getElementById('hero-telemetry');
 
   if (exitProgress > 0) {
-    if (footEl) footEl.style.opacity = String(Math.max(0, 1 - exitProgress));
-    if (bldEl) {
-      bldEl.style.opacity = String(Math.max(0, 1 - exitProgress));
-      if (exitProgress >= 1) bldEl.style.visibility = 'hidden';
+    if (cachedFootEl) cachedFootEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (cachedBldEl) {
+      cachedBldEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+      if (exitProgress >= 1) cachedBldEl.style.visibility = 'hidden';
     }
-    if (capEl) capEl.style.opacity = String(Math.max(0, 1 - exitProgress));
-    if (heroEl) {
-      heroEl.style.opacity = '0';
-      heroEl.style.visibility = 'hidden';
+    if (cachedCapEl) cachedCapEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (cachedHeroEl) {
+      cachedHeroEl.style.opacity = '0';
+      cachedHeroEl.style.visibility = 'hidden';
     }
-    if (pullCordWrap) {
-      pullCordWrap.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
-      pullCordWrap.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
+    if (cachedPullCordWrap) {
+      cachedPullCordWrap.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
+      cachedPullCordWrap.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
     }
-    if (heroTelemetry) {
-      heroTelemetry.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
-      heroTelemetry.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
+    if (cachedHeroTelemetry) {
+      cachedHeroTelemetry.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
+      cachedHeroTelemetry.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
     }
   } else {
-    if (footEl) footEl.style.opacity = '';
-    if (bldEl) {
-      bldEl.style.opacity = '';
-      bldEl.style.visibility = '';
+    if (cachedFootEl) cachedFootEl.style.opacity = '';
+    if (cachedBldEl) {
+      cachedBldEl.style.opacity = '';
+      cachedBldEl.style.visibility = '';
     }
-    if (heroEl) heroEl.style.visibility = '';
-    if (pullCordWrap) {
-      pullCordWrap.style.opacity = '';
-      pullCordWrap.style.pointerEvents = '';
+    if (cachedHeroEl) cachedHeroEl.style.visibility = '';
+    if (cachedPullCordWrap) {
+      cachedPullCordWrap.style.opacity = '';
+      cachedPullCordWrap.style.pointerEvents = '';
     }
-    if (heroTelemetry) {
-      heroTelemetry.style.opacity = '';
-      heroTelemetry.style.pointerEvents = '';
+    if (cachedHeroTelemetry) {
+      cachedHeroTelemetry.style.opacity = '';
+      cachedHeroTelemetry.style.pointerEvents = '';
     }
   }
 }
@@ -518,17 +584,27 @@ function frame(ms: number) {
     return;
   }
 
-  // When scrolled past the Studio into Projects / Contact / Footer, canvases are hidden behind solid background.
-  // Skipping WebGL draw calls completely eliminates GPU fillrate and battery consumption when not visible.
+  // When scrolled past the Studio into Approach / Projects / Contact / Footer, canvases are hidden behind solid background.
+  // Skipping WebGL draw calls AND setting visibility:hidden eliminates GPU fillrate and compositor overhead under backdrop-filter cards.
   const isStudioVisible = (window.scrollY || window.pageYOffset) <= cachedJH + 350;
   if (!isStudioVisible) {
-    const heroEl = document.querySelector<HTMLElement>('main');
-    if (heroEl) {
-      heroEl.style.opacity = '0';
-      heroEl.style.visibility = 'hidden';
-      heroEl.style.pointerEvents = 'none';
+    if (!studioCanvasesCulled) {
+      studioCanvasesCulled = true;
+      W.style.visibility = 'hidden';
+      L.style.visibility = 'hidden';
+      ring.style.visibility = 'hidden';
+      if (cachedHeroEl) {
+        cachedHeroEl.style.opacity = '0';
+        cachedHeroEl.style.visibility = 'hidden';
+        cachedHeroEl.style.pointerEvents = 'none';
+      }
     }
     return;
+  } else if (studioCanvasesCulled) {
+    studioCanvasesCulled = false;
+    W.style.visibility = '';
+    L.style.visibility = '';
+    ring.style.visibility = '';
   }
 
   const progressSmoothing = st.w < 768 ? 0.12 : smooth.progress;

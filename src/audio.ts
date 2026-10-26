@@ -57,14 +57,14 @@ class ArchitecturalAudio {
     this.noiseFilter = filter;
     this.noiseGain = nGain;
 
-    // 2. Warm low-pass architectural lens hum
+    // 2. Warm low-pass architectural lens hum (audible on both laptop & phone speakers)
     const osc = ctx.createOscillator();
     osc.type = 'triangle';
-    osc.frequency.value = 110;
+    osc.frequency.value = 196;
 
     const humFilter = ctx.createBiquadFilter();
     humFilter.type = 'lowpass';
-    humFilter.frequency.value = 240;
+    humFilter.frequency.value = 420;
 
     const hGain = ctx.createGain();
     hGain.gain.value = 0;
@@ -76,20 +76,75 @@ class ArchitecturalAudio {
 
     this.humOsc = osc;
     this.humGain = hGain;
+
+    if (typeof document !== 'undefined') {
+      document.addEventListener('visibilitychange', () => {
+        if (!this.ctx) return;
+        if (document.hidden) {
+          if (this.noiseGain) this.noiseGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
+          if (this.humGain) this.humGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.02);
+          if (this.ctx.state === 'running') {
+            this.ctx.suspend().catch(() => {});
+          }
+        } else if (this.enabled && this.ctx.state === 'suspended') {
+          this.ctx.resume().catch(() => {});
+        }
+      });
+    }
+  }
+
+  /** Warm architectural bell triad played immediately when the user activates Sound On */
+  playActivationChime() {
+    if (!this.enabled || !this.ctx || reduce) return;
+    const ctx = this.ctx;
+    const now = ctx.currentTime + 0.01;
+    const notes = [440, 554.37, 659.25, 880];
+    notes.forEach((freq, idx) => {
+      const start = now + idx * 0.045;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.type = idx === 0 ? 'triangle' : 'sine';
+      osc.frequency.setValueAtTime(freq, start);
+      osc.frequency.exponentialRampToValueAtTime(freq * 0.998, start + 0.55);
+      const peak = 0.085 / (1 + idx * 0.35);
+      gain.gain.setValueAtTime(0.0001, start);
+      gain.gain.linearRampToValueAtTime(peak, start + 0.015);
+      gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.62);
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.start(start);
+      osc.stop(start + 0.65);
+    });
   }
 
   toggle(): boolean {
     if (!this.ctx) this.init();
     if (!this.ctx) return false;
     this.enabled = !this.enabled;
-    if (this.enabled && this.ctx.state === 'suspended') {
-      this.ctx.resume();
+    if (!this.enabled) {
+      if (this.noiseGain && this.humGain) {
+        this.noiseGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.03);
+        this.humGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.04);
+      }
+      if (this.ctx.state === 'running') {
+        setTimeout(() => {
+          if (!this.enabled && this.ctx?.state === 'running') {
+            this.ctx.suspend().catch(() => {});
+          }
+        }, 120);
+      }
+      return false;
     }
-    if (!this.enabled && this.noiseGain && this.humGain && this.ctx) {
-      this.noiseGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.04);
-      this.humGain.gain.setTargetAtTime(0, this.ctx.currentTime, 0.05);
-    } else if (this.enabled) {
-      this.playCadTick(880);
+
+    if (this.ctx.state === 'suspended') {
+      this.ctx
+        .resume()
+        .then(() => {
+          if (this.enabled) this.playActivationChime();
+        })
+        .catch(() => {});
+    } else {
+      this.playActivationChime();
     }
     return this.enabled;
   }
@@ -98,8 +153,12 @@ class ArchitecturalAudio {
     return this.enabled;
   }
 
+  getContextState(): string {
+    return this.ctx ? this.ctx.state : 'uninitialized';
+  }
+
   update(uDraw: number, pointerSpeedPx: number, t: number) {
-    if (!this.enabled || !this.ctx || reduce) return;
+    if (!this.enabled || !this.ctx || this.ctx.state !== 'running' || reduce) return;
     const now = this.ctx.currentTime;
 
     // Graphite pencil grain while sketch is actively drawing
@@ -114,10 +173,10 @@ class ArchitecturalAudio {
 
     // Spatial lens hum modulated by pointer velocity
     if (this.humGain && this.humOsc) {
-      const speedNorm = Math.min(1, pointerSpeedPx / 42);
-      const targetHum = uDraw >= 0.98 ? 0.012 + speedNorm * 0.045 : 0;
+      const speedNorm = Math.min(1, pointerSpeedPx / 38);
+      const targetHum = uDraw >= 0.98 ? 0.018 + speedNorm * 0.05 : 0.01;
       this.humGain.gain.setTargetAtTime(targetHum, now, 0.06);
-      this.humOsc.frequency.setTargetAtTime(108 + speedNorm * 54, now, 0.06);
+      this.humOsc.frequency.setTargetAtTime(196 + speedNorm * 64, now, 0.06);
     }
   }
 
@@ -511,8 +570,7 @@ class ArchitecturalAudio {
 
   /** Authentic crystalline glass shatter, fracture cracks & falling shard tinkles */
   playGlassShatter() {
-    if (!this.ctx) this.init();
-    if (!this.ctx) return;
+    if (!this.enabled || !this.ctx || reduce) return;
     if (this.ctx.state === 'suspended') {
       this.ctx.resume().catch(() => {});
     }

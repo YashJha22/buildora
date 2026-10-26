@@ -328,7 +328,7 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
 
           <div class="proj-hero-desc-block">
             <p class="proj-hero-sub">
-              Buildora transforms orthographic architectural linework into living, light-responsive spaces. Each commission explores solar geometry, material honesty, and tactile enclosure by <strong>Build with Yash</strong>.
+              Buildora turns architectural plans into real, light-filled spaces you can explore before they are built. Each project combines natural daylight, honest materials, and bespoke craft by <strong>Build with Yash</strong>.
             </p>
           </div>
 
@@ -357,17 +357,17 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
 
             <div class="card-top-row">
               <div class="card-top-meta">
-                <span class="card-idx-tag">COMMISSION 0${idx + 1}</span>
+                <span class="card-idx-tag">Commission 0${idx + 1}</span>
                 <span class="card-sep" aria-hidden="true">/</span>
-                <span class="card-loc-tag">${p.location.toUpperCase()}</span>
+                <span class="card-loc-tag">${p.location}</span>
                 <span class="card-sep" aria-hidden="true">/</span>
                 <span class="card-year-tag">${p.year}</span>
               </div>
               <div class="card-pills-row">
-                <span class="card-pill pill-cat pill-cat-${p.paletteIdx}">${p.category.toUpperCase()}</span>
-                <span class="card-pill pill-drawing">${p.drawingType.split('·')[0].trim().toUpperCase()}</span>
+                <span class="card-pill pill-cat pill-cat-${p.paletteIdx}">${p.category}</span>
+                <span class="card-pill pill-drawing">${p.drawingType.split('·')[0].trim()}</span>
                 <span class="card-pill pill-area">${p.area}</span>
-                <span class="card-pill pill-mat">${p.materialsUsed[0].toUpperCase()}</span>
+                <span class="card-pill pill-mat">${p.materialsUsed[0]}</span>
               </div>
             </div>
 

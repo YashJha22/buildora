@@ -745,7 +745,6 @@ body.studio-drawer-open {
   .bp-datum,
   #pull-cord-wrap,
   .hero-chapter-stepper,
-  .hero-scroll-btn,
   .bwy-credit-tag,
   #cap,
   .foot {
@@ -833,23 +832,41 @@ body.studio-drawer-open {
   }
   .hero-actions {
     flex-direction: row;
+    flex-wrap: wrap;
     align-items: center;
-    gap: 12px;
+    gap: 10px;
     width: auto;
     margin: 0;
   }
   .hero-actions .cta {
     width: auto;
     min-height: 44px;
-    padding: 0 24px;
-    font-size: 10.5px;
-    letter-spacing: 0.2em;
+    padding: 0 20px;
+    font-size: 11px;
+    letter-spacing: 0.14em;
     text-transform: uppercase;
     border-radius: 99px;
     background: #0d0d0c !important;
     border: 1.5px solid #0d0d0c !important;
     color: #f7f3ed !important;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.2) !important;
+  }
+  .hero-actions .hero-scroll-btn {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0 18px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    border-radius: 99px;
+    background: rgba(247, 243, 237, 0.78) !important;
+    border: 1.5px solid rgba(13, 13, 12, 0.28) !important;
+    color: #0d0d0c !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
   @media (max-height: 700px) {
     .studio-hero-main, main {
@@ -864,9 +881,10 @@ body.studio-drawer-open {
       line-height: 1.4 !important;
       margin: 0 0 12px !important;
     }
-    .hero-actions .cta {
+    .hero-actions .cta,
+    .hero-actions .hero-scroll-btn {
       min-height: 40px !important;
-      padding: 0 20px !important;
+      padding: 0 16px !important;
     }
   }
   .hero-telemetry {
@@ -1471,11 +1489,11 @@ body.studio-drawer-open {
 .card-watermark{position:absolute;right:clamp(16px,4vw,44px);bottom:clamp(12px,2vw,28px);font-family:"Instrument Serif",serif;font-size:clamp(140px,26vw,340px);line-height:.8;font-weight:400;color:rgba(247, 243, 237,.045);pointer-events:none;user-select:none;z-index:1;transition:transform .3s ease-out}
 
 .card-top-row{display:flex;justify-content:space-between;align-items:center;gap:16px;margin-bottom:clamp(20px,3.5vw,36px);flex-wrap:wrap;position:relative;z-index:2}
-.card-top-meta{display:flex;align-items:center;gap:10px;font-size:10.5px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+.card-top-meta{display:flex;align-items:center;gap:10px;font-size:12px;letter-spacing:.08em;color:var(--muted);flex-wrap:wrap}
 .card-idx-tag{color:var(--warm);font-weight:600}
 .card-sep{color:rgba(247, 243, 237,.25)}
 .card-pills-row{display:flex;gap:8px;flex-wrap:wrap}
-.card-pill{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.16em;text-transform:uppercase;padding:5px 13px;border-radius:99px;border:1px solid rgba(223,186,115,0.45);background:rgba(223,186,115,0.08);color:var(--warm);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 1px rgba(255,250,230,0.35),0 2px 8px rgba(0,0,0,0.45);transition:all .25s ease;font-weight:500}
+.card-pill{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.06em;padding:5px 13px;border-radius:99px;border:1px solid rgba(223,186,115,0.45);background:rgba(223,186,115,0.08);color:var(--warm);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);box-shadow:inset 0 1px 1px rgba(255,250,230,0.35),0 2px 8px rgba(0,0,0,0.45);transition:all .25s ease;font-weight:500}
 .card-pill:hover{background:rgba(223,186,115,0.18);border-color:var(--warm);color:#ffffff;box-shadow:0 0 14px rgba(223,186,115,0.35),inset 0 1px 1px rgba(255,255,255,0.6);transform:translateY(-1px)}
 .pill-cat{border-color:var(--warm);color:var(--warm)}
 .pill-cat-0{border-color:rgba(223,186,115,0.55);color:var(--warm)}
@@ -3350,4 +3368,129 @@ body.custom-cursor-active #nfg-svg {
     overflow: hidden !important;
     text-overflow: clip !important;
   }
+}
+
+/* ==========================================================================
+   Footer Social Links & Legal / About Modal (Phase 4 & Phase 5)
+   ========================================================================== */
+.sf-social-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 16px;
+}
+.sf-social-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 99px;
+  border: 1px solid rgba(223, 186, 115, 0.28);
+  background: rgba(223, 186, 115, 0.06);
+  color: var(--bone);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-decoration: none;
+  transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+.sf-social-pill:hover {
+  border-color: var(--warm);
+  background: rgba(223, 186, 115, 0.16);
+  color: var(--warm);
+}
+.sf-legal-links {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.sf-legal-btn {
+  background: none;
+  border: none;
+  padding: 6px 4px;
+  min-height: 36px;
+  font-family: var(--sans);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  cursor: pointer;
+  transition: color 0.2s ease;
+}
+.sf-legal-btn:hover {
+  color: var(--warm);
+}
+.sf-legal-sep {
+  color: rgba(247, 243, 237, 0.25);
+}
+
+.legal-modal {
+  max-width: 560px;
+  width: calc(100vw - 32px);
+  border-radius: 20px;
+  border: 1px solid rgba(223, 186, 115, 0.38);
+  background: linear-gradient(145deg, rgba(18, 15, 13, 0.96), rgba(10, 9, 8, 0.98));
+  color: var(--bone);
+  padding: 0;
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+}
+.legal-modal::backdrop {
+  background: rgba(6, 5, 4, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+.legal-modal-inner {
+  padding: clamp(22px, 4vw, 32px);
+}
+.legal-modal-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 16px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid rgba(223, 186, 115, 0.2);
+}
+.legal-modal-kicker {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--warm);
+  margin-bottom: 4px;
+}
+.legal-modal-head h2 {
+  font-family: "Instrument Serif", serif;
+  font-size: clamp(24px, 3.2vw, 32px);
+  font-weight: 400;
+  margin: 0;
+  color: var(--bone);
+}
+.legal-modal-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(223, 186, 115, 0.28);
+  color: var(--bone);
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 1;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.legal-modal-close:hover {
+  border-color: var(--warm);
+  color: var(--warm);
+}
+.legal-modal-body p {
+  font-size: 14px;
+  line-height: 1.65;
+  color: rgba(247, 243, 237, 0.84);
+  margin: 0 0 12px;
+}
+.legal-modal-body strong {
+  color: var(--warm);
 }

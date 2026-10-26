@@ -187,7 +187,8 @@ function create(
 
   const size = () => {
     const isMobile = st.w < 768;
-    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.5 : 1.75);
+    const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
+    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.5 : isLowEnd ? 1.25 : 1.5);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
@@ -679,6 +680,8 @@ function create(
         uDraw: sketch.uniforms.uDraw.value,
         uFront: front?.uniforms.uFront.value ?? null,
         uSectionActive: front?.uniforms.uSectionActive.value ?? 0,
+        soundEnabled: sound.isEnabled(),
+        audioContextState: sound.getContextState(),
       };
     },
     setFront(v: number | null) {

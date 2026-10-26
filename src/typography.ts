@@ -27,35 +27,26 @@ export function splitTextIntoChars(el: HTMLElement): SplitResult {
       chars: existingChars,
       words: existingWords,
       revert: () => {
-        const raw = el.getAttribute('aria-label') || el.textContent || '';
+        const raw = el.dataset.rawText || el.textContent || '';
         el.textContent = raw;
-        el.removeAttribute('aria-label');
-        if (el.getAttribute('role') === 'text') {
-          el.removeAttribute('role');
-        }
+        delete el.dataset.rawText;
       },
     };
   }
 
-  const rawText = el.textContent || '';
-  if (!el.getAttribute('aria-label')) {
-    el.setAttribute('aria-label', rawText.trim());
-  }
-  if (!el.getAttribute('role')) {
-    el.setAttribute('role', 'text');
-  }
+  const rawText = (el.textContent || '').trim();
+  el.dataset.rawText = rawText;
 
   const chars: HTMLElement[] = [];
   const words: HTMLElement[] = [];
   const originalHTML = el.innerHTML;
 
   const fragment = document.createDocumentFragment();
-  const wordTokens = rawText.trim().split(/\s+/);
+  const wordTokens = rawText.split(/\s+/);
 
   wordTokens.forEach((wToken, wIdx) => {
     const wordSpan = document.createElement('span');
     wordSpan.className = 'kt-word';
-    wordSpan.setAttribute('aria-hidden', 'true');
     wordSpan.style.display = 'inline-block';
     wordSpan.style.whiteSpace = 'nowrap';
     wordSpan.style.verticalAlign = 'baseline';
@@ -63,7 +54,6 @@ export function splitTextIntoChars(el: HTMLElement): SplitResult {
     for (let i = 0; i < wToken.length; i++) {
       const charSpan = document.createElement('span');
       charSpan.className = 'kt-char';
-      charSpan.setAttribute('aria-hidden', 'true');
       charSpan.dataset.char = wToken[i];
       charSpan.textContent = wToken[i];
       charSpan.style.display = 'inline-block';
@@ -81,7 +71,6 @@ export function splitTextIntoChars(el: HTMLElement): SplitResult {
     if (wIdx < wordTokens.length - 1) {
       const spaceSpan = document.createElement('span');
       spaceSpan.className = 'kt-space';
-      spaceSpan.setAttribute('aria-hidden', 'true');
       spaceSpan.innerHTML = '&nbsp;';
       spaceSpan.style.display = 'inline-block';
       fragment.appendChild(spaceSpan);
