@@ -6,10 +6,12 @@
 
 import { preferences, getResolvedTheme, type ThemeMode, type UserPreferences } from './preferences';
 import { sound } from './audio';
+import { LampPhysics } from './lampPhysics';
 
 let panelOverlay: HTMLElement | null = null;
 let panel: HTMLElement | null = null;
 let headerBtn: HTMLElement | null = null;
+let lampPhysics: LampPhysics | null = null;
 let isOpen = false;
 let previousActiveElement: HTMLElement | null = null;
 
@@ -35,6 +37,9 @@ export function openSettingsPanel() {
     document.body.classList.add('settings-sheet-open');
   }
 
+  // Resume continuous lamp physics simulation
+  lampPhysics?.start();
+
   // Focus close button or panel for accessibility
   const closeBtn = document.getElementById('close-settings-btn');
   closeBtn?.focus();
@@ -52,6 +57,9 @@ export function closeSettingsPanel() {
   headerBtn?.setAttribute('aria-expanded', 'false');
 
   document.body.classList.remove('settings-sheet-open');
+
+  // Pause lamp physics simulation while panel is hidden to save CPU/GPU
+  lampPhysics?.stop();
 
   setTimeout(() => {
     if (!isOpen && panelOverlay) {
@@ -83,7 +91,6 @@ export function initSettingsPanel() {
   if (!panelOverlay || !panel) return;
 
   const closeBtn = document.getElementById('close-settings-btn');
-  const pullCordBtn = document.getElementById('sp-pull-cord');
   const pillDark = document.getElementById('sp-pill-dark');
   const pillLight = document.getElementById('sp-pill-light');
   const pillSystem = document.getElementById('sp-pill-system');
@@ -91,6 +98,33 @@ export function initSettingsPanel() {
   const switchNotif = document.getElementById('sp-switch-notifications');
   const switchSounds = document.getElementById('sp-switch-sounds');
   const switchPreviews = document.getElementById('sp-switch-previews');
+
+  // Initialize Lamp Physics with unified SVG elements
+  const lampSvg = document.querySelector<SVGSVGElement>('.sp-lamp-svg');
+  const cordPath = document.getElementById('sp-cord-curve') as SVGPathElement | null;
+  const bead = document.getElementById('sp-cord-bead') as SVGCircleElement | null;
+  const beadHighlight = document.getElementById('sp-cord-bead-hl') as SVGCircleElement | null;
+  const beadHitbox = document.getElementById('sp-cord-hitbox') as SVGElement | null;
+  const cone = document.querySelector<SVGElement>('.sp-cone-shape');
+  const bulbGlow = document.querySelector<SVGElement>('.sp-bulb-glow-core');
+
+  if (lampSvg && cordPath && bead && beadHighlight && beadHitbox && cone && bulbGlow) {
+    lampPhysics = new LampPhysics({
+      svgEl: lampSvg,
+      cordPathEl: cordPath,
+      beadEl: bead,
+      beadHighlightEl: beadHighlight,
+      beadHitboxEl: beadHitbox,
+      coneEl: cone,
+      bulbGlowEl: bulbGlow,
+      onThemeCycle: () => {
+        const currentMode = preferences.get().theme;
+        const nextMode: ThemeMode =
+          currentMode === 'dark' ? 'light' : currentMode === 'light' ? 'system' : 'dark';
+        preferences.setTheme(nextMode);
+      },
+    });
+  }
 
   // Open/Close triggers
   headerBtn?.addEventListener('click', (e) => {
@@ -117,27 +151,6 @@ export function initSettingsPanel() {
       e.preventDefault();
       closeSettingsPanel();
     }
-  });
-
-  // Pull Cord interaction
-  let cordPulling = false;
-  pullCordBtn?.addEventListener('click', (e) => {
-    e.preventDefault();
-    if (cordPulling) return;
-    cordPulling = true;
-    pullCordBtn.classList.add('is-pulled');
-
-    const currentMode = preferences.get().theme;
-    const nextMode: ThemeMode =
-      currentMode === 'dark' ? 'light' : currentMode === 'light' ? 'system' : 'dark';
-
-    sound.playPullCord(nextMode === 'dark');
-    preferences.setTheme(nextMode);
-
-    setTimeout(() => {
-      pullCordBtn.classList.remove('is-pulled');
-      cordPulling = false;
-    }, 300);
   });
 
   // Appearance 3-way segment buttons (Single source of truth)

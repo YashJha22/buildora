@@ -190,48 +190,46 @@
 }
 
 /* ==========================================================================
-   Compact Architectural Lamp Banner (Proportionate Decorative Detail)
+   Physically Coherent Architectural Lamp Banner
+   A single, unified coordinate system containing:
+   - Fixed ceiling canopy & straight vertical suspension cable
+   - Flared atelier green lampshade with brass collar and lip
+   - Exposed centered bulb with downward localized illumination cone
+   - Continuous physics-driven flexible pull cord & moving brass bead
    ========================================================================== */
 .sp-lamp-banner {
   position: relative;
   width: 100%;
-  height: 72px;
+  height: 155px;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
+  align-items: center;
   overflow: visible;
+  margin-top: -8px;
+  margin-bottom: 2px;
 }
 
-.sp-lamp-stage {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sp-suspension-cord {
-  width: 1.5px;
-  height: 14px;
-  background: linear-gradient(180deg, rgba(223, 186, 115, 0.7) 0%, #caa45a 100%);
-}
-
-.sp-lamp-assembly {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.sp-brass-collar {
-  width: 10px;
-  height: 5px;
-  background: linear-gradient(90deg, #a47d33 0%, #f5d78e 50%, #caa45a 100%);
-  border-radius: 1px 1px 0 0;
-}
-
-.sp-shade-svg {
+.sp-lamp-svg {
   display: block;
-  filter: drop-shadow(0 6px 14px rgba(0, 0, 0, 0.35));
+  width: 100%;
+  max-width: 250px;
+  height: 155px;
+  overflow: visible;
+  user-select: none;
+}
+
+.sp-cone-shape {
+  pointer-events: none;
+  transition: opacity 0.35s ease;
+}
+
+:root[data-theme="dark"] .sp-cone-shape,
+:root:not([data-theme="light"]) .sp-cone-shape {
+  opacity: 1;
+}
+
+:root[data-theme="light"] .sp-cone-shape {
+  opacity: 0.65;
 }
 
 .sp-shade-body {
@@ -247,165 +245,71 @@
   fill: url(#sp-shade-green-light);
 }
 
-.sp-bulb-wrap {
-  position: absolute;
-  bottom: 0px;
-  left: 50%;
-  transform: translateX(-50%);
-  display: flex;
-  justify-content: center;
-  align-items: center;
+.sp-shade-interior {
+  fill: #0d1a14;
 }
 
-.sp-bulb {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  transition: all 0.3s ease;
+/* Centered Incandescent Bulb & Glowing Halo */
+.sp-bulb-element {
+  transition: fill 0.3s ease, filter 0.3s ease;
 }
 
-.sp-bulb-glow {
-  position: absolute;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
+:root[data-theme="dark"] .sp-bulb-element,
+:root:not([data-theme="light"]) .sp-bulb-element {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 8px #ffeed1) drop-shadow(0 0 16px #f5c26b);
+}
+
+:root[data-theme="light"] .sp-bulb-element {
+  fill: #ffffff;
+  filter: drop-shadow(0 0 6px rgba(255, 255, 255, 0.9));
+}
+
+.sp-bulb-glow-core {
   pointer-events: none;
-  transition: all 0.3s ease;
+  transition: fill 0.35s ease;
 }
 
-:root[data-theme="dark"] .sp-bulb,
-:root:not([data-theme="light"]) .sp-bulb {
-  background: radial-gradient(circle at 40% 40%, #ffffff 0%, #ffeed1 45%, #f5c26b 100%);
-  box-shadow: 0 0 10px #ffeed1, 0 0 20px #f5c26b;
+:root[data-theme="dark"] .sp-bulb-glow-core,
+:root:not([data-theme="light"]) .sp-bulb-glow-core {
+  fill: rgba(245, 194, 107, 0.35);
+  filter: blur(5px);
 }
 
-:root[data-theme="dark"] .sp-bulb-glow,
-:root:not([data-theme="light"]) .sp-bulb-glow {
-  background: radial-gradient(circle, rgba(245, 194, 107, 0.4) 0%, rgba(245, 194, 107, 0.1) 50%, transparent 80%);
+:root[data-theme="light"] .sp-bulb-glow-core {
+  fill: rgba(255, 255, 255, 0.4);
+  filter: blur(4px);
 }
 
-:root[data-theme="light"] .sp-bulb {
-  background: radial-gradient(circle at 40% 40%, #ffffff 0%, #faf8f2 60%, #e8e0cc 100%);
-  box-shadow: 0 0 8px rgba(255, 255, 255, 0.85);
+/* Flexible Pull Cord & Moving Bead */
+.sp-cord-curve {
+  pointer-events: none;
 }
 
-:root[data-theme="light"] .sp-bulb-glow {
-  background: radial-gradient(circle, rgba(255, 255, 255, 0.4) 0%, transparent 70%);
+.sp-cord-bead {
+  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.45));
+  transition: filter 0.2s ease;
 }
 
-.sp-pull-cord {
-  position: absolute;
-  top: 24px;
-  right: -6px;
-  width: 32px;
-  height: 90px;
-  background: none;
-  border: none;
-  padding: 0;
-  margin: 0;
-  cursor: pointer;
+.sp-cord-hitbox {
+  cursor: grab;
   outline: none;
-  color: #caa45a;
-  transform-origin: top center;
-  transition: transform 0.15s ease-out;
-  pointer-events: auto;
+  touch-action: manipulation;
 }
 
-.sp-pull-cord:hover {
-  transform: translateY(2px);
+.sp-cord-hitbox:active {
+  cursor: grabbing;
 }
 
-.sp-pull-cord.is-pulled {
-  animation: spCordSnap 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.25);
+.sp-cord-hitbox:hover ~ .sp-cord-bead,
+.sp-cord-hitbox:focus-visible ~ .sp-cord-bead {
+  filter: drop-shadow(0 0 10px #f5d78e) brightness(1.25);
 }
 
-@keyframes spCordSnap {
-  0% { transform: translateY(0); }
-  45% { transform: translateY(16px); }
-  75% { transform: translateY(-3px); }
-  100% { transform: translateY(0); }
-}
-
-/* ==========================================================================
-   Compact Profile Strip
-   ========================================================================== */
-.sp-profile-card {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 14px;
-  border-radius: 16px;
-  transition: background 0.3s ease;
-}
-
-:root[data-theme="dark"] .sp-profile-card,
-:root:not([data-theme="light"]) .sp-profile-card {
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-:root[data-theme="light"] .sp-profile-card {
-  background: #ffffff;
-  border: 1px solid rgba(0, 0, 0, 0.05);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-}
-
-.sp-avatar {
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-shrink: 0;
-  transition: all 0.3s ease;
-}
-
-:root[data-theme="dark"] .sp-avatar,
-:root:not([data-theme="light"]) .sp-avatar {
-  background: #e0b159;
-  color: #12100d;
-}
-
-:root[data-theme="light"] .sp-avatar {
-  background: #235843;
-  color: #ffffff;
-}
-
-.sp-avatar-initials {
-  font-family: var(--sans, 'Manrope', system-ui, sans-serif);
-  font-size: 14px;
-  font-weight: 800;
-  line-height: 1;
-}
-
-.sp-profile-name {
-  font-size: 14.5px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-
-:root[data-theme="dark"] .sp-profile-name,
-:root:not([data-theme="light"]) .sp-profile-name {
-  color: #f7f3ed;
-}
-
-:root[data-theme="light"] .sp-profile-name {
-  color: #12100d;
-}
-
-.sp-profile-handle {
-  font-size: 12px;
-  line-height: 1.3;
-}
-
-:root[data-theme="dark"] .sp-profile-handle,
-:root:not([data-theme="light"]) .sp-profile-handle {
-  color: rgba(247, 243, 237, 0.52);
-}
-
-:root[data-theme="light"] .sp-profile-handle {
-  color: rgba(22, 20, 18, 0.52);
+.sp-cord-hitbox:focus-visible {
+  stroke: #dfba73;
+  stroke-width: 2px;
+  stroke-dasharray: 4 2;
 }
 
 /* ==========================================================================

@@ -13,9 +13,6 @@ export interface UserPreferences {
   notifications: boolean;
   sound: boolean;
   messagePreviews: boolean;
-  name: string;
-  handle: string;
-  initials: string;
 }
 
 const STORAGE_KEY = 'buildora_preferences_v1';
@@ -25,9 +22,6 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   notifications: true,
   sound: false,
   messagePreviews: true,
-  name: 'Alex Morgan',
-  handle: '@alex.morgan.lab',
-  initials: 'AM',
 };
 
 type PreferenceChangeListener = (prefs: UserPreferences) => void;

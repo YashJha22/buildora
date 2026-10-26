@@ -207,59 +207,70 @@
       </button>
     </div>
 
-    <!-- Proportionate Architectural Lamp Component (Compact & Contextual) -->
+    <!-- Physically Coherent Architectural Pendant Lamp -->
     <div class="sp-lamp-banner" aria-hidden="true">
-      <div class="sp-lamp-stage">
-        <div class="sp-suspension-cord"></div>
-        <div class="sp-lamp-assembly">
-          <div class="sp-brass-collar"></div>
-          <svg class="sp-shade-svg" viewBox="0 0 120 54" width="120" height="54">
-            <defs>
-              <linearGradient id="sp-shade-green-dark" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#2a5243"/>
-                <stop offset="50%" stop-color="#1d3d30"/>
-                <stop offset="100%" stop-color="#142b22"/>
-              </linearGradient>
-              <linearGradient id="sp-shade-green-light" x1="0%" y1="0%" x2="100%" y2="100%">
-                <stop offset="0%" stop-color="#3b725c"/>
-                <stop offset="50%" stop-color="#2a5745"/>
-                <stop offset="100%" stop-color="#1e4133"/>
-              </linearGradient>
-              <linearGradient id="sp-brass" x1="0%" y1="0%" x2="100%" y2="0%">
-                <stop offset="0%" stop-color="#caa45a"/>
-                <stop offset="50%" stop-color="#f5d78e"/>
-                <stop offset="100%" stop-color="#a47d33"/>
-              </linearGradient>
-            </defs>
-            <path class="sp-shade-body" d="M 46 8 L 74 8 L 112 46 L 8 46 Z" />
-            <rect x="45" y="5" width="30" height="4" rx="1" fill="url(#sp-brass)"/>
-            <ellipse cx="60" cy="46" rx="52" ry="6" fill="url(#sp-brass)"/>
-            <ellipse cx="60" cy="45" rx="49" ry="5" fill="#141f1a"/>
-          </svg>
-          <div class="sp-bulb-wrap">
-            <div class="sp-bulb"></div>
-            <div class="sp-bulb-glow"></div>
-          </div>
-        </div>
-        <button type="button" id="sp-pull-cord" class="sp-pull-cord" aria-label="Pull lamp cord to cycle appearance mode" tabindex="0">
-          <svg viewBox="0 0 32 90" width="32" height="90">
-            <path id="sp-cord-line" d="M 8 0 C 8 22, 18 50, 16 72" fill="none" stroke="currentColor" stroke-width="1.8"/>
-            <circle cx="16" cy="78" r="5.5" fill="url(#sp-brass)"/>
-            <circle cx="14.5" cy="76.5" r="1.8" fill="#fff" opacity="0.65"/>
-          </svg>
-        </button>
-      </div>
-    </div>
+      <svg class="sp-lamp-svg" viewBox="0 0 240 160" width="240" height="160" aria-hidden="true">
+        <defs>
+          <linearGradient id="sp-shade-green-dark" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#2a5243"/>
+            <stop offset="45%" stop-color="#1b3f31"/>
+            <stop offset="100%" stop-color="#11261d"/>
+          </linearGradient>
+          <linearGradient id="sp-shade-green-light" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#3b725c"/>
+            <stop offset="50%" stop-color="#2a5745"/>
+            <stop offset="100%" stop-color="#1e4133"/>
+          </linearGradient>
+          <linearGradient id="sp-brass" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#caa45a"/>
+            <stop offset="50%" stop-color="#f5d78e"/>
+            <stop offset="100%" stop-color="#a47d33"/>
+          </linearGradient>
+          <radialGradient id="sp-light-cone" cx="50%" cy="0%" r="90%">
+            <stop offset="0%" stop-color="var(--sp-cone-core, rgba(245, 194, 107, 0.42))"/>
+            <stop offset="40%" stop-color="var(--sp-cone-mid, rgba(223, 186, 115, 0.14))"/>
+            <stop offset="90%" stop-color="transparent"/>
+          </radialGradient>
+        </defs>
 
-    <!-- Compact User Profile Strip -->
-    <div class="sp-profile-card">
-      <div class="sp-avatar" id="sp-avatar" aria-hidden="true">
-        <span class="sp-avatar-initials">AM</span>
-      </div>
-      <div class="sp-profile-info">
-        <div class="sp-profile-name">Alex Morgan</div>
-        <div class="sp-profile-handle">@alex.morgan.lab</div>
-      </div>
+        <!-- Downward Illumination Cone (Originating directly from bulb beneath shade) -->
+        <polygon class="sp-cone-shape" points="76,78 164,78 208,160 32,160" fill="url(#sp-light-cone)"/>
+
+        <!-- Ceiling Mount Rosette -->
+        <rect x="112" y="0" width="16" height="5" rx="1.5" fill="url(#sp-brass)"/>
+
+        <!-- Upper Suspension Cable (Ceiling to Shade Top) -->
+        <line x1="120" y1="5" x2="120" y2="34" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- Brass Socket Collar -->
+        <rect x="114" y="34" width="12" height="7" rx="1.2" fill="url(#sp-brass)"/>
+
+        <!-- Lampshade Flared Body -->
+        <path class="sp-shade-body" d="M 106 41 L 134 41 L 168 76 L 72 76 Z"/>
+        <!-- Top Brass Lip -->
+        <ellipse cx="120" cy="41" rx="14" ry="2.5" fill="url(#sp-brass)"/>
+        <!-- Bottom Flanged Brass Rim -->
+        <ellipse cx="120" cy="76" rx="48" ry="6.5" fill="url(#sp-brass)"/>
+        <!-- Shade Interior Recess -->
+        <ellipse cx="120" cy="75" rx="45" ry="5.5" class="sp-shade-interior"/>
+
+        <!-- Centered Incandescent Bulb -->
+        <ellipse id="sp-bulb" class="sp-bulb-element" cx="120" cy="80" rx="7.5" ry="7.5"/>
+        <ellipse class="sp-bulb-glow-core" cx="120" cy="80" rx="18" ry="12"/>
+
+        <!-- Pull-Cord Eyelet Anchor on Right Rim of Shade -->
+        <circle cx="158" cy="78" r="2.2" fill="url(#sp-brass)"/>
+
+        <!-- Continuous Physics-Driven Flexible Pull Cord -->
+        <path id="sp-cord-curve" class="sp-cord-curve" d="M 158 78 Q 159 105 161 132" fill="none" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
+
+        <!-- Brass Pull Bead with Metallic Highlight -->
+        <circle id="sp-cord-bead" class="sp-cord-bead" cx="161" cy="132" r="5.5" fill="url(#sp-brass)"/>
+        <circle id="sp-cord-bead-hl" cx="159.2" cy="130.5" r="1.6" fill="#ffffff" opacity="0.65"/>
+
+        <!-- Interactive Hitbox for Click / Tap / Focus -->
+        <circle id="sp-cord-hitbox" class="sp-cord-hitbox" cx="161" cy="132" r="18" fill="transparent" tabindex="0" role="button" aria-label="Pull lamp cord to toggle appearance mode"/>
+      </svg>
     </div>
 
     <!-- Section: Appearance (Single Source of Truth: Dark / Light / System) -->
