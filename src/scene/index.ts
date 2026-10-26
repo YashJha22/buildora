@@ -329,12 +329,12 @@ function create(
       gr.scale.set(lf, 1, isFrontGridScale(classic) * lf);
 
       const isMobile = st.w < 768;
-      const dropHeight = isMobile ? 2.4 : 12;
+      const dropHeight = isMobile ? 3.8 : 12;
 
       parts.forEach((p, i) => {
         const s = Math.max(eo(clamp(bt * 1.7 - (i / parts.length) * 0.7, 0, 1)), 0.001),
           ly = i <= 6 ? 0 : i <= 8 ? 1 : 2,
-          l0 = ly == 0 ? 1 : eo(clamp((bq - (ly == 1 ? 0.18 : 0.38) - (i - (ly == 1 ? 7 : 9)) * 0.012) / 0.14, 0, 1)),
+          l0 = ly == 0 ? 1 : eo(clamp((bq - (ly == 1 ? 0.18 : 0.38) - (i - (ly == 1 ? 7 : 9)) * 0.008) / 0.14, 0, 1)),
           dp = (1 - l0) * clamp(bq / 0.04, 0, 1);
 
         // In Build Chapter, unlanded furniture pieces must remain completely hidden until their stage activates.
@@ -345,12 +345,15 @@ function create(
 
         if (!isPartActiveInBuild) return;
 
+        // Smooth scale-in during Build Chapter drop so pieces materialize cleanly as they descend
+        const bldScale = cb > 0.01 && ly > 0 ? s * clamp(l0 * 2.5, 0.01, 1) : s;
+
         if (p.flat) {
-          p.o.scale.setScalar(s);
+          p.o.scale.setScalar(bldScale);
           p.o.position.y = p.by;
         } else {
-          p.o.scale.y = s;
-          p.o.position.y = p.by - (1 - s) * p.hh;
+          p.o.scale.y = bldScale;
+          p.o.position.y = p.by - (1 - bldScale) * p.hh;
         }
         p.o.position.y += dp * dropHeight;
         if (!p.flat) p.o.rotation.y = p.ry + (isMobile ? 0 : dp * 1.3);

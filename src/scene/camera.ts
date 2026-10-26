@@ -30,13 +30,13 @@ export function placeCamera(
   const cx = -3.6 + q2 * 3.6;
   const oa = lerp(-0.9, 0.7, bq);
   const orr = isMobile
-    ? lerp(24.5, 21.0, bq)
+    ? lerp(22.5, 19.5, bq)
     : lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.25);
   px = lerp(px, Math.sin(oa) * orr + (mL - 0.5), cb);
   py = lerp(py, isMobile ? lerp(6.6, 4.8, bq) : lerp(5.4, 3.3, bq) * (1 + (a - 1) * 0.18), cb);
   pz = lerp(pz, Math.cos(oa) * orr - 0.5, cb);
   ax = lerp(ax, 0, cb);
-  ay = lerp(ay, isMobile ? 1.05 : 1.1, cb);
+  ay = lerp(ay, isMobile ? 0.55 : 1.1, cb);
   az = lerp(az, -0.8, cb);
 
   if (classic) {

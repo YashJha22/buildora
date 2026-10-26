@@ -49,7 +49,7 @@ panels.forEach((p) =>
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
 export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
   const isMobile = st.w < 768;
-  const on = clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
+  const on = clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 18, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
     secShow = clamp((q2 - 0.45) / 0.35, 0, 1) * clamp(c * 1.5, 0, 1) * (1 - cb);
   planEl.style.opacity = String(on);

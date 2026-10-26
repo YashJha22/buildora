@@ -3282,23 +3282,21 @@ body.custom-cursor-active #nfg-svg {
   }
 }
 
-/* Mobile premium rendering: no live backdrop blur over the WebGL canvas (it re-blurs every frame on iOS,
-   which reads as soft, flickering black boxes). Use solid surfaces + stable scroll instead. */
+/* Mobile premium rendering: frosted liquid-glass surfaces with generous scroll range so every chapter and stage has deliberate pacing. */
 @media (max-width: 767px) {
-  *, *::before, *::after {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
+  .studio-section {
+    height: calc(520vh + 400px);
+    height: calc(520lvh + 400px);
+    min-height: calc(520svh + 400px);
   }
   html, body {
     scroll-behavior: auto !important;
   }
-  #plan .txt,
-  #bld .lt.build-card {
-    background: rgba(14, 12, 10, 0.96) !important;
-  }
   #studio {
-    background: linear-gradient(145deg, #12100d 0%, #0a0908 100%) padding-box,
+    background: linear-gradient(145deg, rgba(18, 16, 13, 0.94) 0%, rgba(10, 9, 8, 0.97) 100%) padding-box,
       linear-gradient(135deg, rgba(255, 248, 230, 0.85) 0%, rgba(223, 186, 115, 0.5) 30%, rgba(223, 186, 115, 0.14) 70%, rgba(255, 248, 230, 0.42) 100%) border-box !important;
+    backdrop-filter: blur(22px) saturate(140%) !important;
+    -webkit-backdrop-filter: blur(22px) saturate(140%) !important;
   }
   #plan .txt,
   #bld .lt.build-card,
@@ -3306,6 +3304,31 @@ body.custom-cursor-active #nfg-svg {
   #bld {
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+  .foot {
+    display: flex !important;
+    left: 16px !important;
+    right: 16px !important;
+    bottom: calc(10px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 10px !important;
+    font-size: 9px !important;
+    z-index: 24 !important;
+    pointer-events: none !important;
+  }
+  .foot a {
+    pointer-events: auto !important;
+  }
+  #cap {
+    display: block !important;
+    left: 20px !important;
+    right: 20px !important;
+    bottom: calc(250px + env(safe-area-inset-bottom, 0px)) !important;
+    font-size: clamp(26px, 6.8vw, 36px) !important;
+    text-align: center !important;
+    color: #dfba73 !important;
+    text-shadow: 0 4px 20px rgba(0, 0, 0, 0.85) !important;
+    pointer-events: none !important;
+    z-index: 23 !important;
   }
 }
 
