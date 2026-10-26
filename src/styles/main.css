@@ -1020,10 +1020,10 @@ body.studio-drawer-open {
   #plan .drw {
     order: 1 !important;
     position: absolute !important;
-    top: calc(64px + env(safe-area-inset-top, 0px)) !important;
-    bottom: 210px !important;
-    left: 16px !important;
-    right: 16px !important;
+    top: 72px !important;
+    bottom: 248px !important;
+    left: 12px !important;
+    right: 12px !important;
     max-height: none !important;
     width: auto !important;
     padding: 0 !important;
@@ -1034,17 +1034,20 @@ body.studio-drawer-open {
     justify-content: center !important;
     pointer-events: none !important;
     z-index: 2 !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   #plan .drw svg {
     max-height: 100% !important;
     max-width: 100% !important;
-    width: auto !important;
+    width: 100% !important;
     height: auto !important;
-    overflow: hidden !important;
+    overflow: visible !important;
   }
   #plan .drw text {
-    display: none !important;
+    display: block !important;
+    fill: var(--warm) !important;
+    font: 600 13.5px Manrope, sans-serif !important;
+    letter-spacing: 0.14em !important;
   }
   #plan .txt {
     order: 2 !important;

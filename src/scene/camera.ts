@@ -49,50 +49,55 @@ export function placeCamera(
   // In 0B mode: q2=0 is top-down Plan; q2=0.5 tilts into Elevation; q2=1.0 frames the 3D Laser Section Cut.
   const elevBlend = clamp((q2 - 0.15) / 0.35, 0, 1) * c;
   const secBlend = clamp((q2 - 0.5) / 0.5, 0, 1) * c;
-  let deskCamX = -3.32, deskCamY = 1.41, deskCamZ = 17.27;
+  const W = st.w, H = st.h;
+  let drwLeft = 0, drwTop = 0, drwW = 0, drwH = 0;
   if (!isMobile) {
-    const W = st.w, H = st.h;
     const txtWidth = Math.min(430, W * 0.36);
     const pad = Math.max(20, Math.min(96, W * 0.06));
     const gap = W * 0.05;
-    const drwLeft = pad + txtWidth + gap;
+    drwLeft = pad + txtWidth + gap;
     const availW = Math.max(200, W - drwLeft - pad);
-    const drwW = Math.min(780, Math.min(availW, W * 0.52));
-    const drwH = drwW * (400 / 640);
-    const drwTop = (H - drwH) * 0.5;
-
-    const boxLeft = drwLeft + drwW * (70 / 640);
-    const boxRight = drwLeft + drwW * (570 / 640);
-    const boxTop = drwTop + drwH * (88 / 400);
-    const boxBottom = drwTop + drwH * (288 / 400);
-    const boxHeight = boxBottom - boxTop;
-    const boxCenterX = (boxLeft + boxRight) * 0.5;
-    const boxCenterY = (boxTop + boxBottom) * 0.5;
-
-    const ndcCenterX = (boxCenterX / W) * 2 - 1;
-    const ndcCenterY = -(boxCenterY / H) * 2 + 1;
-    const ndcHeight = (boxHeight / H) * 2;
-
-    const visHeight = 6.4 / ndcHeight;
-    const D = visHeight / (2 * Math.tan((38 * Math.PI) / 360));
-    const visWidth = visHeight * (W / H);
-    deskCamX = -(ndcCenterX * visWidth * 0.5);
-    deskCamY = 1.6 - (ndcCenterY * visHeight * 0.5);
-    deskCamZ = -0.6 + D;
+    drwW = Math.min(780, Math.min(availW, W * 0.52));
+    drwH = drwW * (400 / 640);
+    drwTop = (H - drwH) * 0.5;
+  } else {
+    const availW = Math.max(200, W - 24);
+    const availH = Math.max(160, H - 72 - 248);
+    drwW = Math.min(availW, availH * (640 / 400));
+    drwH = drwW * (400 / 640);
+    drwLeft = (W - drwW) * 0.5;
+    drwTop = 72 + (availH - drwH) * 0.5;
   }
 
-  const planY = isMobile
-    ? lerp(17.5, lerp(3.0, 2.2, secBlend) * 1.25, elevBlend)
-    : lerp(14 * a, deskCamY, elevBlend);
-  const planZ = isMobile
-    ? lerp(0.001, lerp(8.5, 10.0, secBlend), elevBlend)
-    : lerp(0.001, deskCamZ, elevBlend);
-  // On desktop: room aligns with .drw SVG blueprint frame. On mobile: room is horizontally centered.
-  const planX = isMobile ? 0 : lerp(cx, deskCamX, elevBlend);
-  const lookY = isMobile
-    ? lerp(0, lerp(0.6, 0.3, secBlend), elevBlend)
-    : lerp(0, deskCamY, elevBlend);
-  const lookZ = isMobile ? lerp(0, -0.7, elevBlend) : lerp(0, -0.6, elevBlend);
+  const boxLeft = drwLeft + drwW * (70 / 640);
+  const boxRight = drwLeft + drwW * (570 / 640);
+  const boxTop = drwTop + drwH * (88 / 400);
+  const boxBottom = drwTop + drwH * (288 / 400);
+  const boxHeight = boxBottom - boxTop;
+  const boxCenterX = (boxLeft + boxRight) * 0.5;
+  const boxCenterY = (boxTop + boxBottom) * 0.5;
+
+  const ndcCenterX = (boxCenterX / W) * 2 - 1;
+  const ndcCenterY = -(boxCenterY / H) * 2 + 1;
+  const ndcHeight = (boxHeight / H) * 2;
+
+  const visHeight = 6.4 / ndcHeight;
+  const D = visHeight / (2 * Math.tan((38 * Math.PI) / 360));
+  const visWidth = visHeight * (W / H);
+  const deskCamX = -(ndcCenterX * visWidth * 0.5);
+  const deskCamY = 1.6 - (ndcCenterY * visHeight * 0.5);
+  const deskCamZ = -0.6 + D;
+
+  const topDownY = isMobile ? 14 * a * 1.15 : 14 * a;
+  const topDownVisH = 2 * topDownY * Math.tan((38 * Math.PI) / 360);
+  const topDownCenterZ = isMobile ? ndcCenterY * topDownVisH * 0.5 : 0;
+
+  const planY = lerp(topDownY, deskCamY, elevBlend);
+  const planZ = lerp(topDownCenterZ + 0.001, deskCamZ, elevBlend);
+  // Both desktop and mobile align the 3D room 1:1 with the .drw SVG blueprint frame.
+  const planX = isMobile ? deskCamX : lerp(cx, deskCamX, elevBlend);
+  const lookY = lerp(0, deskCamY, elevBlend);
+  const lookZ = lerp(topDownCenterZ, -0.6, elevBlend);
   const upAmt = c * (1 - elevBlend);
 
   cam.up.set(0, 1 - upAmt, -upAmt);
