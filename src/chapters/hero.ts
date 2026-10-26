@@ -21,6 +21,7 @@ if (!classic) {
 /** Hero: reveal lens (clip-path in classic, shader soft lens + front in 0B), ring, headline fade, vignette, caption and progress bar. */
 export function updateHero({ t, P, e, q }: Progress) {
   const { w, h, R0 } = st;
+  const isMobile = w < 768;
   if (classic) {
     st.lr += ((R0 + Math.sin(t * 1.2) * 5) * S.intro + e * Math.hypot(w, h) - st.lr) * smooth.radius;
     const r = Math.max(st.lr, 0);
@@ -36,7 +37,6 @@ export function updateHero({ t, P, e, q }: Progress) {
     ring.style.transform = `translate(${st.lx - R0}px,${st.ly - R0}px) scale(${ringScale})`;
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
-    const isMobile = st.w < 768;
     const scrollFade = isMobile ? clamp(1 - (P - 0.20) * 3.2, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
     // On mobile: let the stick structure finish drawing before fading the headline in
     const headlineStartTime = isMobile ? 2.75 : introClock.headlineAt;
@@ -44,12 +44,13 @@ export function updateHero({ t, P, e, q }: Progress) {
     const heroOpacity = scrollFade * introTextGate;
     hero.style.opacity = String(heroOpacity);
     hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
+    hero.style.display = heroOpacity <= 0.001 ? 'none' : 'flex';
     hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : (isMobile ? 'none' : 'auto');
 
-    // Header adapts color as paper transitions to obsidian drafting table
+    // Header adapts color strictly when paper transitions to obsidian drafting table (q > 0.05)
     const siteHeader = document.getElementById('site-header');
     if (siteHeader) {
-      siteHeader.classList.toggle('header-dark-table', P > 0.35);
+      siteHeader.classList.toggle('header-dark-table', q > 0.05);
     }
 
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
@@ -57,10 +58,10 @@ export function updateHero({ t, P, e, q }: Progress) {
     const exitBlur = clamp((P - 0.2) * 8, 0, 4);
     hero.style.filter = !isMobile && exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
   }
-  hero.style.transform = `translateY(${-P * 32}px)`;
+  hero.style.transform = isMobile ? '' : `translateY(${-P * 32}px)`;
 
-  // Hero kinetic typography: physical 3D dispersion along orthogonal trajectories on scroll
-  if (st.ready && !reduce) {
+  // Hero kinetic typography: physical 3D dispersion along orthogonal trajectories on scroll (desktop only)
+  if (st.ready && !reduce && !isMobile) {
     updateHeroTypographyScroll(P);
     if (subEl) subEl.style.transform = P > 0.001 ? `translateY(${(P * 14).toFixed(1)}px)` : '';
   }

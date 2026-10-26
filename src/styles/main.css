@@ -821,6 +821,9 @@ body.studio-drawer-open {
     text-shadow: none !important;
     font-style: italic !important;
   }
+  .hero-rotator {
+    transition: none !important;
+  }
   .sub {
     font-size: clamp(13px, 3.6vw, 14.5px);
     line-height: 1.5;
@@ -981,12 +984,16 @@ body.studio-drawer-open {
 
   /* Plan Chapter on Mobile: Full-Bleed Architectural Drawing with Floating Editorial Dock */
   #plan .track {
-    width: 300% !important;
+    width: 100% !important;
+    height: 100% !important;
+    position: relative !important;
+    transform: none !important;
   }
   #plan .panel {
-    flex: 0 0 33.333333% !important;
-    width: 33.333333% !important;
-    max-width: 33.333333% !important;
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
     flex-direction: column !important;
     justify-content: flex-end !important;
     align-items: stretch !important;
@@ -994,7 +1001,7 @@ body.studio-drawer-open {
     gap: 0 !important;
     box-sizing: border-box !important;
     overflow: hidden !important;
-    position: relative !important;
+    pointer-events: none;
   }
   #plan .panel:first-child {
     justify-content: flex-end !important;
@@ -1029,12 +1036,14 @@ body.studio-drawer-open {
     justify-content: center !important;
     pointer-events: none !important;
     z-index: 2 !important;
+    overflow: hidden !important;
   }
   #plan .drw svg {
     max-height: 100% !important;
     max-width: 100% !important;
     width: auto !important;
     height: auto !important;
+    overflow: hidden !important;
   }
   #plan .drw text {
     display: none !important;

@@ -328,11 +328,23 @@ function create(
       if (flEdge) flEdge.scale.copy(fl.scale);
       gr.scale.set(lf, 1, isFrontGridScale(classic) * lf);
 
+      const isMobile = st.w < 768;
+      const dropHeight = isMobile ? 32 : 12;
+
       parts.forEach((p, i) => {
         const s = Math.max(eo(clamp(bt * 1.7 - (i / parts.length) * 0.7, 0, 1)), 0.001),
           ly = i <= 6 ? 0 : i <= 8 ? 1 : 2,
           l0 = ly == 0 ? 1 : eo(clamp((bq - (ly == 1 ? 0.18 : 0.38) - (i - (ly == 1 ? 7 : 9)) * 0.012) / 0.14, 0, 1)),
           dp = (1 - l0) * clamp(bq / 0.04, 0, 1);
+
+        // In Build Chapter, unlanded furniture pieces must remain completely hidden until their stage activates.
+        const isPartActiveInBuild = cb < 0.01 || ly === 0 || l0 > 0.001;
+        p.o.visible = isPartActiveInBuild;
+        if (p.e) p.e.visible = isPartActiveInBuild;
+        if (p.w) p.w.visible = isPartActiveInBuild && drawVal >= p.drawAt;
+
+        if (!isPartActiveInBuild) return;
+
         if (p.flat) {
           p.o.scale.setScalar(s);
           p.o.position.y = p.by;
@@ -340,7 +352,7 @@ function create(
           p.o.scale.y = s;
           p.o.position.y = p.by - (1 - s) * p.hh;
         }
-        p.o.position.y += dp * 7;
+        p.o.position.y += dp * dropHeight;
         if (!p.flat) p.o.rotation.y = p.ry + dp * 1.3;
         if (p.e) {
           p.e.scale.copy(p.o.scale);
@@ -351,7 +363,6 @@ function create(
           p.w.scale.copy(p.o.scale);
           p.w.position.copy(p.o.position);
           p.w.rotation.copy(p.o.rotation);
-          p.w.visible = drawVal >= p.drawAt;
         }
 
         // Spatial Audio: physical impact sounds when objects land onto surfaces (with directional hysteresis)
@@ -604,7 +615,6 @@ function create(
         }
         pg.attributes.position.needsUpdate = true;
       }
-      const isMobile = st.w < 768;
       // In Plan and Build chapters (c > 0.05 or cb > 0), ensure rL uses the deep obsidian drafting table clear color
       if (c > 0.05 || cb > 0) {
         rL.setClearColor(colors.ink, 1);

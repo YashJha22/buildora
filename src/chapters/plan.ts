@@ -62,18 +62,25 @@ export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
   planEl.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
   L.style.opacity = String(Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb));
   W.style.opacity = String((1 - 0.32 * sm) * (1 - 0.7 * cb));
-  track.style.transform = isMobile
-    ? `translate3d(${(-q2 * 66.666667).toFixed(4)}%,0,0)`
-    : `translate3d(${-q2 * 200}vw,0,0)`;
-
   if (isMobile) {
+    track.style.transform = 'none';
+    const op0 = clamp(1 - q2 * 3.5, 0, 1);
+    const op1 = clamp(1 - Math.abs(q2 - 0.5) * 4.0, 0, 1);
+    const op2 = clamp((q2 - 0.6) * 3.5, 0, 1);
+    const ops = [op0, op1, op2];
+
     panels.forEach((p, i) => {
-      const isCurrent = Math.abs(q2 * 2 - i) < 0.65;
-      p.style.visibility = isCurrent ? 'visible' : 'hidden';
+      const op = ops[i];
+      p.style.opacity = op.toFixed(3);
+      p.style.visibility = op > 0.01 ? 'visible' : 'hidden';
+      p.style.pointerEvents = op > 0.4 ? 'auto' : 'none';
     });
   } else {
+    track.style.transform = `translate3d(${-q2 * 200}vw,0,0)`;
     panels.forEach((p) => {
       p.style.visibility = '';
+      p.style.opacity = '';
+      p.style.pointerEvents = '';
     });
   }
 
@@ -128,7 +135,7 @@ export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
       a.style.opacity = String(clamp(dr * 2 - 1, 0, 1));
     });
     const txtEl = p.querySelector<HTMLElement>('.txt');
-    if (txtEl) {
+    if (txtEl && !isMobile) {
       const eyebrow = txtEl.querySelector<HTMLElement>('.eyebrow');
       if (eyebrow) {
         const eo = clamp(dr * 1.95 - 0.05, 0, 1);

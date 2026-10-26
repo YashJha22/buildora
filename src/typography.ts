@@ -355,6 +355,8 @@ export function playHeroKineticIntro(tl?: gsap.core.Timeline, atTime: number | s
  */
 export function updateHeroTypographyScroll(progress: number) {
   if (reduce) return;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  if (isMobile) return;
 
   const p = Math.max(0, Math.min(1.2, progress));
 
@@ -753,6 +755,8 @@ export function initHeroKeywordRotator() {
  */
 export function animatePlanPanelHeading(panelIdx: number, panelEl: HTMLElement) {
   if (reduce || !panelEl) return;
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  if (isMobile) return;
 
   const h2 = panelEl.querySelector<HTMLElement>('h2');
   if (!h2 || h2.dataset.animated === 'true') return;
@@ -807,6 +811,13 @@ export function animateBuildStageHeading(word: string, subtitle: string, stageId
   bpp.textContent = subtitle;
 
   if (reduce) return;
+
+  const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+  if (isMobile) {
+    gsap.fromTo(bhd, { opacity: 0.35, y: 3 }, { opacity: 1, y: 0, duration: 0.25, ease: 'power2.out' });
+    gsap.fromTo(bpp, { opacity: 0.35 }, { opacity: 0.85, duration: 0.25, ease: 'power2.out' });
+    return;
+  }
 
   const emEl = bhd.querySelector<HTMLElement>('em.w-built');
   if (emEl) {
