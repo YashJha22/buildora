@@ -73,7 +73,7 @@ if (blt) {
 
 /** Build stages (structure → finishes → furniture → light) and the headline swap. */
 export function updateBuild(bq: number, cb: number) {
-  const isMobile = st.w <= 640;
+  const isMobile = st.w < 768;
   // On mobile: Shorten cross-fade window. Strictly active when cb >= 0.04. Never overlap with Plan chapter!
   const on = isMobile
     ? (cb < 0.04 ? 0 : clamp((cb - 0.04) * 2.8, 0, 1))

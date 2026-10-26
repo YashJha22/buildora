@@ -48,12 +48,12 @@ panels.forEach((p) =>
 
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
 export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
-  const isMobile = st.w <= 640;
-  // On mobile: Shorten cross-fade window. Strictly active between P=0.42 and cb < 0.04.
-  // Never overlap with Build chapter or Hero chapter!
+  const isMobile = st.w < 768;
+  // On mobile: Shorten cross-fade window. Strictly active when q > 0.22 and cb < 0.04.
+  // Never overlap with Build chapter or Hero/Cap!
   const on = isMobile
-    ? (P >= 0.42 && cb < 0.04
-        ? clamp((P - 0.42) * 6, 0, 1) * (1 - clamp(cb / 0.04, 0, 1))
+    ? (q >= 0.22 && cb < 0.04
+        ? clamp((q - 0.22) * 8, 0, 1) * (1 - clamp(cb / 0.04, 0, 1))
         : 0)
     : clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 10, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
@@ -63,7 +63,9 @@ export function updatePlan({ P, q, cs: c, q2, bq, cb }: Progress) {
   planEl.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
   L.style.opacity = String(Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb));
   W.style.opacity = String((1 - 0.32 * sm) * (1 - 0.7 * cb));
-  track.style.transform = `translate3d(${-q2 * 200}vw,0,0)`;
+  track.style.transform = isMobile
+    ? `translate3d(${(-q2 * 66.666667).toFixed(4)}%,0,0)`
+    : `translate3d(${-q2 * 200}vw,0,0)`;
 
   if (isMobile) {
     panels.forEach((p, i) => {

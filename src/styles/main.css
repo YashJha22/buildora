@@ -9,7 +9,7 @@ button,a,[role="button"],input{touch-action:manipulation;-webkit-tap-highlight-c
 button,[role="button"]{user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
 button:active,.cta:active{transform:scale(.97)}
 @media (pointer: coarse){input,textarea,select{font-size:16px!important}}
-canvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:1;background:#0a0908}#l{clip-path:circle(0px at 50% 50%)}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block;pointer-events:none;z-index:1}#w{background:transparent}#l{background:transparent;clip-path:circle(0px at 50% 50%)}
 #ring{position:fixed;left:0;top:0;border:1px solid rgba(223,186,115,.85);border-radius:50%;pointer-events:none;z-index:4}
 .vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:linear-gradient(90deg,rgba(10,9,8,.76),transparent 58%),radial-gradient(ellipse at 60% 50%,transparent 42%,rgba(0,0,0,.65))}
 .grain{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.08;mix-blend-mode:overlay;background-image:url("data:image/svg+xml;utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
@@ -711,31 +711,49 @@ body.studio-drawer-open {
     border-radius: 99px;
   }
 
-  /* Mobile Portrait Vignette & Ambient Light */
+  /* Mobile Portrait Clean Room & Vignette */
+  #ring,
+  .bp-datum,
+  .bp-line,
+  #pull-cord-wrap,
+  .hero-chapter-stepper,
+  .hero-scroll-btn,
+  .bwy-credit-tag {
+    display: none !important;
+  }
   .vig {
-    background:
-      radial-gradient(ellipse at 50% 16%, rgba(223, 186, 115, 0.08) 0%, transparent 55%),
-      radial-gradient(circle at 50% 48%, rgba(10, 9, 8, 0.45) 0%, rgba(10, 9, 8, 0.88) 100%),
-      linear-gradient(180deg, rgba(10, 9, 8, 0.75) 0%, rgba(10, 9, 8, 0.35) 16%, rgba(10, 9, 8, 0.82) 48%, #0a0908 92%) !important;
+    background: radial-gradient(
+      ellipse at 50% 50%,
+      transparent 55%,
+      rgba(10, 9, 8, 0.35) 100%
+    ) !important;
   }
 
-  /* Hero Section on Mobile: Structured Architectural Composition */
+  /* Hero Section on Mobile: Full-Bleed Spatial Canvas with Poetic Editorial Float */
   .studio-hero-main, main {
     position: fixed;
-    left: clamp(16px, 4.5vw, 28px);
-    right: clamp(16px, 4.5vw, 28px);
-    max-width: calc(100vw - 32px);
-    top: calc(52px + env(safe-area-inset-top, 0px));
-    bottom: calc(76px + env(safe-area-inset-bottom, 0px));
-    padding-top: clamp(170px, 28svh, 240px);
+    left: clamp(20px, 6vw, 36px);
+    right: clamp(20px, 6vw, 36px);
+    max-width: min(440px, calc(100vw - 40px));
+    top: auto;
+    bottom: calc(44px + env(safe-area-inset-bottom, 0px));
+    padding: 0;
     display: flex;
     flex-direction: column;
-    justify-content: flex-start;
+    justify-content: flex-end;
     align-items: flex-start;
     overflow: visible;
     box-sizing: border-box;
     pointer-events: none;
     z-index: 10;
+  }
+  .studio-hero-main .eyebrow {
+    margin: 0 0 10px;
+    font-size: 10px;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--warm);
+    text-shadow: 0 1px 8px rgba(0, 0, 0, 0.95);
   }
   .studio-hero-main a,
   .studio-hero-main button,
@@ -746,132 +764,62 @@ body.studio-drawer-open {
     pointer-events: auto;
   }
   .hero-h1 {
-    font-size: clamp(34px, 10vw, 56px);
-    line-height: 1.05;
-    margin: 0 0 clamp(10px, 1.8vh, 16px);
+    font-size: clamp(38px, 10.5vw, 54px);
+    line-height: 1.0;
+    letter-spacing: -0.02em;
+    margin: 0 0 10px;
     color: #ffffff;
     text-shadow: 0 2px 24px rgba(0, 0, 0, 0.95), 0 1px 4px rgba(0, 0, 0, 0.85);
   }
   .hero-h1 .ln-inner {
     gap: 0.22em;
   }
-  .bp-datum {
-    font-size: 8px;
-    letter-spacing: 0.14em;
-    top: -1.05em;
-    color: #dfba73;
-  }
   .sub {
     font-size: clamp(13px, 3.6vw, 14.5px);
-    line-height: 1.55;
-    max-width: min(380px, 100%);
-    margin: 0 0 clamp(12px, 2vh, 18px);
-    color: rgba(255, 255, 255, 0.88);
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95), 0 2px 14px rgba(10, 9, 8, 0.85);
-  }
-  .bwy-credit-tag {
-    display: block;
-    margin-top: 8px;
-    font-size: 10.5px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    color: #dfba73;
-    font-weight: 600;
-    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.9);
+    line-height: 1.5;
+    max-width: 320px;
+    margin: 0 0 18px;
+    color: rgba(247, 243, 237, 0.82);
+    text-shadow: 0 1px 4px rgba(0, 0, 0, 0.95);
   }
   .hero-actions {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 10px;
-    width: 100%;
-    max-width: 320px;
-    margin: 0 0 clamp(12px, 2vh, 18px);
-  }
-  .hero-actions .cta {
-    width: 100%;
-    min-height: 48px;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    padding: 0 20px;
-    background: linear-gradient(135deg, rgba(28, 22, 17, 0.95), rgba(16, 13, 10, 0.98)) padding-box,
-                linear-gradient(135deg, #dfba73, rgba(223, 186, 115, 0.45) 50%, rgba(255, 250, 235, 0.6)) border-box;
-    border: 1.5px solid transparent;
-    color: #ffffff !important;
-    font-weight: 600;
-    letter-spacing: 0.18em;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.65), 0 0 16px rgba(223, 186, 115, 0.25);
-  }
-  .hero-scroll-btn {
-    width: 100%;
-    min-height: 48px;
-    justify-content: center;
-    text-align: center;
-    box-sizing: border-box;
-    padding: 0 20px;
-    background: rgba(18, 15, 13, 0.85);
-    border: 1px solid rgba(223, 186, 115, 0.35);
-    color: var(--bone);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.45);
-  }
-  .hero-chapter-stepper {
-    display: flex;
+    flex-direction: row;
     align-items: center;
     gap: 12px;
+    width: auto;
     margin: 0;
-    padding: 7px 16px;
-    border-radius: 99px;
-    background: rgba(18, 15, 13, 0.78);
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(223, 186, 115, 0.22);
-    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5);
-    width: fit-content;
-    max-width: 220px;
   }
-  .hero-chapter-stepper .hcs-step {
+  .hero-actions .cta {
+    width: auto;
+    min-height: 44px;
+    padding: 0 24px;
     font-size: 10.5px;
-    letter-spacing: 0.18em;
-    color: rgba(255, 255, 255, 0.65);
-  }
-  .hero-chapter-stepper .hcs-step.is-active {
-    color: var(--warm) !important;
-    font-weight: 700;
-    text-shadow: 0 0 10px rgba(223, 186, 115, 0.5);
-  }
-  .hero-chapter-stepper .hcs-bar {
-    background: rgba(223, 186, 115, 0.35);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    border-radius: 99px;
+    background: rgba(18, 15, 13, 0.8);
+    border: 1px solid rgba(223, 186, 115, 0.35);
+    color: #ffffff !important;
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.2);
   }
   @media (max-height: 700px) {
     .studio-hero-main, main {
-      padding-top: clamp(140px, 24svh, 175px) !important;
+      bottom: calc(30px + env(safe-area-inset-bottom, 0px)) !important;
     }
     .hero-h1 {
-      font-size: clamp(26px, 7.5vw, 34px) !important;
+      font-size: clamp(28px, 8.2vw, 36px) !important;
       margin: 0 0 6px !important;
     }
     .sub {
-      font-size: 12.5px !important;
-      line-height: 1.45 !important;
-      margin: 0 0 8px !important;
+      font-size: 12px !important;
+      line-height: 1.4 !important;
+      margin: 0 0 12px !important;
     }
-    .bwy-credit-tag {
-      margin-top: 4px !important;
-    }
-    .hero-actions {
-      margin: 0 0 8px !important;
-      gap: 6px !important;
-    }
-    .hero-actions .cta,
-    .hero-scroll-btn {
-      min-height: 42px !important;
-      padding: 0 16px !important;
-      font-size: 10px !important;
-    }
-    .hero-chapter-stepper {
-      padding: 5px 12px !important;
+    .hero-actions .cta {
+      min-height: 40px !important;
+      padding: 0 20px !important;
     }
   }
   .hero-telemetry {
@@ -972,16 +920,11 @@ body.studio-drawer-open {
   .foot-bwy{font-size:9px;letter-spacing:.12em}
   .pl{min-width:28px}
 }
-@media (max-width: 640px){
-  *, *::before, *::after {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-  }
+@media (max-width: 768px){
   #site-header.nav-open .site-nav,
   #studio,
-  .hero-scroll-btn,
   #snd {
-    background-color: #0e0c0a !important;
+    background-color: rgba(14, 12, 10, 0.96) !important;
   }
   .hero-telemetry,
   #cad,
@@ -990,35 +933,61 @@ body.studio-drawer-open {
   }
   #solar-range{width:100%}
 
-  /* Plan Chapter on Mobile: Drawing on top, text below in normal flow */
+  /* Plan Chapter on Mobile: Full-Bleed Architectural Drawing with Floating Editorial Dock */
+  #plan .track {
+    width: 300% !important;
+  }
   #plan .panel {
+    flex: 0 0 33.333333% !important;
+    width: 33.333333% !important;
+    max-width: 33.333333% !important;
     flex-direction: column !important;
-    justify-content: flex-start !important;
+    justify-content: flex-end !important;
     align-items: stretch !important;
-    padding-top: calc(72px + env(safe-area-inset-top, 0px)) !important;
-    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px)) !important;
-    gap: 16px !important;
+    padding: 0 16px calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+    gap: 0 !important;
     box-sizing: border-box !important;
-    overflow-y: hidden !important;
+    overflow: hidden !important;
+    position: relative !important;
   }
   #plan .panel:first-child {
-    padding-top: max(38svh, 240px) !important;
+    justify-content: flex-end !important;
   }
   #plan .big {
-    display: none !important;
+    position: absolute !important;
+    top: calc(72px + env(safe-area-inset-top, 0px)) !important;
+    left: 20px !important;
+    font-family: "Instrument Serif", serif !important;
+    font-size: clamp(72px, 20vw, 110px) !important;
+    color: transparent !important;
+    -webkit-text-stroke: 1px rgba(223, 186, 115, 0.2) !important;
+    opacity: 0.3 !important;
+    pointer-events: none !important;
+    display: block !important;
+    z-index: 1 !important;
   }
   #plan .drw {
     order: 1 !important;
-    max-height: 38svh !important;
-    width: 100% !important;
+    position: absolute !important;
+    top: calc(64px + env(safe-area-inset-top, 0px)) !important;
+    bottom: 210px !important;
+    left: 16px !important;
+    right: 16px !important;
+    max-height: none !important;
+    width: auto !important;
+    padding: 0 !important;
+    box-sizing: border-box !important;
     flex: none !important;
     display: flex !important;
     align-items: center !important;
     justify-content: center !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
   }
   #plan .drw svg {
-    max-height: 36svh !important;
-    width: 100% !important;
+    max-height: 100% !important;
+    max-width: 100% !important;
+    width: auto !important;
     height: auto !important;
   }
   #plan .drw text {
@@ -1026,29 +995,71 @@ body.studio-drawer-open {
   }
   #plan .txt {
     order: 2 !important;
+    position: relative !important;
     width: 100% !important;
     max-width: 100% !important;
-    flex: 1 !important;
-    z-index: 2 !important;
+    flex: none !important;
+    min-height: auto !important;
+    background: rgba(14, 12, 10, 0.72) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(223, 186, 115, 0.2) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 250, 235, 0.15) !important;
+    padding: 16px 18px !important;
+    box-sizing: border-box !important;
+    z-index: 10 !important;
+    pointer-events: auto !important;
+    will-change: transform, opacity;
+    transform: translateZ(0);
+  }
+  #plan .txt .eyebrow {
+    margin: 0 0 6px !important;
+    font-size: 9.5px !important;
+    letter-spacing: 0.22em !important;
+    color: var(--warm) !important;
   }
   #plan .txt h2 {
-    font-size: clamp(26px, 7vw, 36px) !important;
-    line-height: 1.08 !important;
-    margin: 0 0 8px !important;
+    font-size: clamp(22px, 6vw, 30px) !important;
+    line-height: 1.05 !important;
+    margin: 0 0 6px !important;
+    color: #ffffff !important;
   }
   #plan .txt p {
-    font-size: 13.5px !important;
-    line-height: 1.5 !important;
-    margin: 0 0 12px !important;
+    font-size: 12.5px !important;
+    line-height: 1.45 !important;
+    margin: 0 0 10px !important;
+    color: rgba(247, 243, 237, 0.78) !important;
     max-width: 100% !important;
   }
   #plan .txt dl {
-    gap: 14px !important;
-    padding-top: 10px !important;
-    border-top: 1px solid rgba(223, 186, 115, 0.2) !important;
+    display: flex !important;
+    gap: 16px !important;
+    padding-top: 8px !important;
+    margin: 0 !important;
+    border-top: 1px solid rgba(223, 186, 115, 0.18) !important;
+  }
+  #plan .txt dt {
+    font-size: 8.5px !important;
+    letter-spacing: 0.18em !important;
+    color: rgba(247, 243, 237, 0.5) !important;
+  }
+  #plan .txt dd {
+    font-size: 16px !important;
+    font-family: "Instrument Serif", serif !important;
+    color: var(--warm) !important;
+    margin: 2px 0 0 !important;
+  }
+  #plan .txt a.cta {
+    display: inline-flex !important;
+    min-height: 38px !important;
+    padding: 0 18px !important;
+    font-size: 10px !important;
+    margin-top: 4px !important;
+    border-radius: 99px !important;
   }
 
-  /* Build Chapter on Mobile: Split-screen with top 50svh for room, bottom 45svh solid dark text card */
+  /* Build Chapter on Mobile: Full-Bleed 3D Dwelling with Floating Capsule Stage Controller */
   #bld {
     position: fixed !important;
     inset: 0 !important;
@@ -1058,6 +1069,8 @@ body.studio-drawer-open {
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-end !important;
+    padding: 0 16px calc(34px + env(safe-area-inset-bottom, 0px)) !important;
+    box-sizing: border-box !important;
   }
   #bhd .build-stage-badge,
   #bld .eyebrow {
@@ -1065,25 +1078,30 @@ body.studio-drawer-open {
   }
   #bld .lt,
   #bld .lt.build-card {
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: 0 !important;
+    position: relative !important;
+    left: auto !important;
+    right: auto !important;
+    bottom: auto !important;
     width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
-    min-height: 44svh !important;
-    max-height: 48svh !important;
-    background: #0d0b0a !important;
-    border-top: 1px solid rgba(223, 186, 115, 0.24) !important;
-    box-shadow: 0 -16px 40px rgba(0, 0, 0, 0.85) !important;
-    padding: 16px 20px calc(24px + env(safe-area-inset-bottom, 12px)) !important;
+    min-height: auto !important;
+    max-height: none !important;
+    background: rgba(14, 12, 10, 0.75) !important;
+    backdrop-filter: blur(20px) !important;
+    -webkit-backdrop-filter: blur(20px) !important;
+    border: 1px solid rgba(223, 186, 115, 0.22) !important;
+    border-radius: 18px !important;
+    box-shadow: 0 16px 40px rgba(0, 0, 0, 0.75), inset 0 1px 1px rgba(255, 250, 235, 0.15) !important;
+    padding: 14px 16px !important;
     box-sizing: border-box !important;
     display: flex !important;
     flex-direction: column !important;
     justify-content: flex-start !important;
     pointer-events: auto !important;
     z-index: 10 !important;
+    will-change: transform, opacity;
+    transform: translateZ(0);
   }
   #bld .st {
     position: static !important;
@@ -1094,26 +1112,25 @@ body.studio-drawer-open {
     align-items: center !important;
     gap: 6px !important;
     width: 100% !important;
-    margin: 0 0 12px 0 !important;
+    margin: 0 0 10px 0 !important;
     pointer-events: auto !important;
   }
   #bld .st .st-step-btn,
   #bld .st span {
-    min-height: 44px !important;
-    min-width: 44px !important;
+    min-height: 38px !important;
     flex: 1 !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    padding: 0 4px !important;
-    font-size: 10.5px !important;
-    letter-spacing: 0.1em !important;
+    padding: 0 6px !important;
+    font-size: 10px !important;
+    letter-spacing: 0.12em !important;
     text-transform: uppercase !important;
-    color: rgba(247, 243, 237, 0.55) !important;
+    color: rgba(247, 243, 237, 0.6) !important;
     border-radius: 99px !important;
     background: rgba(255, 255, 255, 0.04) !important;
-    border: 1px solid rgba(223, 186, 115, 0.16) !important;
-    transition: all 0.2s ease !important;
+    border: 1px solid rgba(223, 186, 115, 0.15) !important;
+    transition: all 0.25s ease !important;
     cursor: pointer !important;
     text-align: center !important;
     white-space: nowrap !important;
@@ -1122,24 +1139,24 @@ body.studio-drawer-open {
   #bld .st span.on {
     opacity: 1 !important;
     color: #dfba73 !important;
-    background: rgba(223, 186, 115, 0.18) !important;
+    background: rgba(223, 186, 115, 0.2) !important;
     border-color: #dfba73 !important;
     font-weight: 600 !important;
-    box-shadow: 0 0 12px rgba(223, 186, 115, 0.25) !important;
+    box-shadow: 0 0 14px rgba(223, 186, 115, 0.3) !important;
   }
   #bhd {
-    font-size: clamp(30px, 8.5vw, 42px) !important;
-    line-height: 1.05 !important;
-    margin: 0 0 8px 0 !important;
+    font-size: clamp(22px, 5.8vw, 28px) !important;
+    line-height: 1.1 !important;
+    margin: 0 0 4px 0 !important;
     color: #ffffff !important;
   }
   #bhd em {
     color: #dfba73 !important;
   }
   #bpp {
-    font-size: 13.5px !important;
-    line-height: 1.5 !important;
-    color: rgba(247, 243, 237, 0.82) !important;
+    font-size: 12.5px !important;
+    line-height: 1.4 !important;
+    color: rgba(247, 243, 237, 0.75) !important;
     margin: 0 !important;
     max-width: 100% !important;
   }
@@ -1147,8 +1164,8 @@ body.studio-drawer-open {
     position: fixed !important;
     left: 20px !important;
     right: 20px !important;
-    bottom: calc(46svh + 10px) !important;
-    font-size: clamp(24px, 5.8vw, 32px) !important;
+    bottom: calc(150px + env(safe-area-inset-bottom, 0px)) !important;
+    font-size: clamp(26px, 6.5vw, 36px) !important;
     text-align: center !important;
     color: #dfba73 !important;
     pointer-events: none !important;

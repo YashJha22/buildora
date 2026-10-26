@@ -36,7 +36,7 @@ export function updateHero({ t, P, e, q }: Progress) {
     ring.style.transform = `translate(${st.lx - R0}px,${st.ly - R0}px) scale(${ringScale})`;
     const ringFade = clamp((S.intro - 0.05) / 0.35, 0, 1) * clamp(1 - e * 2.5, 0, 1);
     ring.style.opacity = String(ringFade);
-    const isMobile = st.w <= 640;
+    const isMobile = st.w < 768;
     const scrollFade = isMobile ? clamp(1 - P * 2.5, 0, 1) : clamp(1 - (P - 0.25) * 2, 0, 1);
     const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.4, 0, 1);
     const heroOpacity = scrollFade * introTextGate;

@@ -23,13 +23,13 @@ export function placeCamera(
   const cx = -3.6 + q2 * 3.6;
   const isMobile = st.w < 768;
   const oa = lerp(-0.9, 0.7, bq);
-  const mobileScale = isMobile ? 1.24 : 1.0;
-  const orr = lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.28) * mobileScale;
+  const mobileScale = isMobile ? 1.06 : 1.0;
+  const orr = lerp(10.5, 8.2, bq) * (1 + (a - 1) * 0.25) * mobileScale;
   px = lerp(px, Math.sin(oa) * orr + (mL - 0.5), cb);
-  py = lerp(py, lerp(isMobile ? 5.8 : 5.4, isMobile ? 3.8 : 3.3, bq) * (1 + (a - 1) * 0.22), cb);
+  py = lerp(py, lerp(isMobile ? 4.5 : 5.4, isMobile ? 3.0 : 3.3, bq) * (1 + (a - 1) * 0.18), cb);
   pz = lerp(pz, Math.cos(oa) * orr - 0.5, cb);
   ax = lerp(ax, 0, cb);
-  ay = lerp(ay, isMobile ? 1.25 : 1.1, cb);
+  ay = lerp(ay, isMobile ? 1.05 : 1.1, cb);
   az = lerp(az, -0.8, cb);
 
   if (classic) {
@@ -75,34 +75,25 @@ export function placeCamera(
   }
 
   const planY = isMobile
-    ? lerp(14 * a, lerp(3.6, 2.7, secBlend) * a, elevBlend)
+    ? lerp(16 * a, lerp(3.2, 2.5, secBlend) * a, elevBlend)
     : lerp(14 * a, deskCamY, elevBlend);
   const planZ = isMobile
-    ? lerp(0.001, lerp(12.0, 13.5, secBlend) * a, elevBlend)
+    ? lerp(0.001, lerp(10.5, 12.0, secBlend) * a, elevBlend)
     : lerp(0.001, deskCamZ, elevBlend);
   // On desktop: room aligns with .drw SVG blueprint frame. On mobile: room is horizontally centered.
-  const planX = isMobile ? lerp(cx, 0, elevBlend) : lerp(cx, deskCamX, elevBlend);
+  const planX = isMobile ? 0 : lerp(cx, deskCamX, elevBlend);
   const lookY = isMobile
-    ? lerp(0, lerp(0.8, 0.4, secBlend), elevBlend)
+    ? lerp(0, lerp(0.6, 0.3, secBlend), elevBlend)
     : lerp(0, deskCamY, elevBlend);
-  const lookZ = isMobile ? lerp(0, -0.9, elevBlend) : lerp(0, -0.6, elevBlend);
+  const lookZ = isMobile ? lerp(0, -0.7, elevBlend) : lerp(0, -0.6, elevBlend);
   const upAmt = c * (1 - elevBlend);
 
-  // Mobile portrait hero framing: center room in upper lens aperture without overlapping text
-  // In Build chapter (cb > 0.05), use the build camera targets (px, py, pz, ax, ay, az), never hero coordinates!
-  const heroLookY = isMobile ? (cb > 0.05 ? ay : lerp(-4.8, 0, c)) : ay;
-  const heroCamY = isMobile ? (cb > 0.05 ? py : lerp(2.4, py, c)) : py;
-  const heroCamX = isMobile ? (cb > 0.05 ? px : (lerp(7.2, 3.6, e) + (mL - 0.5) * 1.0) * k * a) : px;
-
   cam.up.set(0, 1 - upAmt, -upAmt);
-  cam.position.set(lerp(heroCamX, planX, c), lerp(heroCamY, planY, c), lerp(pz, planZ, c));
-  cam.lookAt(lerp(ax, planX, c), lerp(heroLookY, lookY, c), lerp(az, lookZ, c));
+  cam.position.set(lerp(px, planX, c), lerp(py, planY, c), lerp(pz, planZ, c));
+  cam.lookAt(lerp(ax, planX, c), lerp(ay, lookY, c), lerp(az, lookZ, c));
 
-  // Build section on mobile: 3D room occupies the top 50svh.
-  // Use camera viewOffset to optically center the room in the upper 50svh portion without clipping.
-  if (isMobile && cb > 0.01) {
-    cam.setViewOffset(st.w, st.h, 0, -st.h * 0.16 * cb, st.w, st.h);
-  } else if (cam.view && cam.view.enabled) {
+  // On mobile: allow the 3D room to occupy the entire viewport naturally with full-bleed freedom.
+  if (cam.view && cam.view.enabled) {
     cam.clearViewOffset();
   }
 }

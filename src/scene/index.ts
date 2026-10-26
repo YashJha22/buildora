@@ -71,25 +71,31 @@ function create(
   RoundedBoxGeo?: typeof import('three/examples/jsm/geometries/RoundedBoxGeometry.js').RoundedBoxGeometry,
 ): SceneApi | null {
   let rW: InstanceType<ThreeNS['WebGLRenderer']>, rL: InstanceType<ThreeNS['WebGLRenderer']>;
+  const isMobileDevice = st.w < 768;
   try {
-    rW = new THREE.WebGLRenderer({ canvas: W, antialias: true, preserveDrawingBuffer: true });
+    rW = new THREE.WebGLRenderer({
+      canvas: W,
+      antialias: !isMobileDevice,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: false,
+    });
     rL = new THREE.WebGLRenderer({
       canvas: L,
-      antialias: classic,
+      antialias: classic && !isMobileDevice,
       alpha: !classic,
       premultipliedAlpha: classic,
-      preserveDrawingBuffer: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: false,
     });
   } catch (e) {
     return null;
   }
-  const isMobilePortraitInit = typeof window !== 'undefined' && (window.innerWidth < 768 || window.innerWidth / window.innerHeight < 1.0);
-  rW.setClearColor(classic || isMobilePortraitInit ? colors.ink : colors.bone, 1);
+  rW.setClearColor(classic ? colors.ink : colors.bone, 1);
   rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
   rL.outputEncoding = THREE.sRGBEncoding;
   rL.toneMapping = THREE.ACESFilmicToneMapping;
   rL.shadowMap.enabled = true;
-  rL.shadowMap.type = st.w <= 640 ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
+  rL.shadowMap.type = st.w < 768 ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
   const sw = new THREE.Scene(),
     sl = new THREE.Scene();
   if (!classic) {
@@ -161,7 +167,7 @@ function create(
   const buildPartLanded = new Array(parts.length).fill(false);
 
   const size = () => {
-    const isMobile = st.w <= 640;
+    const isMobile = st.w < 768;
     const d = Math.min(devicePixelRatio || 1, isMobile ? 1.25 : 1.75);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
@@ -428,28 +434,16 @@ function create(
         sketch.uniforms.uBuildChapter.value = clamp(c + bq * 5, 0, 1);
         sketch.uniforms.uPlanBlend.value = c;
 
-        // Blueprint background handling: on mobile portrait, keep dark obsidian drafting desk so text has pristine contrast and zero milky glare.
-        const isMobilePortrait = st.w < 768 || st.w / st.h < 1.0;
-        if (isMobilePortrait) {
-          clearColorW.copy(inkColor);
-          rW.setClearColor(clearColorW, 1);
-          sketchMat.color.copy(clearColorW);
-          lineMat.color.copy(boneColor);
-          lineMat.opacity = 0.55;
-          gridMat.color.copy(boneColor);
-          gridMat.opacity = 0.10;
-          guideMat.color.copy(boneColor);
-        } else {
-          // Smoothly transition W paper/ink to dark blueprint table during Plan chapter (c: 0 -> 1) so white Plan text/SVGs stay high-contrast.
-          clearColorW.copy(boneColor).lerp(inkColor, c);
-          rW.setClearColor(clearColorW, 1);
-          sketchMat.color.copy(clearColorW);
-          lineMat.color.copy(inkColor).lerp(boneColor, c);
-          lineMat.opacity = 0.78 * (1 - c) + 0.5 * c;
-          gridMat.color.copy(inkColor).lerp(boneColor, c);
-          gridMat.opacity = 0.075 * (1 - c) + 0.16 * c;
-          guideMat.color.copy(inkColor).lerp(boneColor, c);
-        }
+        // Smoothly transition W paper/ink to dark blueprint table during Plan chapter (c: 0 -> 1) so white Plan text/SVGs stay high-contrast.
+        // On both desktop and mobile, c=0 starts with bone paper + deep forged graphite lines and grid.
+        clearColorW.copy(boneColor).lerp(inkColor, c);
+        rW.setClearColor(clearColorW, 1);
+        sketchMat.color.copy(clearColorW);
+        lineMat.color.copy(inkColor).lerp(boneColor, c);
+        lineMat.opacity = 0.82 * (1 - c) + 0.5 * c;
+        gridMat.color.copy(inkColor).lerp(boneColor, c);
+        gridMat.opacity = 0.08 * (1 - c) + 0.16 * c;
+        guideMat.color.copy(inkColor).lerp(boneColor, c);
 
         // Solar Path calculation (default st.solarHour = 14.5 reproduces exact baseline sun pose (-9, 5.5, 1.5))
         const hr = st.solarHour;
@@ -609,8 +603,17 @@ function create(
         }
         pg.attributes.position.needsUpdate = true;
       }
-      rW.render(sw, cam);
-      rL.render(sl, cam);
+      const isMobile = st.w < 768;
+      // On mobile: intelligently cull occluded or invisible scenes to eliminate redundant draw calls and halve GPU fillrate
+      const needW = !isMobile || S.intro < 0.95 || c < 0.95;
+      const needL = !isMobile || S.intro > 0.005;
+
+      if (needW) {
+        rW.render(sw, cam);
+      }
+      if (needL) {
+        rL.render(sl, cam);
+      }
     },
   };
 
