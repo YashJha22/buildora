@@ -82,9 +82,16 @@ export function initCursor() {
     if (target === lastHoverTarget) return;
     lastHoverTarget = target;
 
-    isHoveringInteractive = !!target?.closest(
-      'a, button, input, textarea, select, [role="button"], [role="slider"], label, .slider-knob, .handle-knob, .ssc-btn, .lic-tab, .alc-btn, .vcc-step-btn, .quick-jump-btn, .st-beats button, .st-pals button, [data-link]'
-    );
+    const isInsideSettings =
+      !!target?.closest('#settings-panel, #settings-panel-overlay, .header-settings-btn') ||
+      document.body.classList.contains('settings-open') ||
+      document.body.classList.contains('settings-sheet-open');
+
+    isHoveringInteractive =
+      isInsideSettings ||
+      !!target?.closest(
+        'a, button, input, textarea, select, [role="button"], [role="slider"], label, .slider-knob, .handle-knob, .ssc-btn, .lic-tab, .alc-btn, .vcc-step-btn, .quick-jump-btn, .st-beats button, .st-pals button, [data-link]'
+      );
     const isHoveringText =
       !isHoveringInteractive &&
       !!target?.closest(
@@ -103,7 +110,14 @@ export function initCursor() {
   const onPointerDown = (e: PointerEvent) => {
     if (e.button !== 0) return; // Primary click only
     const target = e.target instanceof Element ? e.target : null;
-    if (target?.closest('input[type="range"]')) return;
+    if (
+      target?.closest('input[type="range"]') ||
+      target?.closest('#settings-panel, #settings-panel-overlay, .header-settings-btn') ||
+      document.body.classList.contains('settings-open') ||
+      document.body.classList.contains('settings-sheet-open')
+    ) {
+      return;
+    }
     triggerHammerStrike(e.clientX, e.clientY);
   };
 

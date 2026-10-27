@@ -25,6 +25,7 @@ export function openSettingsPanel() {
   previousActiveElement = document.activeElement as HTMLElement | null;
 
   panelOverlay.style.display = 'block';
+  document.body.classList.add('settings-open');
   requestAnimationFrame(() => {
     panelOverlay?.classList.add('is-open');
     panelOverlay?.setAttribute('aria-hidden', 'false');
@@ -57,6 +58,7 @@ export function closeSettingsPanel() {
   headerBtn?.setAttribute('aria-expanded', 'false');
 
   document.body.classList.remove('settings-sheet-open');
+  document.body.classList.remove('settings-open');
 
   // Pause lamp physics simulation while panel is hidden to save CPU/GPU
   lampPhysics?.stop();

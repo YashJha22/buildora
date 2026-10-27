@@ -209,7 +209,7 @@
 
     <!-- Physically Coherent Architectural Pendant Lamp -->
     <div class="sp-lamp-banner" aria-hidden="true">
-      <svg class="sp-lamp-svg" viewBox="0 0 240 160" width="240" height="160" aria-hidden="true">
+      <svg class="sp-lamp-svg" viewBox="0 0 240 165" width="240" height="165" aria-hidden="true">
         <defs>
           <linearGradient id="sp-shade-green-dark" x1="0%" y1="0%" x2="100%" y2="100%">
             <stop offset="0%" stop-color="#2a5243"/>
@@ -227,49 +227,55 @@
             <stop offset="100%" stop-color="#a47d33"/>
           </linearGradient>
           <radialGradient id="sp-light-cone" cx="50%" cy="0%" r="90%">
-            <stop offset="0%" stop-color="var(--sp-cone-core, rgba(245, 194, 107, 0.42))"/>
-            <stop offset="40%" stop-color="var(--sp-cone-mid, rgba(223, 186, 115, 0.14))"/>
-            <stop offset="90%" stop-color="transparent"/>
+            <stop offset="0%" stop-color="var(--sp-cone-core, rgba(245, 194, 107, 0.28))"/>
+            <stop offset="45%" stop-color="var(--sp-cone-mid, rgba(223, 186, 115, 0.10))"/>
+            <stop offset="95%" stop-color="transparent"/>
           </radialGradient>
         </defs>
 
-        <!-- Downward Illumination Cone (Originating directly from bulb beneath shade) -->
-        <polygon class="sp-cone-shape" points="76,78 164,78 208,160 32,160" fill="url(#sp-light-cone)"/>
+        <!-- Downward Illumination Cone (Originating cleanly beneath the shade rim opening) -->
+        <polygon class="sp-cone-shape" points="66,80 174,80 216,165 24,165" fill="url(#sp-light-cone)"/>
 
-        <!-- Ceiling Mount Rosette -->
-        <rect x="112" y="0" width="16" height="5" rx="1.5" fill="url(#sp-brass)"/>
+        <!-- Ceiling Mount Rosette & Strain-Relief Bushing -->
+        <rect x="110" y="0" width="20" height="5" rx="1.5" fill="url(#sp-brass)"/>
+        <rect x="116" y="5" width="8" height="3" rx="0.8" fill="url(#sp-brass)"/>
 
-        <!-- Upper Suspension Cable (Ceiling to Shade Top) -->
-        <line x1="120" y1="5" x2="120" y2="34" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Braided Upper Suspension Cable (Connecting ceiling bushing directly to shade hardware) -->
+        <line x1="120" y1="8" x2="120" y2="38" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
 
-        <!-- Brass Socket Collar -->
-        <rect x="114" y="34" width="12" height="7" rx="1.2" fill="url(#sp-brass)"/>
+        <!-- Top Lamp Socket Hardware & Strain-Relief Nut -->
+        <rect x="116" y="38" width="8" height="4" rx="0.8" fill="url(#sp-brass)"/>
+        <rect x="113" y="42" width="14" height="6" rx="1.2" fill="url(#sp-brass)"/>
 
-        <!-- Lampshade Flared Body -->
-        <path class="sp-shade-body" d="M 106 41 L 134 41 L 168 76 L 72 76 Z"/>
-        <!-- Top Brass Lip -->
-        <ellipse cx="120" cy="41" rx="14" ry="2.5" fill="url(#sp-brass)"/>
+        <!-- Flared Atelier Lampshade Body (Opening facing downward) -->
+        <path class="sp-shade-body" d="M 107 48 L 133 48 L 174 80 L 66 80 Z"/>
+        <!-- Top Brass Collar Lip -->
+        <ellipse cx="120" cy="48" rx="13" ry="2.8" fill="url(#sp-brass)"/>
         <!-- Bottom Flanged Brass Rim -->
-        <ellipse cx="120" cy="76" rx="48" ry="6.5" fill="url(#sp-brass)"/>
-        <!-- Shade Interior Recess -->
-        <ellipse cx="120" cy="75" rx="45" ry="5.5" class="sp-shade-interior"/>
+        <ellipse cx="120" cy="80" rx="54" ry="8.5" fill="url(#sp-brass)"/>
+        <!-- Shade Interior Recess (Inside the downward-facing opening) -->
+        <ellipse cx="120" cy="79" rx="50" ry="7" class="sp-shade-interior"/>
 
-        <!-- Centered Incandescent Bulb -->
-        <ellipse id="sp-bulb" class="sp-bulb-element" cx="120" cy="80" rx="7.5" ry="7.5"/>
-        <ellipse class="sp-bulb-glow-core" cx="120" cy="80" rx="18" ry="12"/>
+        <!-- Centered Incandescent Bulb (Physically positioned inside the lower shade opening) -->
+        <rect x="116" y="70" width="8" height="6" rx="1" fill="url(#sp-brass)"/>
+        <ellipse id="sp-bulb" class="sp-bulb-element" cx="120" cy="81" rx="8" ry="8.5"/>
+        <path class="sp-bulb-filament" d="M 118 80 L 120 77 L 122 80" stroke="#f5d78e" stroke-width="1.2" stroke-linecap="round"/>
+        <ellipse class="sp-bulb-glow-core" cx="120" cy="83" rx="14" ry="8"/>
 
-        <!-- Pull-Cord Eyelet Anchor on Right Rim of Shade -->
-        <circle cx="158" cy="78" r="2.2" fill="url(#sp-brass)"/>
+        <!-- Brass Pull-Switch Eyelet on Underside Rim of Shade (Anchor at 152.0, 80.0) -->
+        <rect x="150" y="77" width="4" height="4" rx="1" fill="url(#sp-brass)"/>
+        <circle cx="152" cy="80" r="2.2" fill="url(#sp-brass)"/>
+        <circle cx="152" cy="80" r="1.0" fill="#141f1a"/>
 
-        <!-- Continuous Physics-Driven Flexible Pull Cord -->
-        <path id="sp-cord-curve" class="sp-cord-curve" d="M 158 78 Q 159 105 161 132" fill="none" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
+        <!-- Flexible Cord (Smooth dynamic cubic Bezier curve with natural sag & wave inertia) -->
+        <path id="sp-cord-curve" class="sp-cord-curve" d="M 152.0 80.0 C 153.5 98.0, 154.5 116.0, 154.0 134.0" fill="none" stroke="#caa45a" stroke-width="1.8" stroke-linecap="round"/>
 
-        <!-- Brass Pull Bead with Metallic Highlight -->
-        <circle id="sp-cord-bead" class="sp-cord-bead" cx="161" cy="132" r="5.5" fill="url(#sp-brass)"/>
-        <circle id="sp-cord-bead-hl" cx="159.2" cy="130.5" r="1.6" fill="#ffffff" opacity="0.65"/>
+        <!-- Brass Pull Bead with Specular Highlight -->
+        <circle id="sp-cord-bead" class="sp-cord-bead" cx="154.0" cy="134.0" r="5.5" fill="url(#sp-brass)"/>
+        <circle id="sp-cord-bead-hl" cx="152.4" cy="132.4" r="1.6" fill="#ffffff" opacity="0.75"/>
 
         <!-- Interactive Hitbox for Click / Tap / Focus -->
-        <circle id="sp-cord-hitbox" class="sp-cord-hitbox" cx="161" cy="132" r="18" fill="transparent" tabindex="0" role="button" aria-label="Pull lamp cord to toggle appearance mode"/>
+        <circle id="sp-cord-hitbox" class="sp-cord-hitbox" cx="154.0" cy="134.0" r="18" fill="transparent" tabindex="0" role="button" aria-label="Pull lamp cord to toggle appearance mode"/>
       </svg>
     </div>
 

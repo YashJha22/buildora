@@ -1,15 +1,20 @@
 /**
- * Buildora — Physically Coherent Animated Hanging Lamp
- * Features:
- * - Fixed ceiling attachment & suspension cable running into lampshade top
- * - Flared vintage atelier green lampshade with brass collar and lip
- * - Centered incandescent bulb beneath shade with downward illumination cone
- * - Genuine flexible electrical pull-cord attached to shade anchor
- * - Continuous, natural pendulum idle sway with variable amplitude & phase
- * - Bead lagging behind cord with inertia (dynamic quadratic Bezier curve)
- * - Interactive spring pull and damped elastic recoil
- * - Lifecycle management (rAF loop pauses when panel is closed to save CPU/GPU)
- * - Respects prefers-reduced-motion
+ * Buildora — Physically Coherent Pendant Lamp & Flexible Cord Physics Engine
+ *
+ * Architecture:
+ * 1. Geometric Anchor:
+ *    - Pull cord starts at exact switch eyelet center (anchorX = 152.0, anchorY = 80.0)
+ *    - Terminates exactly at bead center (beadX, beadY)
+ * 2. Multi-Degree-of-Freedom Dynamics:
+ *    - Pendulum sway driven by continuous non-repeating multi-harmonic air currents
+ *    - Vertical underdamped elastic spring for pull displacement & snappy recoil
+ *    - Dynamic cubic Bezier rope curvature with inertial wave lag (cord flexes & ripples)
+ * 3. Interactive Robustness:
+ *    - Supports rapid repeated pulls by accumulating downward impulse rather than resetting
+ *    - Post-pull kinetic excitation imparts subtle natural lateral sway that gradually settles
+ * 4. Resource Efficiency:
+ *    - rAF loop strictly stopped when settings overlay is hidden (0 CPU/GPU waste)
+ *    - Honors prefers-reduced-motion
  */
 
 import { sound } from './audio';
@@ -39,25 +44,31 @@ export class LampPhysics {
   private rafId: number | null = null;
   private lastTime = 0;
 
-  // Fixed Anchor on the bottom-right rim of the lampshade
-  private readonly anchorX = 158;
-  private readonly anchorY = 78;
+  // Exact coordinates of the brass pull-switch eyelet on underside rim of lampshade
+  private readonly anchorX = 152.0;
+  private readonly anchorY = 80.0;
 
-  // Rest position of bead relative to anchor
-  private readonly restLength = 54;
-  private readonly restAngle = 0.05; // slight natural angle in radians
+  // Cord rest dimensions
+  private readonly restLength = 54.0;
+  private readonly naturalRestSag = 2.4; // natural relaxed curve bias in px
 
-  // Motion state
-  private angle = 0.05;
-  private angularVelocity = 0;
-  private pullDisplacement = 0;
-  private pullVelocity = 0;
+  // Pendulum sway state (radians)
+  private beadAngle = 0.04;
+  private beadAngularVel = 0.0;
+
+  // Vertical spring pull & recoil state (px)
+  private pullDisplacement = 0.0;
+  private pullVelocity = 0.0;
   private isPulled = false;
 
-  // Reduced motion preference
+  // Cord body curvature / wave flex state (px)
+  private cordFlex = 2.4;
+  private cordFlexVel = 0.0;
+
+  // Accessibility
   private reducedMotion = false;
 
-  // Cleanup listeners
+  // Cleanup references
   private cleanupFns: Array<() => void> = [];
 
   constructor(options: LampPhysicsOptions) {
@@ -76,7 +87,7 @@ export class LampPhysics {
   }
 
   private checkReducedMotion() {
-    if (window.matchMedia) {
+    if (typeof window !== 'undefined' && window.matchMedia) {
       const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
       this.reducedMotion = mq.matches;
       const handler = (e: MediaQueryListEvent) => {
@@ -97,8 +108,8 @@ export class LampPhysics {
     };
 
     const handlePointerUp = (e: PointerEvent) => {
-      e.preventDefault();
       if (this.isPulled) {
+        e.preventDefault();
         this.releasePull();
       }
     };
@@ -108,7 +119,7 @@ export class LampPhysics {
         e.preventDefault();
         e.stopPropagation();
         this.initiatePull();
-        setTimeout(() => this.releasePull(), 180);
+        setTimeout(() => this.releasePull(), 160);
       }
     };
 
@@ -123,23 +134,38 @@ export class LampPhysics {
     });
   }
 
+  /**
+   * Triggers a pull on the cord.
+   * If already pulled or recoiling, adds kinetic impulse without teleporting.
+   */
   public initiatePull() {
-    if (this.isPulled) return;
     this.isPulled = true;
-    this.pullVelocity = 120; // downward initial impulse
+    // Add downward velocity impulse (supports rapid repeated clicks smoothly)
+    this.pullVelocity = Math.max(this.pullVelocity, 0) + 140.0;
+
+    // Flex cord visibly outward under finger tension
+    this.cordFlexVel += 35.0;
+
     if (this.bead) {
-      this.bead.style.filter = 'drop-shadow(0 4px 12px rgba(223, 186, 115, 0.85))';
+      this.bead.style.filter = 'drop-shadow(0 3px 10px rgba(223, 186, 115, 0.9))';
     }
   }
 
+  /**
+   * Releases the cord pull, firing audio and cycling theme, then recoiling elastically.
+   */
   public releasePull() {
     if (!this.isPulled) return;
     this.isPulled = false;
 
-    // Trigger mechanical click sound
+    // Tactile pull-cord click audio
     sound.playPullCord(true);
 
-    // Call theme cycle if requested
+    // Subtle lateral kick so releasing the cord produces a natural decaying pendulum sway
+    const kickDir = Math.sin(performance.now() * 0.005) > 0 ? 0.35 : -0.35;
+    this.beadAngularVel += kickDir;
+
+    // Fire theme switch callback
     if (this.onThemeCycle) {
       this.onThemeCycle();
     }
@@ -167,7 +193,8 @@ export class LampPhysics {
   private tick = (time: number) => {
     if (!this.isRunning) return;
 
-    const dt = Math.min((time - this.lastTime) * 0.001, 0.05); // cap delta-time at 50ms
+    // Clamp delta time to avoid large jumps if tab was backgrounded
+    const dt = Math.min((time - this.lastTime) * 0.001, 0.04);
     this.lastTime = time;
 
     this.updatePhysics(time * 0.001, dt);
@@ -178,62 +205,90 @@ export class LampPhysics {
 
   private updatePhysics(t: number, dt: number) {
     if (this.reducedMotion) {
-      this.angle = 0.04;
-      this.pullDisplacement = this.isPulled ? 14 : 0;
+      this.beadAngle = 0.03;
+      this.cordFlex = 2.0;
+      this.pullDisplacement = this.isPulled ? 14.0 : 0.0;
       return;
     }
 
-    // 1. Idle Natural Pendulum Sway Simulation with Variable Harmonics
-    // Multi-frequency driving function creates continuous organic sway that never repeats mechanically
-    const driveTorque =
-      0.08 * Math.sin(2.2 * t + 0.4) +
-      0.035 * Math.sin(1.15 * t + 1.8) +
-      0.015 * Math.sin(4.1 * t + 2.7);
+    // 1. Natural Non-Repeating Pendulum Idle Sway
+    // Multi-frequency air draft harmonic driving torque
+    const airCurrentTorque =
+      0.09 * Math.sin(1.85 * t + 0.3) +
+      0.045 * Math.sin(0.95 * t + 1.4) +
+      0.02 * Math.sin(3.4 * t + 2.7);
 
-    // Damped physical pendulum equation: theta'' + c*theta' + (g/L)*sin(theta) = torque
-    const damping = 0.85;
-    const gravityFrequency = 6.2; // (g/L) factor
-    const angularAccel = driveTorque - damping * this.angularVelocity - gravityFrequency * this.angle;
+    const swayDamping = 0.72;
+    const gravityFactor = 5.8; // (g/L)
+    const angularAccel = airCurrentTorque - swayDamping * this.beadAngularVel - gravityFactor * this.beadAngle;
 
-    this.angularVelocity += angularAccel * dt;
-    this.angle += this.angularVelocity * dt;
+    this.beadAngularVel += angularAccel * dt;
+    this.beadAngle += this.beadAngularVel * dt;
 
-    // 2. Vertical Spring Pull and Damped Recoil
-    const targetPull = this.isPulled ? 18.0 : 0.0;
-    const springConstant = 180.0;
-    const springDamping = 14.0;
-    const springForce = springConstant * (targetPull - this.pullDisplacement) - springDamping * this.pullVelocity;
+    // 2. Vertical Spring Pull and Damped Elastic Recoil
+    const targetPull = this.isPulled ? 20.0 : 0.0;
+    const springK = this.isPulled ? 160.0 : 210.0; // stiffer snap-back on release
+    const springDamp = this.isPulled ? 18.0 : 12.0; // underdamped recoil for natural bounce
+    const springForce = springK * (targetPull - this.pullDisplacement) - springDamp * this.pullVelocity;
 
     this.pullVelocity += springForce * dt;
     this.pullDisplacement += this.pullVelocity * dt;
+
+    // Prevent extreme downward overstretch while allowing elastic recoil bounce
+    if (this.pullDisplacement > 32.0) {
+      this.pullDisplacement = 32.0;
+      this.pullVelocity = 0.0;
+    }
+
+    // 3. Cord Body Dynamic Flexibility / Wave Curvature
+    // Cord bows outward with natural resting sag, trails bead velocity, and flexes during vertical recoil
+    const targetFlex =
+      this.naturalRestSag -
+      this.beadAngularVel * 12.0 +
+      (this.isPulled ? 5.5 : 0.0) -
+      this.pullVelocity * 0.03;
+
+    const flexK = 180.0;
+    const flexDamp = 14.0;
+    const flexForce = flexK * (targetFlex - this.cordFlex) - flexDamp * this.cordFlexVel;
+
+    this.cordFlexVel += flexForce * dt;
+    this.cordFlex += this.cordFlexVel * dt;
   }
 
-  private renderFrame(t: number, _dt: number) {
+  private renderFrame(_t: number, _dt: number) {
     const totalLength = this.restLength + this.pullDisplacement;
 
-    // Calculate moving bead endpoint from current angle and length
-    const beadX = this.anchorX + totalLength * Math.sin(this.angle);
-    const beadY = this.anchorY + totalLength * Math.cos(this.angle);
+    // Calculate moving bead center (endpoint of the cord)
+    const beadX = this.anchorX + totalLength * Math.sin(this.beadAngle);
+    const beadY = this.anchorY + totalLength * Math.cos(this.beadAngle);
 
-    // The cord is a flexible rope: its midpoint bows due to inertial lag
-    // Quadratic Bezier control point lags behind the bead's angular velocity
-    const curvatureBias = this.reducedMotion ? 0 : this.angularVelocity * 14.0;
-    const ctrlX = (this.anchorX + beadX) * 0.5 - curvatureBias;
-    const ctrlY = (this.anchorY + beadY) * 0.5 + 4.0;
+    // Compute smooth cubic Bezier control points for a truly flexible rope:
+    // Control point 1 sits ~32% down the cord; Control point 2 sits ~68% down the cord.
+    // They both incorporate the dynamic cord flexibility offset, creating natural rope inertia.
+    const deltaX = beadX - this.anchorX;
+    const deltaY = beadY - this.anchorY;
 
-    // Update dynamic SVG quadratic curve: M anchor Q ctrl bead
-    const d = `M ${this.anchorX.toFixed(1)} ${this.anchorY.toFixed(1)} Q ${ctrlX.toFixed(1)} ${ctrlY.toFixed(1)} ${beadX.toFixed(1)} ${beadY.toFixed(1)}`;
+    const cp1x = this.anchorX + deltaX * 0.32 + this.cordFlex * 0.75;
+    const cp1y = this.anchorY + deltaY * 0.36;
+
+    const cp2x = this.anchorX + deltaX * 0.68 + this.cordFlex * 1.1;
+    const cp2y = this.anchorY + deltaY * 0.72;
+
+    // Generate dynamic cubic Bezier path:
+    // M anchorX anchorY C cp1x cp1y, cp2x cp2y, beadX beadY
+    const d = `M ${this.anchorX.toFixed(1)} ${this.anchorY.toFixed(1)} C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${beadX.toFixed(1)} ${beadY.toFixed(1)}`;
     this.cordPath.setAttribute('d', d);
 
-    // Update bead circle position to exact endpoint of the cord
+    // Update bead circle position to exactly track the cord endpoint
     this.bead.setAttribute('cx', beadX.toFixed(1));
     this.bead.setAttribute('cy', beadY.toFixed(1));
 
-    // Update bead highlight reflection
-    this.beadHighlight.setAttribute('cx', (beadX - 1.8).toFixed(1));
-    this.beadHighlight.setAttribute('cy', (beadY - 1.8).toFixed(1));
+    // Update bead metallic specular highlight
+    this.beadHighlight.setAttribute('cx', (beadX - 1.6).toFixed(1));
+    this.beadHighlight.setAttribute('cy', (beadY - 1.6).toFixed(1));
 
-    // Update interactive hitbox
+    // Update interactive hitbox position
     this.beadHitbox.setAttribute('cx', beadX.toFixed(1));
     this.beadHitbox.setAttribute('cy', beadY.toFixed(1));
   }
