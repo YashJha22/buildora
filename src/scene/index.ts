@@ -1,7 +1,8 @@
 import { sound } from '../audio';
 import { L, W } from '../dom';
+import { preferences, getResolvedTheme } from '../preferences';
 import { S, classic, debugDraw, debugFront, debugT, st } from '../state';
-import { colors } from '../tokens/colors';
+import { colors, lightPalette } from '../tokens/colors';
 import { introClock } from '../tokens/motion';
 import { $, clamp } from '../utils';
 import { placeCamera } from './camera';
@@ -107,6 +108,15 @@ function create(
   const boneColor = new THREE.Color(colors.bone);
   const litClearColor = new THREE.Color(colors.litClear);
   const nightClearColor = new THREE.Color(colors.ink);
+
+  // Dynamic Theme Colors
+  const lightPaperColor = new THREE.Color(lightPalette.bgHex);
+  const lightInkColor = new THREE.Color(lightPalette.textPrimaryHex);
+  const lightAccentColor = new THREE.Color(lightPalette.accentHex);
+  let isLightMode = typeof document !== 'undefined' && document.documentElement.getAttribute('data-theme') === 'light';
+  preferences.subscribe((prefs) => {
+    isLightMode = getResolvedTheme(prefs.theme) === 'light';
+  });
   const sunNoonColor = new THREE.Color(0xffe4be);
   const sunGoldenColor = new THREE.Color(0xff9e58);
   const sunDuskColor = new THREE.Color(0xb06c78);
@@ -476,14 +486,25 @@ function create(
 
         // Smoothly transition W paper/ink to dark blueprint table during Plan chapter (c: 0 -> 1) so white Plan text/SVGs stay high-contrast.
         // On both desktop and mobile, c=0 starts with bone paper + deep forged graphite lines and grid.
-        clearColorW.copy(boneColor).lerp(inkColor, c);
-        rW.setClearColor(clearColorW, 1);
-        sketchMat.color.copy(clearColorW);
-        lineMat.color.copy(inkColor).lerp(boneColor, c);
-        lineMat.opacity = 0.82 * (1 - c) + 0.5 * c;
-        gridMat.color.copy(inkColor).lerp(boneColor, c);
-        gridMat.opacity = 0.08 * (1 - c) + 0.16 * c;
-        guideMat.color.copy(inkColor).lerp(boneColor, c);
+        if (isLightMode) {
+          clearColorW.copy(lightPaperColor);
+          rW.setClearColor(lightPaperColor, 1);
+          sketchMat.color.copy(lightPaperColor);
+          lineMat.color.copy(lightInkColor);
+          lineMat.opacity = 0.85 * (1 - c) + 0.65 * c;
+          gridMat.color.copy(lightAccentColor);
+          gridMat.opacity = 0.08 * (1 - c) + 0.14 * c;
+          guideMat.color.copy(lightAccentColor);
+        } else {
+          clearColorW.copy(boneColor).lerp(inkColor, c);
+          rW.setClearColor(clearColorW, 1);
+          sketchMat.color.copy(clearColorW);
+          lineMat.color.copy(inkColor).lerp(boneColor, c);
+          lineMat.opacity = 0.82 * (1 - c) + 0.5 * c;
+          gridMat.color.copy(inkColor).lerp(boneColor, c);
+          gridMat.opacity = 0.08 * (1 - c) + 0.16 * c;
+          guideMat.color.copy(inkColor).lerp(boneColor, c);
+        }
 
         // Solar Path calculation (default st.solarHour = 14.5 reproduces exact baseline sun pose (-9, 5.5, 1.5))
         const hr = st.solarHour;
@@ -644,11 +665,15 @@ function create(
         }
         pg.attributes.position.needsUpdate = true;
       }
-      // In Plan and Build chapters (c > 0.05 or cb > 0), ensure rL uses the deep obsidian drafting table clear color
+      // In Plan and Build chapters (c > 0.05 or cb > 0), ensure rL matches current theme clear color
       if (c > 0.05 || cb > 0) {
-        rL.setClearColor(colors.ink, 1);
+        rL.setClearColor(isLightMode ? lightPalette.bgHex : colors.ink, 1);
       } else {
-        rL.setClearColor(classic ? colors.litClear : colors.bone, classic ? 1 : 0);
+        rL.setClearColor(isLightMode ? lightPalette.bgHex : (classic ? colors.litClear : colors.bone), isLightMode ? 1 : (classic ? 1 : 0));
+      }
+
+      if (sl.fog) {
+        sl.fog.color.setHex(isLightMode ? lightPalette.bgHex : (classic ? colors.litClear : colors.bone));
       }
 
       if (contextLost) return;

@@ -1,9 +1,22 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"><title>Buildora — Build with Yash</title>
 <meta name="description" content="Buildora — An interactive architectural experience by Build with Yash. Transforming orthographic architectural drawings into physical living spaces.">
 <meta name="author" content="Build with Yash">
-<meta name="theme-color" media="(prefers-color-scheme: light)" content="#0a0908">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#f7f4ee">
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0908">
-<meta name="color-scheme" content="dark">
+<meta name="color-scheme" content="dark light">
+<script>
+  (function() {
+    try {
+      var saved = localStorage.getItem('buildora_preferences_v1');
+      var theme = saved ? JSON.parse(saved).theme : 'dark';
+      var resolved = theme === 'system'
+        ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark')
+        : theme;
+      document.documentElement.setAttribute('data-theme', resolved);
+      document.documentElement.setAttribute('data-theme-setting', theme);
+    } catch (e) {}
+  })();
+</script>
 <meta property="og:title" content="Buildora — Build with Yash">
 <meta property="og:description" content="An interactive architectural experience by Build with Yash. The drawing becomes the home.">
 <meta property="og:type" content="website">

@@ -2,7 +2,7 @@
 :root{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22);--f-mono:"Space Mono",monospace;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}}
 :root[data-theme="dark"]{--ink:#0a0908;--surface:rgba(18, 15, 13, 0.82);--bone:#f7f3ed;--muted:rgba(247, 243, 237, 0.52);--warm:#dfba73;--bronze:rgba(223, 186, 115, 0.22)}
-:root[data-theme="light"]{--ink:#f4eee2;--surface:#ffffff;--bone:#141210;--muted:rgba(20, 18, 16, 0.62);--warm:#235843;--bronze:rgba(35, 88, 67, 0.22)}
+:root[data-theme="light"]{--ink:#f7f4ee;--surface:#ffffff;--bone:#141210;--muted:rgba(20, 18, 16, 0.64);--warm:#235843;--bronze:rgba(35, 88, 67, 0.22)}
 :root[data-theme="light"] #site-header nav a,
 :root[data-theme="light"] .site-nav a,
 :root[data-theme="light"] .bwy-nav {
@@ -3503,4 +3503,400 @@ body.custom-cursor-active #nfg-svg {
 }
 .legal-modal-body strong {
   color: var(--warm);
+}
+
+/* ==========================================================================
+   Comprehensive Light Theme Suite: Honed Travertine & Atelier Emerald
+   Architecture: High-contrast, tactile linen & travertine paper aesthetic
+   ========================================================================== */
+
+/* 1. Atmospheric Overlays & Canvas */
+:root[data-theme="light"] .vig {
+  background: linear-gradient(90deg, rgba(247, 244, 238, 0.45) 0%, transparent 58%), radial-gradient(ellipse at 60% 50%, transparent 52%, rgba(215, 204, 188, 0.38) 100%);
+}
+:root[data-theme="light"] .grain {
+  opacity: 0.035;
+}
+:root[data-theme="light"] #ring {
+  border-color: rgba(35, 88, 67, 0.65);
+}
+
+/* 2. Site Header & Brand Navigation */
+:root[data-theme="light"] #site-header nav a,
+:root[data-theme="light"] .site-nav a,
+:root[data-theme="light"] .bwy-nav {
+  color: var(--bone);
+  text-shadow: none;
+}
+:root[data-theme="light"] #site-header nav a:hover,
+:root[data-theme="light"] .site-nav a:hover,
+:root[data-theme="light"] .bwy-nav:hover {
+  color: var(--warm);
+}
+:root[data-theme="light"] #site-header nav a.active,
+:root[data-theme="light"] .site-nav a.active {
+  color: var(--warm) !important;
+  border-bottom-color: var(--warm);
+}
+:root[data-theme="light"] .bwy-monogram path:nth-child(1),
+:root[data-theme="light"] .bwy-monogram path:nth-child(3) {
+  stroke: var(--warm);
+}
+:root[data-theme="light"] .bwy-monogram path:nth-child(2) {
+  stroke: var(--bone);
+}
+:root[data-theme="light"] #snd {
+  background: rgba(255, 255, 255, 0.88);
+  border-color: rgba(35, 88, 67, 0.25);
+  color: var(--bone);
+  text-shadow: none;
+  box-shadow: 0 2px 8px rgba(35, 26, 18, 0.05);
+}
+:root[data-theme="light"] #snd:hover,
+:root[data-theme="light"] #snd[aria-pressed="true"] {
+  background: #ffffff;
+  border-color: var(--warm);
+  color: var(--warm);
+  box-shadow: 0 0 12px rgba(35, 88, 67, 0.22);
+}
+
+/* 3. Hero Section & Call-to-Actions */
+:root[data-theme="light"] main h1,
+:root[data-theme="light"] .home-h1 {
+  color: var(--bone);
+  text-shadow: none;
+}
+:root[data-theme="light"] .hero-scroll-btn {
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--bone);
+  border-color: rgba(35, 88, 67, 0.28);
+  box-shadow: 0 4px 16px rgba(35, 26, 18, 0.06);
+}
+:root[data-theme="light"] .hero-scroll-btn:hover {
+  background: #ffffff;
+  color: var(--warm);
+  border-color: var(--warm);
+  box-shadow: 0 6px 20px rgba(35, 88, 67, 0.18);
+}
+:root[data-theme="light"] .cta {
+  background: linear-gradient(135deg, rgba(35, 88, 67, 0.12), rgba(35, 88, 67, 0.04)) padding-box, linear-gradient(135deg, #235843, rgba(35, 88, 67, 0.4)) border-box;
+  color: var(--bone);
+  box-shadow: 0 4px 14px rgba(35, 26, 18, 0.08);
+}
+:root[data-theme="light"] .cta:hover {
+  background: #235843;
+  color: #ffffff;
+  border-color: #235843;
+  box-shadow: 0 4px 18px rgba(35, 88, 67, 0.35);
+}
+
+/* 4. Orthographic Blueprint Panels (#plan) */
+:root[data-theme="light"] .panel .big {
+  color: rgba(35, 88, 67, 0.12);
+}
+:root[data-theme="light"] .panel .txt h2,
+:root[data-theme="light"] .panel .txt p,
+:root[data-theme="light"] .panel .txt dl dt,
+:root[data-theme="light"] .panel .txt dl dd {
+  color: var(--bone);
+}
+:root[data-theme="light"] .drw svg {
+  stroke: var(--bone);
+}
+:root[data-theme="light"] .drw svg .w {
+  stroke: var(--warm);
+}
+:root[data-theme="light"] .drw svg text {
+  fill: var(--muted);
+}
+:root[data-theme="light"] .drw svg text.w {
+  fill: var(--warm);
+}
+
+/* 5. Build Section & Progress Bar */
+:root[data-theme="light"] #bld {
+  background: linear-gradient(0deg, rgba(247, 244, 238, 0.85), transparent 48%);
+  color: var(--bone);
+}
+:root[data-theme="light"] #bld .lt p,
+:root[data-theme="light"] #bld .lt h2 {
+  color: var(--bone);
+}
+:root[data-theme="light"] #bld .st span,
+:root[data-theme="light"] #bld .st .st-step-btn {
+  color: var(--muted);
+}
+:root[data-theme="light"] #bld .st span.active,
+:root[data-theme="light"] #bld .st .st-step-btn.active {
+  color: var(--warm);
+  opacity: 1;
+}
+:root[data-theme="light"] #cap {
+  color: var(--bone);
+}
+:root[data-theme="light"] .foot {
+  color: var(--muted);
+}
+:root[data-theme="light"] .pl {
+  background: rgba(35, 88, 67, 0.18);
+}
+:root[data-theme="light"] .pl b {
+  background: var(--warm);
+}
+
+/* 6. Preloader Screen (#pre) */
+:root[data-theme="light"] #pre {
+  background: var(--ink);
+}
+:root[data-theme="light"] .pre-arch-svg line,
+:root[data-theme="light"] .pre-arch-svg rect {
+  stroke: var(--bone);
+}
+:root[data-theme="light"] #pre-foundation {
+  stroke: var(--warm);
+}
+:root[data-theme="light"] #skip {
+  border-color: rgba(35, 88, 67, 0.25);
+  color: var(--bone);
+}
+:root[data-theme="light"] #skip:hover {
+  border-color: var(--warm);
+  color: var(--warm);
+}
+
+/* 7. CAD Readout Card (#cad) */
+:root[data-theme="light"] #cad {
+  background: rgba(255, 255, 255, 0.94);
+  border-color: rgba(35, 88, 67, 0.22);
+  color: var(--bone);
+  box-shadow: 0 16px 40px rgba(35, 26, 18, 0.12);
+}
+:root[data-theme="light"] #cad::before {
+  background: var(--warm);
+}
+:root[data-theme="light"] #cad em {
+  color: var(--muted);
+}
+:root[data-theme="light"] #cad small {
+  color: var(--warm);
+}
+
+/* 8. 3D Studio Dock (#studio) */
+:root[data-theme="light"] #studio {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(35, 88, 67, 0.18);
+  box-shadow: 0 20px 50px rgba(35, 26, 18, 0.12), inset 0 1px 1px rgba(255, 255, 255, 0.9);
+  color: var(--bone);
+}
+:root[data-theme="light"] .st-dock-header {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+:root[data-theme="light"] .st-dock-sub,
+:root[data-theme="light"] .st-section-label,
+:root[data-theme="light"] .st-atmo-desc {
+  color: var(--muted);
+}
+:root[data-theme="light"] .st-atmo-card,
+:root[data-theme="light"] .st-swatch,
+:root[data-theme="light"] .st-light-btn {
+  background: #fbf9f4;
+  border-color: rgba(0, 0, 0, 0.08);
+  color: var(--bone);
+}
+:root[data-theme="light"] .st-atmo-card:hover,
+:root[data-theme="light"] .st-swatch:hover,
+:root[data-theme="light"] .st-light-btn:hover {
+  background: #f4eee2;
+  border-color: var(--warm);
+}
+:root[data-theme="light"] .st-atmo-card.on,
+:root[data-theme="light"] .st-swatch.on,
+:root[data-theme="light"] .st-light-btn.on {
+  background: rgba(35, 88, 67, 0.12);
+  border-color: var(--warm);
+  color: var(--warm);
+}
+:root[data-theme="light"] #solar-auto {
+  background: rgba(35, 88, 67, 0.08);
+  border-color: rgba(35, 88, 67, 0.28);
+  color: var(--bone);
+}
+:root[data-theme="light"] #solar-auto.on {
+  background: #235843;
+  color: #ffffff;
+  border-color: #235843;
+}
+:root[data-theme="light"] #close-studio {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--bone);
+}
+:root[data-theme="light"] #close-studio:hover {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--warm);
+}
+
+/* 9. Approach Section (.approach-section) */
+:root[data-theme="light"] .approach-section {
+  background: linear-gradient(180deg, rgba(247, 244, 238, 0) 0%, rgba(247, 244, 238, 0.9) 12%, rgba(247, 244, 238, 0.98) 88%, rgba(247, 244, 238, 0) 100%);
+}
+:root[data-theme="light"] .approach-draft-frame {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px dashed rgba(35, 88, 67, 0.25);
+  box-shadow: 0 16px 40px rgba(35, 26, 18, 0.06);
+}
+
+/* 10. Selected Works & Project Detail Views */
+:root[data-theme="light"] .projects-section {
+  background: linear-gradient(180deg, transparent 0%, rgba(247, 244, 238, 0.85) 120px, #f7f4ee 300px);
+}
+:root[data-theme="light"] .pd-card,
+:root[data-theme="light"] .cs-metric-pill,
+:root[data-theme="light"] .solar-scrubber-card,
+:root[data-theme="light"] .n-phase-card,
+:root[data-theme="light"] .ap-card {
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 12px 36px rgba(35, 26, 18, 0.06);
+  color: var(--bone);
+}
+:root[data-theme="light"] .pd-specs-dl dd,
+:root[data-theme="light"] .ppf-title {
+  color: var(--bone);
+}
+:root[data-theme="light"] .pd-specs-dl dt,
+:root[data-theme="light"] .pd-narrative-block p,
+:root[data-theme="light"] .pd-mat-list,
+:root[data-theme="light"] .contact-manifesto-sub,
+:root[data-theme="light"] .ppf-brand p {
+  color: var(--muted);
+}
+:root[data-theme="light"] .direct-mail-pill {
+  border-color: rgba(35, 88, 67, 0.25);
+  color: var(--warm);
+}
+:root[data-theme="light"] .direct-mail-pill:hover {
+  background: rgba(35, 88, 67, 0.1);
+  border-color: var(--warm);
+}
+
+/* 11. Contact Section & Paper Card */
+:root[data-theme="light"] .contact-section {
+  background: #f7f4ee;
+}
+:root[data-theme="light"] .contact-paper-card {
+  background: #ffffff;
+  border-color: rgba(35, 88, 67, 0.22);
+  box-shadow: 0 24px 60px rgba(35, 26, 18, 0.08), 0 4px 16px rgba(35, 26, 18, 0.04);
+  color: var(--bone);
+}
+:root[data-theme="light"] .contact-paper-card::before {
+  background: radial-gradient(110% 70% at 50% 0%, rgba(35, 88, 67, 0.04) 0%, transparent 60%);
+}
+:root[data-theme="light"] .cpc-intro,
+:root[data-theme="light"] .cpc-checkbox-label {
+  color: var(--muted);
+}
+:root[data-theme="light"] .cpc-field input,
+:root[data-theme="light"] .cpc-field textarea {
+  background: #fbf9f5;
+  border-color: rgba(0, 0, 0, 0.14);
+  color: var(--bone);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04);
+}
+:root[data-theme="light"] .cpc-field input:focus,
+:root[data-theme="light"] .cpc-field textarea:focus {
+  background: #ffffff;
+  border-color: var(--warm);
+  box-shadow: 0 0 0 3px rgba(35, 88, 67, 0.18);
+}
+:root[data-theme="light"] .cpc-submit-btn {
+  background: #235843;
+  color: #ffffff;
+  border-color: #1b4534;
+  box-shadow: 0 8px 24px -4px rgba(35, 88, 67, 0.35);
+}
+:root[data-theme="light"] .cpc-submit-btn:hover {
+  background: #1b4534;
+  color: #ffffff;
+  box-shadow: 0 12px 32px -4px rgba(35, 88, 67, 0.45);
+}
+:root[data-theme="light"] .cpc-brief-handoff {
+  background: #fbf9f5;
+  border-color: rgba(35, 88, 67, 0.3);
+}
+:root[data-theme="light"] .cbh-title {
+  color: var(--bone);
+}
+:root[data-theme="light"] .cbh-desc {
+  color: var(--muted);
+}
+
+/* 12. Site Colophon Footer */
+:root[data-theme="light"] .site-footer {
+  background: #eae3d3;
+  border-top-color: rgba(35, 88, 67, 0.2);
+}
+:root[data-theme="light"] .sf-top-btn {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: rgba(35, 88, 67, 0.25);
+  color: var(--bone);
+}
+:root[data-theme="light"] .sf-top-btn:hover {
+  background: #ffffff;
+  border-color: var(--warm);
+  color: var(--warm);
+}
+:root[data-theme="light"] .sf-bottom-bar {
+  border-top-color: rgba(35, 88, 67, 0.12);
+  color: var(--muted);
+}
+:root[data-theme="light"] .sf-social-pill {
+  background: rgba(35, 88, 67, 0.08);
+  border-color: rgba(35, 88, 67, 0.25);
+  color: var(--bone);
+}
+:root[data-theme="light"] .sf-social-pill:hover {
+  background: #235843;
+  border-color: #235843;
+  color: #ffffff;
+}
+
+/* 13. Legal Credentials Modal */
+:root[data-theme="light"] .legal-modal {
+  background: rgba(20, 18, 16, 0.45);
+}
+:root[data-theme="light"] .legal-modal-inner {
+  background: #ffffff;
+  border-color: rgba(0, 0, 0, 0.08);
+  box-shadow: 0 24px 60px rgba(35, 26, 18, 0.16);
+  color: var(--bone);
+}
+:root[data-theme="light"] .legal-modal-head {
+  border-bottom-color: rgba(0, 0, 0, 0.08);
+}
+:root[data-theme="light"] .legal-modal-title {
+  color: var(--bone);
+}
+:root[data-theme="light"] .legal-modal-body p {
+  color: var(--muted);
+}
+:root[data-theme="light"] .legal-modal-close {
+  background: rgba(0, 0, 0, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: var(--bone);
+}
+:root[data-theme="light"] .legal-modal-close:hover {
+  border-color: var(--warm);
+  color: var(--warm);
+}
+
+/* 14. Precision Cursor */
+:root[data-theme="light"] #cur-dot {
+  background: var(--warm);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.9);
+}
+:root[data-theme="light"] #cur-dot.hover {
+  background: #141210;
+  box-shadow: 0 0 0 1.5px var(--warm), 0 0 10px rgba(35, 88, 67, 0.5);
 }
