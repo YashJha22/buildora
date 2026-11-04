@@ -7,6 +7,9 @@ import { st } from './state';
 import type { SceneApi } from './scene';
 import { initTypographyEngine } from './typography';
 
+import { isValidProjectRoute } from './validation';
+export { isValidProjectRoute };
+
 let currentGl: SceneApi | null = null;
 let currentCleanup: (() => void) | null = null;
 let globalHandleRoute: (() => void) | null = null;
@@ -74,12 +77,14 @@ export function initRouter() {
 
     // Apply query params to 3D scene if present (e.g. from case study "Open in 3D Studio" link)
     if (params.has('pal') && currentGl) {
-      const palIdx = Number(params.get('pal'));
-      if (!Number.isNaN(palIdx)) currentGl.setPalette(palIdx);
+      const rawPal = params.get('pal')?.trim() ?? '';
+      const palIdx = rawPal !== '' ? Number(rawPal) : NaN;
+      if (Number.isFinite(palIdx)) currentGl.setPalette(Math.round(palIdx));
     }
     if (params.has('hour') && currentGl) {
-      const hour = Number(params.get('hour'));
-      if (!Number.isNaN(hour)) currentGl.setSolarHour(hour, true);
+      const rawHour = params.get('hour')?.trim() ?? '';
+      const hour = rawHour !== '' ? Number(rawHour) : NaN;
+      if (Number.isFinite(hour)) currentGl.setSolarHour(Math.min(24, Math.max(0, hour)), true);
     }
 
     const landingFlow = document.getElementById('landing-flow');
@@ -164,7 +169,7 @@ export function initRouter() {
         }
       }
       initTypographyEngine();
-    } else if (path.startsWith('/projects/') || path.startsWith('/project/')) {
+    } else if (isValidProjectRoute(path)) {
       // Dedicated Project Case Study overlay
       pullCordWrap?.classList.add('is-hidden');
       if (landingFlow) landingFlow.style.display = 'none';
@@ -183,8 +188,6 @@ export function initRouter() {
       document.body.style.overflow = '';
       if (project) {
         setMeta(`${project.title} — Buildora · Build with Yash`, `${project.concept} Located in ${project.location}. Interactive architectural case study by Build with Yash.`);
-      } else {
-        setMeta('Case Study — Buildora · Build with Yash', 'Architectural case study detailing construction and design craft by Build with Yash.');
       }
       navProjectsLink?.classList.add('active');
       navContactLink?.classList.remove('active');

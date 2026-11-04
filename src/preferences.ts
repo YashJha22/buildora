@@ -5,24 +5,17 @@
  */
 
 import { sound } from './audio';
+import {
+  DEFAULT_PREFERENCES,
+  sanitizePreferences,
+  type ThemeMode,
+  type UserPreferences,
+} from './validation';
 
-export type ThemeMode = 'dark' | 'light' | 'system';
-
-export interface UserPreferences {
-  theme: ThemeMode;
-  notifications: boolean;
-  sound: boolean;
-  messagePreviews: boolean;
-}
+export { sanitizePreferences, type ThemeMode, type UserPreferences };
 
 const STORAGE_KEY = 'buildora_preferences_v1';
-
-const DEFAULT_PREFERENCES: UserPreferences = {
-  theme: 'dark',
-  notifications: true,
-  sound: false,
-  messagePreviews: true,
-};
+const VALID_THEMES: ReadonlySet<ThemeMode> = new Set(['dark', 'light', 'system']);
 
 type PreferenceChangeListener = (prefs: UserPreferences) => void;
 const listeners = new Set<PreferenceChangeListener>();
@@ -31,10 +24,13 @@ let currentPrefs: UserPreferences = loadStoredPreferences();
 
 function loadStoredPreferences(): UserPreferences {
   try {
+    if (typeof localStorage === 'undefined') {
+      return { ...DEFAULT_PREFERENCES };
+    }
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { ...DEFAULT_PREFERENCES, ...parsed };
+      return sanitizePreferences(parsed);
     }
   } catch (err) {
     console.warn('[Preferences] Failed to load from localStorage:', err);
@@ -52,12 +48,12 @@ function savePreferences() {
 
 /** Resolves 'system' mode to actual 'dark' or 'light' based on device OS */
 export function getResolvedTheme(mode: ThemeMode = currentPrefs.theme): 'dark' | 'light' {
-  if (mode === 'system') {
-    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
-      ? 'dark'
-      : 'light';
+  if (mode === 'dark' || mode === 'light') {
+    return mode;
   }
-  return mode;
+  return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+    ? 'dark'
+    : 'light';
 }
 
 /** Apply theme attribute to documentElement */
@@ -103,9 +99,10 @@ export const preferences = {
   },
 
   setTheme(mode: ThemeMode) {
-    currentPrefs.theme = mode;
+    const safeMode: ThemeMode = VALID_THEMES.has(mode) ? mode : 'system';
+    currentPrefs.theme = safeMode;
     savePreferences();
-    applyTheme(mode);
+    applyTheme(safeMode);
     notifyListeners();
   },
 

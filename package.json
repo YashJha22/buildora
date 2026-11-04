@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview",
-    "test": "node --experimental-strip-types --test tests/tokens.test.ts tests/content.test.ts tests/utils.test.ts",
+    "test": "node --experimental-strip-types --test tests/tokens.test.ts tests/content.test.ts tests/utils.test.ts tests/security.test.ts",
     "test:mobile": "playwright test tests/e2e/mobile.spec.ts",
     "test:ci-mobile": "node tests/ci-mobile-check.mjs",
     "typecheck": "tsc --noEmit"
