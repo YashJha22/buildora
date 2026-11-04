@@ -3,7 +3,7 @@ import { renderNotFoundPage, renderStatusPage } from './pages/NotFound';
 import { renderContactPage } from './pages/Contact';
 import { openSettingsPanel } from './settingsPanel';
 import { PROJECTS } from './data/content';
-import { st } from './state';
+import { S, st } from './state';
 import type { SceneApi } from './scene';
 import { initTypographyEngine } from './typography';
 
@@ -99,7 +99,10 @@ export function initRouter() {
       renderContactPage(contactSection);
     }
 
-    if (path === '/' || path === '' || path === '/studio' || path === '/approach' || path === '/projects' || path === '/project' || path === '/contact') {
+    const isSectionRoute = path === '/approach' || path === '/projects' || path === '/project' || path === '/contact';
+    const isRootOrStudio = path === '/' || path === '' || path === '/studio';
+
+    if (isRootOrStudio || isSectionRoute) {
       // Unified Connected Landing Page
       if (subpageRoot) {
         subpageRoot.style.display = 'none';
@@ -108,11 +111,48 @@ export function initRouter() {
       if (landingFlow) {
         landingFlow.style.display = '';
       }
-      homeElements.forEach((el) => {
-        if (el) (el as HTMLElement).style.display = '';
-      });
       document.body.style.overflow = '';
-      pullCordWrap?.classList.remove('is-hidden');
+
+      if (isSectionRoute) {
+        pullCordWrap?.classList.add('is-hidden');
+        // Hide fixed 3D studio canvases and chapter overlays when viewing lower sections
+        homeElements.forEach((el) => {
+          if (el) (el as HTMLElement).style.display = 'none';
+        });
+        const planEl = document.getElementById('plan');
+        const bldEl = document.getElementById('bld');
+        const capEl = document.getElementById('cap');
+        const footEl = document.querySelector<HTMLElement>('.foot');
+        if (planEl) {
+          planEl.style.display = 'none';
+          planEl.style.visibility = 'hidden';
+          planEl.style.opacity = '0';
+          planEl.style.pointerEvents = 'none';
+        }
+        if (bldEl) {
+          bldEl.style.display = 'none';
+          bldEl.style.visibility = 'hidden';
+          bldEl.style.opacity = '0';
+          bldEl.style.pointerEvents = 'none';
+        }
+        if (capEl) {
+          capEl.style.display = 'none';
+          capEl.style.visibility = 'hidden';
+          capEl.style.opacity = '0';
+        }
+        if (footEl) {
+          footEl.style.display = 'none';
+          footEl.style.visibility = 'hidden';
+          footEl.style.opacity = '0';
+        }
+        S.p = 3.0;
+        st.P = 3.0;
+      } else {
+        homeElements.forEach((el) => {
+          if (el) (el as HTMLElement).style.display = '';
+        });
+        pullCordWrap?.classList.remove('is-hidden');
+      }
 
       if (path === '/approach') {
         const approachSection = document.getElementById('approach-section');

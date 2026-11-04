@@ -54,11 +54,11 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 /* ========================================================================= */
 /* UNIFIED LANDING PAGE FLOW & SECTIONS                                     */
 /* ========================================================================= */
-.landing-flow{width:100%;position:relative;z-index:10}
-.landing-section{position:relative;z-index:10;width:100%;box-sizing:border-box}
+.landing-flow{width:100%;position:relative}
+.landing-section{position:relative;width:100%;box-sizing:border-box}
 
 /* Section 1: Studio Hero Section (Scroll Track for Architectural Build Journey) */
-.studio-section{height:calc(320vh + 300px);height:calc(320lvh + 300px);min-height:calc(320svh + 300px);position:relative;pointer-events:none;z-index:10}
+.studio-section{height:calc(320vh + 300px);height:calc(320lvh + 300px);min-height:calc(320svh + 300px);position:relative;pointer-events:none;z-index:2}
 .studio-hero-main,main{position:fixed;z-index:10;left:clamp(20px,4vw,56px);top:calc(96px + env(safe-area-inset-top,0px));bottom:calc(84px + env(safe-area-inset-bottom,0px));max-width:90vw;display:flex;flex-direction:column;justify-content:center;pointer-events:auto;transition:opacity .2s}
 .hero-actions{display:flex;align-items:center;gap:20px;margin-top:28px;flex-wrap:wrap}
 .hero-scroll-btn{display:inline-flex;align-items:center;gap:10px;font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--bone);text-decoration:none;padding:12px 22px;border-radius:999px;background:var(--surface);border:1px solid var(--bronze);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);transition:border-color .2s,background .2s,color .2s,transform .2s}
@@ -67,13 +67,13 @@ a:focus-visible,button:focus-visible,input:focus-visible{outline:2px solid var(-
 .hero-scroll-btn:hover .hsb-arrow{transform:translateY(3px)}
 
 /* Section 2: Selected Works / Projects Showcase */
-.projects-section{position:relative;z-index:20;min-height:100vh;padding:110px 0 60px;background:linear-gradient(180deg,transparent 0%,rgba(10,9,8,.8) 120px,var(--ink) 300px)}
+.projects-section{position:relative;z-index:25;min-height:100vh;padding:110px 0 60px;background:var(--ink)}
 
 /* Section 3: Spatial Enquiries / Contact Atelier */
-.contact-section{position:relative;z-index:20;padding:clamp(56px,7vw,88px) 0 clamp(32px,4vw,48px);background:var(--ink)}
+.contact-section{position:relative;z-index:25;padding:clamp(56px,7vw,88px) 0 clamp(32px,4vw,48px);background:var(--ink)}
 
 /* Section 4: Site Colophon Footer */
-.site-footer{position:relative;z-index:20;background:var(--ink);border-top:1px solid var(--bronze);padding:clamp(44px,5vw,60px) clamp(20px,4vw,56px) 36px}
+.site-footer{position:relative;z-index:25;background:var(--ink);border-top:1px solid var(--bronze);padding:clamp(44px,5vw,60px) clamp(20px,4vw,56px) 36px}
 .sf-inner{max-width:1240px;margin:0 auto;display:grid;grid-template-columns:1.8fr 1fr 1.2fr;gap:clamp(32px,5vw,72px);align-items:start}
 @media(max-width:860px){.sf-inner{grid-template-columns:1fr;gap:40px}}
 .sf-brand{display:inline-flex;align-items:center;gap:10px;margin-bottom:16px}
@@ -2515,7 +2515,7 @@ body.custom-cursor-active #nfg-svg {
    ========================================================================== */
 .approach-section {
   position: relative;
-  z-index: 10;
+  z-index: 25;
   padding: clamp(80px, 12vh, 130px) clamp(20px, 5vw, 64px);
   background: var(--ink);
 }

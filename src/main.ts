@@ -473,6 +473,7 @@ window.addEventListener('resize', () => measureJourneyHeight(false), { passive: 
 measureJourneyHeight(true);
 
 const cachedFootEl = document.querySelector<HTMLElement>('.foot');
+const cachedPlanEl = document.getElementById('plan');
 const cachedBldEl = document.getElementById('bld');
 const cachedCapEl = document.getElementById('cap');
 const cachedHeroEl = document.querySelector<HTMLElement>('main');
@@ -506,15 +507,40 @@ function updateScrollProgress() {
   const exitProgress = clamp((scrollY - jH) / 250, 0, 1);
 
   if (exitProgress > 0) {
-    if (cachedFootEl) cachedFootEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (cachedFootEl) {
+      cachedFootEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+      if (exitProgress >= 1) {
+        cachedFootEl.style.visibility = 'hidden';
+        cachedFootEl.style.display = 'none';
+      }
+    }
+    if (cachedPlanEl) {
+      cachedPlanEl.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
+      if (exitProgress >= 0.5) {
+        cachedPlanEl.style.visibility = 'hidden';
+        cachedPlanEl.style.display = 'none';
+        cachedPlanEl.style.pointerEvents = 'none';
+      }
+    }
     if (cachedBldEl) {
       cachedBldEl.style.opacity = String(Math.max(0, 1 - exitProgress));
-      if (exitProgress >= 1) cachedBldEl.style.visibility = 'hidden';
+      if (exitProgress >= 1) {
+        cachedBldEl.style.visibility = 'hidden';
+        cachedBldEl.style.display = 'none';
+        cachedBldEl.style.pointerEvents = 'none';
+      }
     }
-    if (cachedCapEl) cachedCapEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+    if (cachedCapEl) {
+      cachedCapEl.style.opacity = String(Math.max(0, 1 - exitProgress));
+      if (exitProgress >= 1) {
+        cachedCapEl.style.visibility = 'hidden';
+        cachedCapEl.style.display = 'none';
+      }
+    }
     if (cachedHeroEl) {
       cachedHeroEl.style.opacity = '0';
       cachedHeroEl.style.visibility = 'hidden';
+      cachedHeroEl.style.pointerEvents = 'none';
     }
     if (cachedPullCordWrap) {
       cachedPullCordWrap.style.opacity = String(Math.max(0, 1 - exitProgress * 2));
@@ -525,12 +551,33 @@ function updateScrollProgress() {
       cachedHeroTelemetry.style.pointerEvents = exitProgress > 0.5 ? 'none' : 'auto';
     }
   } else {
-    if (cachedFootEl) cachedFootEl.style.opacity = '';
+    if (cachedFootEl) {
+      cachedFootEl.style.opacity = '';
+      cachedFootEl.style.visibility = '';
+      cachedFootEl.style.display = '';
+    }
+    if (cachedPlanEl) {
+      cachedPlanEl.style.opacity = '';
+      cachedPlanEl.style.visibility = '';
+      cachedPlanEl.style.display = '';
+      cachedPlanEl.style.pointerEvents = '';
+    }
     if (cachedBldEl) {
       cachedBldEl.style.opacity = '';
       cachedBldEl.style.visibility = '';
+      cachedBldEl.style.display = '';
+      cachedBldEl.style.pointerEvents = '';
     }
-    if (cachedHeroEl) cachedHeroEl.style.visibility = '';
+    if (cachedCapEl) {
+      cachedCapEl.style.opacity = '';
+      cachedCapEl.style.visibility = '';
+      cachedCapEl.style.display = '';
+    }
+    if (cachedHeroEl) {
+      cachedHeroEl.style.visibility = '';
+      cachedHeroEl.style.opacity = '';
+      cachedHeroEl.style.pointerEvents = '';
+    }
     if (cachedPullCordWrap) {
       cachedPullCordWrap.style.opacity = '';
       cachedPullCordWrap.style.pointerEvents = '';
@@ -623,13 +670,84 @@ function frame(ms: number) {
         cachedHeroEl.style.visibility = 'hidden';
         cachedHeroEl.style.pointerEvents = 'none';
       }
+      if (cachedPlanEl) {
+        cachedPlanEl.style.opacity = '0';
+        cachedPlanEl.style.visibility = 'hidden';
+        cachedPlanEl.style.display = 'none';
+        cachedPlanEl.style.pointerEvents = 'none';
+      }
+      if (cachedBldEl) {
+        cachedBldEl.style.opacity = '0';
+        cachedBldEl.style.visibility = 'hidden';
+        cachedBldEl.style.display = 'none';
+        cachedBldEl.style.pointerEvents = 'none';
+      }
+      if (cachedCapEl) {
+        cachedCapEl.style.opacity = '0';
+        cachedCapEl.style.visibility = 'hidden';
+        cachedCapEl.style.display = 'none';
+      }
+      if (cachedFootEl) {
+        cachedFootEl.style.opacity = '0';
+        cachedFootEl.style.visibility = 'hidden';
+        cachedFootEl.style.display = 'none';
+      }
+      if (cachedPullCordWrap) {
+        cachedPullCordWrap.style.opacity = '0';
+        cachedPullCordWrap.style.pointerEvents = 'none';
+      }
+      if (cachedHeroTelemetry) {
+        cachedHeroTelemetry.style.opacity = '0';
+        cachedHeroTelemetry.style.pointerEvents = 'none';
+      }
     }
+    // Snap st.P to S.p so progress never hangs or resumes mid-chapter
+    st.P = S.p;
     return;
   } else if (studioCanvasesCulled) {
     studioCanvasesCulled = false;
     W.style.visibility = '';
+    W.style.display = '';
     L.style.visibility = '';
+    L.style.display = '';
     ring.style.visibility = '';
+    ring.style.display = '';
+    if (cachedHeroEl) {
+      cachedHeroEl.style.opacity = '';
+      cachedHeroEl.style.visibility = '';
+      cachedHeroEl.style.display = '';
+      cachedHeroEl.style.pointerEvents = '';
+    }
+    if (cachedPlanEl) {
+      cachedPlanEl.style.opacity = '';
+      cachedPlanEl.style.visibility = '';
+      cachedPlanEl.style.display = '';
+      cachedPlanEl.style.pointerEvents = '';
+    }
+    if (cachedBldEl) {
+      cachedBldEl.style.opacity = '';
+      cachedBldEl.style.visibility = '';
+      cachedBldEl.style.display = '';
+      cachedBldEl.style.pointerEvents = '';
+    }
+    if (cachedCapEl) {
+      cachedCapEl.style.opacity = '';
+      cachedCapEl.style.visibility = '';
+      cachedCapEl.style.display = '';
+    }
+    if (cachedFootEl) {
+      cachedFootEl.style.opacity = '';
+      cachedFootEl.style.visibility = '';
+      cachedFootEl.style.display = '';
+    }
+    if (cachedPullCordWrap) {
+      cachedPullCordWrap.style.opacity = '';
+      cachedPullCordWrap.style.pointerEvents = '';
+    }
+    if (cachedHeroTelemetry) {
+      cachedHeroTelemetry.style.opacity = '';
+      cachedHeroTelemetry.style.pointerEvents = '';
+    }
   }
 
   const progressSmoothing = st.w < 768 ? 0.12 : smooth.progress;
