@@ -27,6 +27,30 @@ export const palette = {
   hairline: 'rgba(223, 186, 115, 0.22)',
 } as const;
 
+export const lightPalette = {
+  /** Background: Warm Stone `#f5f2e9` */
+  bg: '#f5f2e9',
+  bgHex: 0xf5f2e9,
+
+  /** Primary text / bone: `#21201a` (≥7:1 contrast against background) */
+  textPrimary: '#21201a',
+  textPrimaryHex: 0x21201a,
+
+  /** Secondary text / muted: `rgba(33, 32, 26, 0.68)` */
+  textSecondary: 'rgba(33, 32, 26, 0.68)',
+
+  /** Aged bronze accent: `#8a6334` (≥4.5:1 contrast against background) */
+  accent: '#8a6334',
+  accentHex: 0x8a6334,
+
+  /** Off‑white card surface with slight translucency: `rgba(255, 255, 255, 0.94)` */
+  glassSurface: 'rgba(255, 255, 255, 0.94)',
+  glassSurfaceHex: 0xffffff,
+
+  /** Hairline border: `rgba(33, 32, 26, 0.12)` */
+  hairline: 'rgba(33, 32, 26, 0.12)',
+} as const;
+
 /** Colors used by the WebGL scene (kept backward-compatible for scene/index.ts) */
 export const colors = {
   ink: palette.bgHex,

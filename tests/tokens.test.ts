@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { palette, getContrastRatio, getLuminance } from '../src/tokens/colors.ts';
+import { palette, lightPalette, getContrastRatio, getLuminance } from '../src/tokens/colors.ts';
 
 test('Color Palette — Tokens & WCAG Contrast Validation', async (t) => {
   await t.test('Obsidian background and primary text meet WCAG AAA contrast (> 7:1)', () => {
@@ -24,5 +24,15 @@ test('Color Palette — Tokens & WCAG Contrast Validation', async (t) => {
 
     const textLuminance = getLuminance(palette.textPrimary);
     assert.ok(textLuminance > 0.85, 'Primary text should be high-luminance brushed bone');
+  });
+
+  await t.test('Light theme background and primary text meet WCAG AAA contrast (> 7:1)', () => {
+    const ratio = getContrastRatio(lightPalette.bg, lightPalette.textPrimary);
+    assert.ok(ratio >= 7, `Expected contrast >= 7:1, got ${ratio}:1`);
+  });
+
+  await t.test('Light theme accent against background meets WCAG AA contrast (> 4.5:1)', () => {
+    const ratio = getContrastRatio(lightPalette.bg, lightPalette.accent);
+    assert.ok(ratio >= 4.5, `Expected contrast >= 4.5:1, got ${ratio}:1`);
   });
 });
