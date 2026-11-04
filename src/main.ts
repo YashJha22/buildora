@@ -416,7 +416,7 @@ loadScene().then((api) => {
     webglNotice.id = 'webgl-fallback-banner';
     webglNotice.setAttribute('role', 'status');
     webglNotice.style.cssText =
-      'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9000;background:rgba(18,15,13,0.92);border:1px solid rgba(223,186,115,0.35);color:#f7f3ed;padding:0.6rem 1.2rem;border-radius:6px;font-family:Manrope,sans-serif;font-size:0.75rem;letter-spacing:0.04em;backdrop-filter:blur(10px);pointer-events:none;';
+      'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9000;background:var(--surface);border:1px solid var(--bronze);color:var(--bone);padding:0.6rem 1.2rem;border-radius:6px;font-family:Manrope,sans-serif;font-size:0.75rem;letter-spacing:0.04em;backdrop-filter:blur(10px);pointer-events:none;';
     webglNotice.textContent = 'WebGL acceleration is unavailable in this environment. Showing architectural plan view.';
     document.body.appendChild(webglNotice);
   }
@@ -558,13 +558,34 @@ window.addEventListener(
 updateScrollProgress();
 
 let lastFrameMs = 0;
+let frameRafId: number | null = null;
+
+function scheduleNextFrame() {
+  if (frameRafId === null && !document.hidden) {
+    frameRafId = requestAnimationFrame(frame);
+  }
+}
+
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    if (frameRafId !== null) {
+      cancelAnimationFrame(frameRafId);
+      frameRafId = null;
+    }
+    lastFrameMs = 0;
+  } else {
+    lastFrameMs = 0;
+    scheduleNextFrame();
+  }
+});
 
 function frame(ms: number) {
-  requestAnimationFrame(frame);
+  frameRafId = null;
   if (document.hidden) return;
+  scheduleNextFrame();
 
   if (lastFrameMs === 0) lastFrameMs = ms;
-  const dt = Math.min((ms - lastFrameMs) * 0.001, 0.1);
+  const dt = Math.min(Math.max(0, (ms - lastFrameMs) * 0.001), 0.1);
   lastFrameMs = ms;
 
   const t = ms * 0.001,
@@ -644,4 +665,4 @@ function frame(ms: number) {
 
   gl && gl.draw(t, e, q, cs * (1 - cb), q2, bq, cb);
 }
-requestAnimationFrame(frame);
+scheduleNextFrame();

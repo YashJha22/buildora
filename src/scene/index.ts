@@ -1,7 +1,8 @@
 import { sound } from '../audio';
 import { L, W } from '../dom';
+import { preferences, getResolvedTheme } from '../preferences';
 import { S, classic, debugDraw, debugFront, debugT, st } from '../state';
-import { colors } from '../tokens/colors';
+import { colors, lightPalette } from '../tokens/colors';
 import { introClock } from '../tokens/motion';
 import { $, clamp } from '../utils';
 import { placeCamera } from './camera';
@@ -105,8 +106,25 @@ function create(
   const clearColorW = new THREE.Color(colors.bone);
   const inkColor = new THREE.Color(colors.ink);
   const boneColor = new THREE.Color(colors.bone);
+  const lineTargetColor = new THREE.Color(colors.bone);
   const litClearColor = new THREE.Color(colors.litClear);
   const nightClearColor = new THREE.Color(colors.ink);
+
+  preferences.subscribe((prefs) => {
+    const isLight = getResolvedTheme(prefs.theme) === 'light';
+    if (isLight) {
+      inkColor.setHex(lightPalette.bgHex);
+      lineTargetColor.setHex(lightPalette.textPrimaryHex);
+      litClearColor.setHex(lightPalette.glassSurfaceHex);
+      nightClearColor.setHex(lightPalette.bgHex);
+    } else {
+      inkColor.setHex(colors.ink);
+      lineTargetColor.setHex(colors.bone);
+      litClearColor.setHex(colors.litClear);
+      nightClearColor.setHex(colors.ink);
+    }
+    boneColor.setHex(colors.bone);
+  });
   const sunNoonColor = new THREE.Color(0xffe4be);
   const sunGoldenColor = new THREE.Color(0xff9e58);
   const sunDuskColor = new THREE.Color(0xb06c78);
@@ -174,6 +192,10 @@ function create(
   const onContextRestored = () => {
     contextLost = false;
     try {
+      if (!classic) {
+        sl.environment = makeRoomEnv(THREE, rL);
+      }
+      size();
       rW.compile(sw, cam);
       rL.compile(sl, cam);
     } catch (_) {
@@ -188,7 +210,8 @@ function create(
   const size = () => {
     const isMobile = st.w < 768;
     const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
-    const d = Math.min(devicePixelRatio || 1, isMobile ? 1.5 : isLowEnd ? 1.25 : 1.5);
+    const rawDpr = Math.min(window.devicePixelRatio || 1, 2);
+    const d = Math.min(rawDpr, isMobile ? 1.5 : isLowEnd ? 1.25 : 2);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
@@ -479,11 +502,11 @@ function create(
         clearColorW.copy(boneColor).lerp(inkColor, c);
         rW.setClearColor(clearColorW, 1);
         sketchMat.color.copy(clearColorW);
-        lineMat.color.copy(inkColor).lerp(boneColor, c);
+        lineMat.color.setHex(colors.ink).lerp(lineTargetColor, c);
         lineMat.opacity = 0.82 * (1 - c) + 0.5 * c;
-        gridMat.color.copy(inkColor).lerp(boneColor, c);
+        gridMat.color.setHex(colors.ink).lerp(lineTargetColor, c);
         gridMat.opacity = 0.08 * (1 - c) + 0.16 * c;
-        guideMat.color.copy(inkColor).lerp(boneColor, c);
+        guideMat.color.setHex(colors.ink).lerp(lineTargetColor, c);
 
         // Solar Path calculation (default st.solarHour = 14.5 reproduces exact baseline sun pose (-9, 5.5, 1.5))
         const hr = st.solarHour;
