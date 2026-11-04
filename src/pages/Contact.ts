@@ -15,9 +15,9 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
         <div class="contact-narrative-col">
           <div class="contact-eyebrow-block">
             <svg class="bwy-monogram" viewBox="0 0 20 20" width="16" height="16" aria-hidden="true">
-              <path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="#dfba73" stroke-width="1.3" stroke-linejoin="round"/>
-              <path d="M10 2V10M10 10L17 6M10 10L3 6" stroke="#f7f3ed" stroke-width="1.1" stroke-linecap="round"/>
-              <path d="M10 10V18" stroke="#dfba73" stroke-width="1.3" stroke-linecap="round"/>
+              <path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="var(--warm)" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M10 2V10M10 10L17 6M10 10L3 6" stroke="var(--bone)" stroke-width="1.1" stroke-linecap="round"/>
+              <path d="M10 10V18" stroke="var(--warm)" stroke-width="1.3" stroke-linecap="round"/>
             </svg>
             <span class="eyebrow-draft">Spatial Enquiries · Atelier Direct</span>
           </div>
@@ -53,9 +53,9 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
               <div class="cpc-header">
                 <div class="cpc-mark">
                   <svg viewBox="0 0 24 16" width="22" height="14" fill="none" aria-hidden="true">
-                    <rect x="0" y="10" width="6" height="6" fill="#dfba73" />
-                    <rect x="9" y="5" width="6" height="11" fill="#dfba73" opacity="0.85" />
-                    <rect x="18" y="0" width="6" height="16" fill="#dfba73" opacity="0.65" />
+                    <rect x="0" y="10" width="6" height="6" fill="var(--warm)" />
+                    <rect x="9" y="5" width="6" height="11" fill="var(--warm)" opacity="0.85" />
+                    <rect x="18" y="0" width="6" height="16" fill="var(--warm)" opacity="0.65" />
                   </svg>
                   <span class="cpc-heading">GET IN TOUCH</span>
                 </div>
@@ -71,27 +71,27 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
                 <!-- Field: Name -->
                 <div class="cpc-field">
                   <label for="cpc-name">NAME <span class="cpc-req">*</span></label>
-                  <input type="text" id="cpc-name" name="name" required placeholder="Your Name" autocomplete="name" />
+                  <input type="text" id="cpc-name" name="name" required maxlength="120" placeholder="Your Name" autocomplete="name" />
                   <span class="cpc-error-msg" id="err-name" role="alert"></span>
                 </div>
 
                 <!-- Field: Email -->
                 <div class="cpc-field">
                   <label for="cpc-email">EMAIL <span class="cpc-req">*</span></label>
-                  <input type="email" id="cpc-email" name="email" required placeholder="you@example.com" autocomplete="email" />
+                  <input type="email" id="cpc-email" name="email" required maxlength="254" placeholder="you@example.com" autocomplete="email" />
                   <span class="cpc-error-msg" id="err-email" role="alert"></span>
                 </div>
 
                 <!-- Field: Company / Studio (Optional) -->
                 <div class="cpc-field">
                   <label for="cpc-company">COMPANY / PRACTICE <span class="cpc-opt">(OPTIONAL)</span></label>
-                  <input type="text" id="cpc-company" name="company" placeholder="Studio / Organization" autocomplete="organization" />
+                  <input type="text" id="cpc-company" name="company" maxlength="160" placeholder="Studio / Organization" autocomplete="organization" />
                 </div>
 
                 <!-- Field: Message -->
                 <div class="cpc-field">
                   <label for="cpc-message">PROJECT BRIEF <span class="cpc-req">*</span></label>
-                  <textarea id="cpc-message" name="message" rows="4" required placeholder="Describe your residential or spatial renovation, site location, and anticipated timeline..."></textarea>
+                  <textarea id="cpc-message" name="message" rows="4" required maxlength="4000" placeholder="Describe your residential or spatial renovation, site location, and anticipated timeline..."></textarea>
                   <span class="cpc-error-msg" id="err-message" role="alert"></span>
                 </div>
 
@@ -103,6 +103,12 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
                     <span class="cpc-consent-text">I agree to have Build with Yash contact me regarding this spatial commission enquiry.</span>
                   </label>
                   <span class="cpc-error-msg" id="err-consent" role="alert"></span>
+                </div>
+
+                <!-- Accessible-Hidden Bot Honeypot -->
+                <div class="cpc-hp" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;opacity:0;pointer-events:none;">
+                  <label for="cpc-website">Website</label>
+                  <input type="text" id="cpc-website" name="website" tabindex="-1" autocomplete="off" />
                 </div>
 
                 <!-- Submit Button & State -->
@@ -166,6 +172,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
   const companyInput = targetEl.querySelector<HTMLInputElement>('#cpc-company');
   const messageInput = targetEl.querySelector<HTMLTextAreaElement>('#cpc-message');
   const consentInput = targetEl.querySelector<HTMLInputElement>('#cpc-consent');
+  const honeypotInput = targetEl.querySelector<HTMLInputElement>('#cpc-website');
 
   // Error elements
   const errName = targetEl.querySelector<HTMLElement>('#err-name');
@@ -174,7 +181,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
   const errConsent = targetEl.querySelector<HTMLElement>('#err-consent');
 
   // Trigger kinetic typography animation with 3D subterranean extrusion & SVG stroke drawing
-  initContactKineticTypography(targetEl);
+  const cleanupContactTypography = initContactKineticTypography(targetEl);
   initTypographyEngine(targetEl);
 
   // -------------------------------------------------------------
@@ -352,18 +359,65 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
   };
 
   const validateEmail = (email: string) => {
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    return email.length <= 254 && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
   };
+
+  let currentBriefBody = '';
+  let copyTimerId: number | null = null;
+  let activeFetchController: AbortController | null = null;
+  let lastSubmitMs = 0;
+  const SUBMIT_COOLDOWN_MS = 3500;
+
+  const copyBtn = handoffViewEl?.querySelector<HTMLButtonElement>('#cbh-copy-btn');
+  const copyStatus = handoffViewEl?.querySelector<HTMLElement>('#cbh-copy-status');
+  const editBtn = handoffViewEl?.querySelector<HTMLButtonElement>('#cbh-edit-btn');
+
+  copyBtn?.addEventListener('click', () => {
+    if (navigator.clipboard && currentBriefBody) {
+      navigator.clipboard.writeText(currentBriefBody).then(() => {
+        if (copyStatus) copyStatus.textContent = '✓ Brief copied to clipboard!';
+        if (copyTimerId !== null) window.clearTimeout(copyTimerId);
+        copyTimerId = window.setTimeout(() => {
+          if (copyStatus) copyStatus.textContent = '';
+          copyTimerId = null;
+        }, 3000);
+      }).catch(() => {
+        if (copyStatus) copyStatus.textContent = 'Ready to send via email client.';
+      });
+    }
+  });
+
+  editBtn?.addEventListener('click', () => {
+    if (handoffViewEl) handoffViewEl.style.display = 'none';
+    if (formEl) formEl.style.display = 'flex';
+  });
 
   formEl?.addEventListener('submit', (e) => {
     e.preventDefault();
     clearErrors();
 
+    // Bot honeypot trap: if hidden field is populated, silently resolve without network or mailto
+    if (honeypotInput && honeypotInput.value.trim() !== '') {
+      if (formEl) formEl.style.display = 'none';
+      if (handoffViewEl) handoffViewEl.style.display = 'none';
+      if (successViewEl) successViewEl.style.display = 'block';
+      return;
+    }
+
+    // Client-side submission rate-limiting / cooldown
+    const nowMs = performance.now();
+    if (lastSubmitMs > 0 && nowMs - lastSubmitMs < SUBMIT_COOLDOWN_MS) {
+      if (errConsent) {
+        errConsent.textContent = 'Please wait a moment before submitting again.';
+      }
+      return;
+    }
+
     let hasErrors = false;
 
-    const nameVal = nameInput?.value.trim() || '';
-    const emailVal = emailInput?.value.trim() || '';
-    const messageVal = messageInput?.value.trim() || '';
+    const nameVal = (nameInput?.value.trim() || '').slice(0, 120);
+    const emailVal = (emailInput?.value.trim() || '').slice(0, 254);
+    const messageVal = (messageInput?.value.trim() || '').slice(0, 4000);
     const consentVal = consentInput?.checked || false;
 
     if (!nameVal) {
@@ -400,15 +454,24 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
 
     if (hasErrors) return;
 
-    const companyVal = companyInput?.value.trim() || '';
+    lastSubmitMs = nowMs;
+    const companyVal = (companyInput?.value.trim() || '').slice(0, 160);
     const configuredEndpoint = (import.meta.env.VITE_CONTACT_ENDPOINT as string | undefined)?.trim();
+    const isSafeEndpoint =
+      !!configuredEndpoint &&
+      (configuredEndpoint.startsWith('https://') || configuredEndpoint.startsWith('/'));
 
-    if (configuredEndpoint) {
-      // Live transmission over configured endpoint
+    if (configuredEndpoint && isSafeEndpoint) {
+      // Live transmission over configured endpoint with 10s timeout protection
       if (submitBtn) {
         submitBtn.disabled = true;
         submitBtn.classList.add('is-loading');
       }
+
+      if (activeFetchController) activeFetchController.abort();
+      const controller = new AbortController();
+      activeFetchController = controller;
+      const timeoutId = window.setTimeout(() => controller.abort(), 10000);
 
       fetch(configuredEndpoint, {
         method: 'POST',
@@ -416,6 +479,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
           'Content-Type': 'application/json',
           'Accept': 'application/json',
         },
+        signal: controller.signal,
         body: JSON.stringify({
           name: nameVal,
           email: emailVal,
@@ -425,6 +489,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
         }),
       })
         .then((res) => {
+          window.clearTimeout(timeoutId);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
           if (isUnmounted) return;
           if (formEl) formEl.style.display = 'none';
@@ -435,6 +500,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
           }
         })
         .catch(() => {
+          window.clearTimeout(timeoutId);
           if (isUnmounted) return;
           if (submitBtn) {
             submitBtn.disabled = false;
@@ -452,33 +518,12 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
       if (handoffViewEl) {
         handoffViewEl.style.display = 'block';
 
-        const briefBody = `NAME: ${nameVal}\nEMAIL: ${emailVal}\nCOMPANY: ${companyVal || 'N/A'}\n\nPROJECT BRIEF:\n${messageVal}\n\n[Verified via Buildora Contact Interface]`;
+        currentBriefBody = `NAME: ${nameVal}\nEMAIL: ${emailVal}\nCOMPANY: ${companyVal || 'N/A'}\n\nPROJECT BRIEF:\n${messageVal}\n\n[Verified via Buildora Contact Interface]`;
         const mailtoSubject = encodeURIComponent(`Spatial Commission Brief — ${nameVal}`);
-        const mailtoHref = `mailto:iyashjha@gmail.com?subject=${mailtoSubject}&body=${encodeURIComponent(briefBody)}`;
+        const mailtoHref = `mailto:iyashjha@gmail.com?subject=${mailtoSubject}&body=${encodeURIComponent(currentBriefBody)}`;
 
         const mailtoBtn = handoffViewEl.querySelector<HTMLAnchorElement>('#cbh-mailto-btn');
         if (mailtoBtn) mailtoBtn.href = mailtoHref;
-
-        const copyBtn = handoffViewEl.querySelector<HTMLButtonElement>('#cbh-copy-btn');
-        const copyStatus = handoffViewEl.querySelector<HTMLElement>('#cbh-copy-status');
-        copyBtn?.addEventListener('click', () => {
-          if (navigator.clipboard) {
-            navigator.clipboard.writeText(briefBody).then(() => {
-              if (copyStatus) copyStatus.textContent = '✓ Brief copied to clipboard!';
-              setTimeout(() => {
-                if (copyStatus) copyStatus.textContent = '';
-              }, 3000);
-            }).catch(() => {
-              if (copyStatus) copyStatus.textContent = 'Ready to send via email client.';
-            });
-          }
-        });
-
-        const editBtn = handoffViewEl.querySelector<HTMLButtonElement>('#cbh-edit-btn');
-        editBtn?.addEventListener('click', () => {
-          if (handoffViewEl) handoffViewEl.style.display = 'none';
-          if (formEl) formEl.style.display = 'flex';
-        });
       }
     }
   });
@@ -498,7 +543,10 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
   // Return unmount cleanup function
   return () => {
     isUnmounted = true;
+    cleanupContactTypography();
     if (rafId) cancelAnimationFrame(rafId);
+    if (copyTimerId !== null) window.clearTimeout(copyTimerId);
+    if (activeFetchController) activeFetchController.abort();
     window.removeEventListener('mousemove', onPointerMove);
     window.removeEventListener('resize', onResizeOrScroll);
     window.removeEventListener('scroll', onResizeOrScroll);
