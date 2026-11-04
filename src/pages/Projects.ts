@@ -7,6 +7,7 @@ import {
   animatePortfolioHeading,
   setupProjectCardTitleKinetic,
   setupCaseStudyHeadings,
+  initScrollTextReveals,
   initTypographyEngine,
 } from '../typography';
 
@@ -311,9 +312,9 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
           <div class="proj-eyebrow-row">
             <span class="proj-mark-glyph" aria-hidden="true">
               <svg viewBox="0 0 24 16" width="22" height="15" fill="none">
-                <rect x="0" y="10" width="6" height="6" fill="#dfba73" />
-                <rect x="9" y="5" width="6" height="11" fill="#dfba73" opacity="0.85" />
-                <rect x="18" y="0" width="6" height="16" fill="#dfba73" opacity="0.65" />
+                <rect x="0" y="10" width="6" height="6" fill="var(--warm)" />
+                <rect x="9" y="5" width="6" height="11" fill="var(--warm)" opacity="0.85" />
+                <rect x="18" y="0" width="6" height="16" fill="var(--warm)" opacity="0.65" />
               </svg>
             </span>
             <span class="eyebrow-draft">PORTFOLIO · ARCHITECTURAL WORKS</span>
@@ -460,9 +461,9 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
           <div class="closing-brand-bar">
             <div class="cbb-brand">
               <svg class="bwy-monogram" viewBox="0 0 20 20" width="15" height="15" aria-hidden="true">
-                <path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="#dfba73" stroke-width="1.3" stroke-linejoin="round"/>
-                <path d="M10 2V10M10 10L17 6M10 10L3 6" stroke="#f7f3ed" stroke-width="1.1" stroke-linecap="round"/>
-                <path d="M10 10V18" stroke="#dfba73" stroke-width="1.3" stroke-linecap="round"/>
+                <path d="M10 2L17 6V14L10 18L3 14V6L10 2Z" stroke="var(--warm)" stroke-width="1.3" stroke-linejoin="round"/>
+                <path d="M10 2V10M10 10L17 6M10 10L3 6" stroke="var(--bone)" stroke-width="1.1" stroke-linecap="round"/>
+                <path d="M10 10V18" stroke="var(--warm)" stroke-width="1.3" stroke-linecap="round"/>
               </svg>
               <span>Build with Yash · Architectural Atelier</span>
             </div>
@@ -474,6 +475,9 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
   `;
 
   // Attach smooth scroll listeners for closing card buttons
+  let focusTimerId: number | null = null;
+  let shatterTimerId: number | null = null;
+
   targetEl.querySelectorAll<HTMLAnchorElement>('.closing-actions a[data-scroll]').forEach((link) => {
     link.addEventListener('click', (e) => {
       e.preventDefault();
@@ -482,9 +486,11 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
         const contactSec = document.getElementById('contact-section');
         if (contactSec) {
           contactSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          setTimeout(() => {
+          if (focusTimerId !== null) window.clearTimeout(focusTimerId);
+          focusTimerId = window.setTimeout(() => {
             const briefInput = document.getElementById('brief-input') || contactSec.querySelector<HTMLElement>('input, textarea');
             briefInput?.focus();
+            focusTimerId = null;
           }, 650);
         }
       } else if (targetType === 'studio') {
@@ -646,7 +652,8 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
     }
 
     // Smooth page transition after shattering animation completes
-    setTimeout(() => {
+    shatterTimerId = window.setTimeout(() => {
+      shatterTimerId = null;
       navigateTo(`/projects/${slug}`);
     }, 380);
   };
@@ -745,6 +752,8 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
 
   return () => {
     if (rafId !== null) cancelAnimationFrame(rafId);
+    if (focusTimerId !== null) window.clearTimeout(focusTimerId);
+    if (shatterTimerId !== null) window.clearTimeout(shatterTimerId);
     window.removeEventListener('scroll', onScroll);
     targetEl.removeEventListener('scroll', onScroll);
     if (observer) observer.disconnect();
@@ -1032,14 +1041,18 @@ function splitHeadingWords(text: string): string {
 }
 
 /** Setup Shared Word Animations for Case Study Pages */
-function setupCaseStudyAnimations(targetEl: HTMLElement, heroTitleId: string): () => void {
+function setupCaseStudyAnimations(targetEl: HTMLElement, _heroTitleId: string): () => void {
   // Case study headings deliberate kinetic typography
-  setupCaseStudyHeadings(targetEl);
+  const cleanupHeadings = setupCaseStudyHeadings(targetEl);
 
   // Activate continuous fluid moving words and audit all headings across the entire case study
+  const cleanupReveals = initScrollTextReveals(targetEl);
   initTypographyEngine(targetEl);
 
-  return () => {};
+  return () => {
+    cleanupHeadings();
+    cleanupReveals();
+  };
 }
 
 /** Rich Shared Case Study Footer Connecting to Next Work, All Works, and Contact */

@@ -597,8 +597,17 @@ export function renderNotFoundPage(targetEl: HTMLElement): () => void {
     }
   }
 
+  const rebuildTimers: number[] = [];
+  const clearRebuildTimers = () => {
+    while (rebuildTimers.length > 0) {
+      const id = rebuildTimers.pop();
+      if (id !== undefined) window.clearTimeout(id);
+    }
+  };
+
   function resetWall() {
-    // 1. Explicitly cancel any active physics loop
+    // 1. Explicitly cancel any active physics loop and pending rebuild timers
+    clearRebuildTimers();
     if (rafId !== null) {
       cancelAnimationFrame(rafId);
       rafId = null;
@@ -629,18 +638,20 @@ export function renderNotFoundPage(targetEl: HTMLElement): () => void {
         b.groupEl.style.transform = `translate(${b.x.toFixed(1)}px, ${(b.y - 18).toFixed(1)}px)`;
 
         const delay = (b.c % 19) * 12 + (b.r % 8) * 10;
-        setTimeout(() => {
+        const t1 = window.setTimeout(() => {
           if (!b.groupEl) return;
           b.groupEl.style.transform = `translate(${b.x.toFixed(1)}px, ${b.y.toFixed(1)}px)`;
           b.groupEl.style.opacity = '1';
         }, delay);
 
         // Remove rebuilding class after animation finishes
-        setTimeout(() => {
+        const t2 = window.setTimeout(() => {
           if (b.groupEl) {
             b.groupEl.classList.remove('nfg-rebuilding');
           }
         }, delay + 400);
+
+        rebuildTimers.push(t1, t2);
       }
     });
   }
@@ -799,16 +810,22 @@ export function renderNotFoundPage(targetEl: HTMLElement): () => void {
     rafId = requestAnimationFrame(updatePhysics);
   }
 
+  const onVisibilityChange = () => {
+    lastFrameTime = performance.now();
+  };
+
   // Attach Listeners
   window.addEventListener('pointermove', onPointerMove, { passive: true });
   svgEl.addEventListener('pointerdown', onPointerDown);
   svgEl.addEventListener('touchmove', onTouchMove, { passive: false });
   svgEl.addEventListener('touchstart', onTouchStart, { passive: true });
   document.addEventListener('keydown', onKeyDown);
+  document.addEventListener('visibilitychange', onVisibilityChange);
   rebuildBtn?.addEventListener('click', resetWall);
 
   // Return Cleanup Handler
   return () => {
+    clearRebuildTimers();
     if (rafId !== null) cancelAnimationFrame(rafId);
     isPhysicsRunning = false;
     window.removeEventListener('resize', updateCachedRect);
@@ -818,6 +835,7 @@ export function renderNotFoundPage(targetEl: HTMLElement): () => void {
     svgEl.removeEventListener('touchmove', onTouchMove);
     svgEl.removeEventListener('touchstart', onTouchStart);
     document.removeEventListener('keydown', onKeyDown);
+    document.removeEventListener('visibilitychange', onVisibilityChange);
     rebuildBtn?.removeEventListener('click', resetWall);
   };
 }
@@ -834,22 +852,22 @@ export function renderStatusPage(targetEl: HTMLElement) {
       <section style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-bottom: 48px;">
         <div class="pd-card">
           <h4>3D WebGL Engine</h4>
-          <p style="font-size: 13px; color: rgba(247, 243, 237,0.8); margin: 0 0 8px;">Hardware-accelerated Three.js r128 renderer</p>
+          <p style="font-size: 13px; color: var(--muted); margin: 0 0 8px;">Hardware-accelerated Three.js r128 renderer</p>
           <span style="font-size: 10px; letter-spacing: 0.16em; color: var(--warm); text-transform: uppercase;">● Operational (Active)</span>
         </div>
         <div class="pd-card">
           <h4>Dual Canvas Sync</h4>
-          <p style="font-size: 13px; color: rgba(247, 243, 237,0.8); margin: 0 0 8px;">Synchronized sketch line and lit material buffers</p>
+          <p style="font-size: 13px; color: var(--muted); margin: 0 0 8px;">Synchronized sketch line and lit material buffers</p>
           <span style="font-size: 10px; letter-spacing: 0.16em; color: var(--warm); text-transform: uppercase;">● 0.00 px Registration Delta</span>
         </div>
         <div class="pd-card">
           <h4>Web Audio Synthesizer</h4>
-          <p style="font-size: 13px; color: rgba(247, 243, 237,0.8); margin: 0 0 8px;">Procedural contact physics and drafting audio</p>
+          <p style="font-size: 13px; color: var(--muted); margin: 0 0 8px;">Procedural contact physics and drafting audio</p>
           <span style="font-size: 10px; letter-spacing: 0.16em; color: var(--warm); text-transform: uppercase;">● Standby (User-Gesture Gated)</span>
         </div>
         <div class="pd-card">
           <h4>Client Router</h4>
-          <p style="font-size: 13px; color: rgba(247, 243, 237,0.8); margin: 0 0 8px;">History API single-page navigation</p>
+          <p style="font-size: 13px; color: var(--muted); margin: 0 0 8px;">History API single-page navigation</p>
           <span style="font-size: 10px; letter-spacing: 0.16em; color: var(--warm); text-transform: uppercase;">● Active (Deep-Link Enabled)</span>
         </div>
       </section>

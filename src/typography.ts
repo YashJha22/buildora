@@ -996,9 +996,9 @@ export function animateClosingCtaHeading(ctaHeading: HTMLElement) {
 /**
  * 9. CONTACT HERO DISPLAY: OVERSIZED CONTOUR + MONOLITHIC 3D TILT
  */
-export function initContactKineticTypography(targetEl: HTMLElement) {
+export function initContactKineticTypography(targetEl: HTMLElement): () => void {
   const contactHeadline = targetEl.querySelector<HTMLElement>('.contact-hero-display');
-  if (!contactHeadline) return;
+  if (!contactHeadline) return () => {};
 
   const svgDraw = contactHeadline.querySelector<HTMLElement>('.contour-draw-svg');
   if (svgDraw) {
@@ -1030,6 +1030,7 @@ export function initContactKineticTypography(targetEl: HTMLElement) {
 
     const onMouseMove = (e: MouseEvent) => {
       const rect = contactHeadline.getBoundingClientRect();
+      if (rect.width <= 0 || rect.height <= 0) return;
       const relX = (e.clientX - rect.left) / rect.width - 0.5;
       const relY = (e.clientY - rect.top) / rect.height - 0.5;
       gsap.to(chars, {
@@ -1042,14 +1043,21 @@ export function initContactKineticTypography(targetEl: HTMLElement) {
     };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      gsap.killTweensOf(chars);
+    };
   }
+  return () => {};
 }
 
 /**
  * 10. CASE STUDY & SECTION HEADINGS KINETIC REVEALS
  */
-export function setupCaseStudyHeadings(targetEl: HTMLElement) {
-  if (reduce || !targetEl) return;
+export function setupCaseStudyHeadings(targetEl: HTMLElement): () => void {
+  if (reduce || !targetEl) return () => {};
+
+  const observers: IntersectionObserver[] = [];
 
   const heroTitle = targetEl.querySelector<HTMLElement>('.cs-title');
   if (heroTitle && heroTitle.dataset.animated !== 'true') {
@@ -1102,15 +1110,21 @@ export function setupCaseStudyHeadings(targetEl: HTMLElement) {
       { threshold: 0.15 }
     );
     obs.observe(secTitle);
+    observers.push(obs);
   });
+
+  return () => {
+    observers.forEach((obs) => obs.disconnect());
+  };
 }
 
 /**
  * 11. GLOBAL HEADING AUDIT & AUTO-BINDING (SITE-WIDE REQUIREMENT)
  */
-export function initAllHeadingsSiteWide(rootEl?: HTMLElement | Document | null) {
-  if (reduce) return;
+export function initAllHeadingsSiteWide(rootEl?: HTMLElement | Document | null): () => void {
+  if (reduce) return () => {};
 
+  const observers: IntersectionObserver[] = [];
   const scope = rootEl || document;
   const headings = scope.querySelectorAll<HTMLElement>('h1, h2, h3, h4');
 
@@ -1143,6 +1157,7 @@ export function initAllHeadingsSiteWide(rootEl?: HTMLElement | Document | null) 
         { threshold: 0.2 }
       );
       obs.observe(heading);
+      observers.push(obs);
       return;
     }
 
@@ -1173,14 +1188,19 @@ export function initAllHeadingsSiteWide(rootEl?: HTMLElement | Document | null) 
       { threshold: 0.15 }
     );
     obs.observe(heading);
+    observers.push(obs);
   });
+
+  return () => {
+    observers.forEach((obs) => obs.disconnect());
+  };
 }
 
 /**
  * 12. SCROLL-TRIGGERED TEXT REVEALS & CONTINUOUS DRIFT
  */
-export function initScrollTextReveals(rootEl?: HTMLElement | Document | null) {
-  if (typeof window === 'undefined') return;
+export function initScrollTextReveals(rootEl?: HTMLElement | Document | null): () => void {
+  if (typeof window === 'undefined') return () => {};
 
   const scope = rootEl || document;
   const elements = scope.querySelectorAll<HTMLElement>(
@@ -1191,7 +1211,7 @@ export function initScrollTextReveals(rootEl?: HTMLElement | Document | null) {
     elements.forEach((el) => {
       el.classList.add('is-revealed', 'is-drawn');
     });
-    return;
+    return () => {};
   }
 
   if (!observer) {
@@ -1221,7 +1241,11 @@ export function initScrollTextReveals(rootEl?: HTMLElement | Document | null) {
     }
   });
 
-  initAllHeadingsSiteWide(scope);
+  const cleanupHeadings = initAllHeadingsSiteWide(scope);
+  return () => {
+    elements.forEach((el) => observer?.unobserve(el));
+    cleanupHeadings();
+  };
 }
 
 /**
