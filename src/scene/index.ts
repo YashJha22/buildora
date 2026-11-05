@@ -675,8 +675,9 @@ function create(
       }
 
       if (contextLost) return;
-      rW.render(sw, cam);
-      rL.render(sl, cam);
+      // Skip rendering canvases that are not visible (opacity 0 / display none)
+      if (W.style.display !== 'none' && W.style.visibility !== 'hidden' && W.style.opacity !== '0') rW.render(sw, cam);
+      if (L.style.display !== 'none' && L.style.visibility !== 'hidden' && L.style.opacity !== '0') rL.render(sl, cam);
     },
   };
 
