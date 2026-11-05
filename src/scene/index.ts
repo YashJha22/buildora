@@ -96,6 +96,10 @@ function create(
   rL.outputEncoding = THREE.sRGBEncoding;
   rL.toneMapping = THREE.ACESFilmicToneMapping;
   rL.shadowMap.enabled = true;
+  // Shadows are refreshed manually (see draw): only the sun casts shadows, so they only need
+  // recomputing when the sun or the build/part transforms change.
+  rL.shadowMap.autoUpdate = false;
+  rL.shadowMap.needsUpdate = true;
   rL.shadowMap.type = st.w < 768 ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
   const sw = new THREE.Scene(),
     sl = new THREE.Scene();
@@ -191,6 +195,8 @@ function create(
   };
   const onContextRestored = () => {
     contextLost = false;
+    shadowWarmup = 30;
+    renderWarmup = 90;
     try {
       if (!classic) {
         sl.environment = makeRoomEnv(THREE, rL);
@@ -239,6 +245,12 @@ function create(
   let lastRaycastX = -999;
   let lastRaycastY = -999;
   let cadFrameCount = 0;
+  const shadowSig = new Float64Array(5).fill(NaN);
+  let shadowWarmup = 30;
+  let renderWarmup = 90;
+  const renderSig = new Float64Array(40);
+  const lastRenderSig = new Float64Array(40).fill(NaN);
+  let dustTick = 0;
 
   // Cursor velocity metaball wake history
   const trailPts = Array.from({ length: 4 }, () => ({ x: st.lx, y: st.ly, r: 0 }));
@@ -675,9 +687,76 @@ function create(
       }
 
       if (contextLost) return;
+      // Shadow map only needs a refresh when the sun or the animated parts move
+      const sh = shadowSig;
+      if (
+        sh[0] !== sun.position.y ||
+        sh[1] !== sun.position.z ||
+        sh[2] !== S.build ||
+        sh[3] !== bq ||
+        sh[4] !== cb ||
+        shadowWarmup > 0
+      ) {
+        sh[0] = sun.position.y;
+        sh[1] = sun.position.z;
+        sh[2] = S.build;
+        sh[3] = bq;
+        sh[4] = cb;
+        rL.shadowMap.needsUpdate = true;
+        if (shadowWarmup > 0) shadowWarmup--;
+      }
+      // Render only when something visible changed (camera, sun, cursor lens, scroll-driven state, theme, size).
+      // When fully stationary, only the drifting dust motes keep the scene alive, at half rate.
+      const sg = renderSig;
+      let n = 0;
+      sg[n++] = cam.position.x;
+      sg[n++] = cam.position.y;
+      sg[n++] = cam.position.z;
+      sg[n++] = cam.quaternion.x;
+      sg[n++] = cam.quaternion.y;
+      sg[n++] = cam.quaternion.z;
+      sg[n++] = cam.quaternion.w;
+      sg[n++] = c;
+      sg[n++] = cb;
+      sg[n++] = bq;
+      sg[n++] = e;
+      sg[n++] = q2;
+      sg[n++] = _q;
+      sg[n++] = S.build;
+      sg[n++] = S.intro;
+      sg[n++] = drawVal;
+      sg[n++] = st.lx;
+      sg[n++] = st.ly;
+      sg[n++] = st.lr;
+      sg[n++] = st.solarHour;
+      sg[n++] = roomLightCurrent;
+      sg[n++] = lampCurrent;
+      sg[n++] = st.waveRadius;
+      sg[n++] = st.paletteIdx;
+      sg[n++] = st.pointerSpeed;
+      sg[n++] = st.w;
+      sg[n++] = st.h;
+      sg[n++] = inkColor.r + inkColor.g * 3 + inkColor.b * 7;
+      sg[n++] = frontOverride === null ? -1 : frontOverride;
+      sg[n++] = drawOverride === null ? -1 : drawOverride;
+      const wVisible = W.style.display !== 'none' && W.style.visibility !== 'hidden' && W.style.opacity !== '0';
+      const lVisible = L.style.display !== 'none' && L.style.visibility !== 'hidden' && L.style.opacity !== '0';
+      sg[n++] = (wVisible ? 1 : 0) + (lVisible ? 2 : 0);
+      let changed = renderWarmup > 0;
+      if (renderWarmup > 0) renderWarmup--;
+      for (let i = 0; i < n; i++) {
+        if (sg[i] !== lastRenderSig[i]) {
+          changed = true;
+          lastRenderSig[i] = sg[i];
+        }
+      }
+      const dustMoving = dust.visible && (dust.material as InstanceType<ThreeNS['PointsMaterial']>).opacity > 0.01;
+      dustTick ^= 1;
+      if (!changed && !(dustMoving && dustTick === 1)) return;
+
       // Skip rendering canvases that are not visible (opacity 0 / display none)
-      if (W.style.display !== 'none' && W.style.visibility !== 'hidden' && W.style.opacity !== '0') rW.render(sw, cam);
-      if (L.style.display !== 'none' && L.style.visibility !== 'hidden' && L.style.opacity !== '0') rL.render(sl, cam);
+      if (wVisible) rW.render(sw, cam);
+      if (lVisible) rL.render(sl, cam);
     },
   };
 
