@@ -329,7 +329,7 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
 
           <div class="proj-hero-desc-block">
             <p class="proj-hero-sub">
-              Buildora turns architectural plans into real, light-filled spaces you can explore before they are built. Each project combines natural daylight, honest materials, and bespoke craft by <strong>Build with Yash</strong>.
+              Buildora turns architectural plans into real, light-filled spaces you can explore before they are built. Each project combines natural daylight, plain materials, and careful craft by <strong>Build with Yash</strong>.
             </p>
           </div>
 
@@ -428,7 +428,7 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
               <p class="eyebrow"><span class="eyebrow-draft">Spatial Enquiries · Direct Atelier</span></p>
               <h2 class="closing-title reveal-mask"><span class="reveal-inner">Have a project in <em>mind?</em></span></h2>
               <p class="closing-desc">
-                Build with Yash collaborates with private clients, architects, and institutions on bespoke living spaces, residential renovations, and interactive spatial experiences.
+                Build with Yash collaborates with private clients, architects, and institutions on custom living spaces, residential renovations, and interactive spatial experiences.
               </p>
               <div class="closing-actions">
                 <a href="#contact-section" class="cta" data-scroll="contact">Enquire with Atelier Direct ↓</a>
@@ -1062,8 +1062,8 @@ function renderCaseStudyFooter(prevProject: ProjectItem, nextProject: ProjectIte
       <div class="csf-inner">
         <div class="csf-prompt">
           <span class="csf-eyebrow">CONTINUOUS PRACTICE · SPATIAL COMMISSIONS</span>
-          <h3 class="csf-headline">Transforming your architectural vision into built reality.</h3>
-          <p class="csf-desc">Build with Yash accepts a limited number of residential renovations, spatial installations, and bespoke commissions annually.</p>
+          <h3 class="csf-headline">Have a project in mind?</h3>
+          <p class="csf-desc">Build with Yash accepts a limited number of residential renovations, spatial installations, and custom commissions each year.</p>
           <div class="csf-actions">
             <a href="/contact" class="cta csf-cta-primary" data-link>Begin Your Space (Contact Yash) →</a>
             <a href="/projects" class="csf-cta-secondary" data-link>← View All Works</a>

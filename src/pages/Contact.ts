@@ -127,7 +127,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
               <!-- Validated Brief Handoff View (Honest display when VITE_CONTACT_ENDPOINT is not configured) -->
               <div id="cpc-handoff-view" class="cpc-brief-handoff" style="display:none;" aria-live="polite">
                 <div class="cbh-badge">● Validated Locally</div>
-                <h3 class="cbh-title">Spatial Brief Ready to Dispatch</h3>
+                <h3 class="cbh-title">Your message is ready to send</h3>
                 <p class="cbh-desc">
                   No remote transmission endpoint is configured in this deployment (<code>VITE_CONTACT_ENDPOINT</code>). Your brief has been verified locally. You can send it directly to Yash via email or copy the brief:
                 </p>
@@ -142,7 +142,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
               <!-- Success State View (Rendered only upon real endpoint confirmation) -->
               <div id="cpc-success-view" class="cpc-success-view" style="display:none;" aria-live="polite">
                 <div class="success-glyph">✓</div>
-                <h3>Enquiry Transmitted.</h3>
+                <h3>Message sent.</h3>
                 <p id="cpc-success-summary">Thank you. Build with Yash has received your spatial brief and will review your project parameters within 24–48 hours.</p>
                 <div class="success-actions">
                   <button type="button" id="cpc-reset-btn" class="cpc-secondary-btn">Submit Another Brief</button>
