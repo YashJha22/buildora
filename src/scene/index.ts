@@ -288,14 +288,30 @@ function create(
   };
 
   let lastFormattedHour = '';
+  // Solar UI nodes are resolved once (lazily, on first call) instead of on every frame
+  let solarUiReady = false;
+  let valEl: HTMLElement | null = null;
+  let rangeEl: HTMLInputElement | null = null;
+  let autoBtn: HTMLElement | null = null;
+  let htTimeEl: HTMLElement | null = null;
+  let compassEl: SVGElement | null = null;
+  let beatBtns: HTMLButtonElement[] = [];
+  let lastSolarAuto: boolean | null = null;
+  let lastBeatHour = NaN;
   const setSolarHour = (hr: number, isManual = false) => {
     st.solarHour = clamp(hr, 6, 22);
     if (isManual) {
       st.solarAuto = false;
     }
-    const valEl = document.getElementById('solar-val');
-    const rangeEl = document.getElementById('solar-range') as HTMLInputElement | null;
-    const autoBtn = document.getElementById('solar-auto');
+    if (!solarUiReady) {
+      solarUiReady = true;
+      valEl = document.getElementById('solar-val');
+      rangeEl = document.getElementById('solar-range') as HTMLInputElement | null;
+      autoBtn = document.getElementById('solar-auto');
+      htTimeEl = document.getElementById('ht-time');
+      compassEl = document.querySelector<SVGElement>('.ht-compass');
+      beatBtns = Array.from(document.querySelectorAll<HTMLButtonElement>('.st-beats button[data-hour]'));
+    }
     const hInt = Math.floor(st.solarHour);
     const mInt = Math.round((st.solarHour - hInt) * 60);
     const mAdj = mInt === 60 ? 0 : mInt;
@@ -304,7 +320,6 @@ function create(
     if (formatted !== lastFormattedHour) {
       lastFormattedHour = formatted;
       if (valEl) valEl.textContent = formatted;
-      const htTimeEl = document.getElementById('ht-time');
       if (htTimeEl) {
         let phase = 'GOLDEN HOUR';
         if (st.solarHour < 10.5) phase = 'MORNING';
@@ -313,7 +328,6 @@ function create(
         else phase = 'NIGHT';
         htTimeEl.textContent = `${formatted} · ${phase}`;
       }
-      const compassEl = document.querySelector<SVGElement>('.ht-compass');
       if (compassEl) {
         const rot = ((st.solarHour - 6) / 16) * 180 - 45;
         compassEl.style.transform = `rotate(${rot.toFixed(1)}deg)`;
@@ -322,14 +336,22 @@ function create(
     if (rangeEl && Math.abs(Number(rangeEl.value) - st.solarHour) > 0.05) {
       rangeEl.value = String(st.solarHour);
     }
-    if (autoBtn) {
-      autoBtn.classList.toggle('on', st.solarAuto);
-      autoBtn.setAttribute('aria-pressed', String(st.solarAuto));
+    const autoChanged = lastSolarAuto !== st.solarAuto;
+    if (autoChanged) {
+      lastSolarAuto = st.solarAuto;
+      if (autoBtn) {
+        autoBtn.classList.toggle('on', st.solarAuto);
+        autoBtn.setAttribute('aria-pressed', String(st.solarAuto));
+      }
     }
-    document.querySelectorAll<HTMLButtonElement>('.st-beats button[data-hour]').forEach((b) => {
-      const match = Math.abs(Number(b.dataset.hour) - st.solarHour) < 1.1;
-      b.classList.toggle('on', !st.solarAuto && match);
-    });
+    if (autoChanged || st.solarHour !== lastBeatHour) {
+      lastBeatHour = st.solarHour;
+      for (let i = 0; i < beatBtns.length; i++) {
+        const b = beatBtns[i];
+        const match = Math.abs(Number(b.dataset.hour) - st.solarHour) < 1.1;
+        b.classList.toggle('on', !st.solarAuto && match);
+      }
+    }
     if (isManual) {
       sound.playSolarTick(st.solarHour);
     }

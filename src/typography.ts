@@ -342,6 +342,71 @@ export function playHeroKineticIntro(tl?: gsap.core.Timeline, atTime: number | s
  * As the user scrolls from plan towards the built space, the hero letters
  * physically disperse along 3D orthogonal trajectories, opening up the room.
  */
+// Cached references for the scroll-driven hero typography (no DOM queries or array allocation per frame).
+const heroTypeCache: {
+  fromChars: HTMLElement[];
+  toChars: HTMLElement[];
+  originItem: HTMLElement | null;
+  originChars: HTMLElement[];
+  destItem: HTMLElement | null;
+  destChars: HTMLElement[];
+  destPeriod: HTMLElement | null;
+  bpLine: HTMLElement | null;
+  bpDatum: HTMLElement | null;
+} = {
+  fromChars: [],
+  toChars: [],
+  originItem: null,
+  originChars: [],
+  destItem: null,
+  destChars: [],
+  destPeriod: null,
+  bpLine: null,
+  bpDatum: null,
+};
+let heroTypeLastP = NaN;
+
+const HERO_BLOCK_VECTORS = [
+  { x: -35, y: 48, rz: -10 },
+  { x: -16, y: 62, rz: -5 },
+  { x: 10, y: 72, rz: 4 },
+  { x: 28, y: 56, rz: 8 },
+  { x: 44, y: 42, rz: 14 },
+  { x: 55, y: 32, rz: 18 },
+  { x: 65, y: 24, rz: 22 },
+  { x: 75, y: 18, rz: 26 },
+];
+
+/** Re-resolves cached nodes only when they are stale. Returns true if anything was re-resolved. */
+function refreshHeroTypeCache(): boolean {
+  const c = heroTypeCache;
+  let changed = false;
+  if (c.fromChars.length === 0 || !c.fromChars[0].isConnected) {
+    const wordFrom = document.getElementById('hero-word-from');
+    const wordTo = document.getElementById('hero-word-to');
+    c.fromChars = wordFrom ? Array.from(wordFrom.querySelectorAll<HTMLElement>('.kt-char')) : [];
+    c.toChars = wordTo ? Array.from(wordTo.querySelectorAll<HTMLElement>('.kt-char')) : [];
+    c.bpLine = document.querySelector<HTMLElement>('.bp-line');
+    c.bpDatum = document.querySelector<HTMLElement>('.bp-datum');
+    changed = true;
+  }
+  if (!c.originItem || !c.originItem.isConnected || !c.originItem.classList.contains('is-active')) {
+    const item = document.querySelector<HTMLElement>('#rotator-origin .rot-item.is-active');
+    c.originItem = item;
+    c.originChars = item ? Array.from(item.querySelectorAll<HTMLElement>('.kt-char')) : [];
+    changed = true;
+  }
+  if (!c.destItem || !c.destItem.isConnected || !c.destItem.classList.contains('is-active')) {
+    const item = document.querySelector<HTMLElement>('#rotator-dest .rot-item.is-active');
+    c.destItem = item;
+    const all = item ? Array.from(item.querySelectorAll<HTMLElement>('.kt-char')) : [];
+    c.destPeriod = all.find((ch) => ch.textContent === '.') || null;
+    c.destChars = all.filter((ch) => ch !== c.destPeriod);
+    changed = true;
+  }
+  return changed;
+}
+
 export function updateHeroTypographyScroll(progress: number) {
   if (reduce) return;
   const isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
@@ -349,20 +414,11 @@ export function updateHeroTypographyScroll(progress: number) {
 
   const p = Math.max(0, Math.min(1.2, progress));
 
-  const wordFrom = document.getElementById('hero-word-from');
-  const wordTo = document.getElementById('hero-word-to');
-  const fromChars = wordFrom ? Array.from(wordFrom.querySelectorAll<HTMLElement>('.kt-char')) : [];
-  const toChars = wordTo ? Array.from(wordTo.querySelectorAll<HTMLElement>('.kt-char')) : [];
+  const refreshed = refreshHeroTypeCache();
+  if (!refreshed && p > 0.001 && p === heroTypeLastP) return;
+  heroTypeLastP = p;
 
-  const activeOrigin = document.querySelector('#rotator-origin .rot-item.is-active') as HTMLElement | null;
-  const activeDest = document.querySelector('#rotator-dest .rot-item.is-active') as HTMLElement | null;
-  const originChars = activeOrigin ? Array.from(activeOrigin.querySelectorAll<HTMLElement>('.kt-char')) : [];
-  const allDestChars = activeDest ? Array.from(activeDest.querySelectorAll<HTMLElement>('.kt-char')) : [];
-  const destPeriod = allDestChars.find((c) => c.textContent === '.') || null;
-  const destChars = allDestChars.filter((c) => c !== destPeriod);
-
-  const bpLine = document.querySelector<HTMLElement>('.bp-line');
-  const bpDatum = document.querySelector<HTMLElement>('.bp-datum');
+  const { fromChars, toChars, originChars, destChars, destPeriod, bpLine, bpDatum } = heroTypeCache;
 
   if (p <= 0.001) {
     // Perfect monolithic alignment
@@ -444,18 +500,8 @@ export function updateHeroTypographyScroll(progress: number) {
   });
 
   // 4. Active destination word (built., dwelling., etc.) separates like solid stone blocks
-  const blockVectors = [
-    { x: -35, y: 48, rz: -10 },
-    { x: -16, y: 62, rz: -5 },
-    { x: 10, y: 72, rz: 4 },
-    { x: 28, y: 56, rz: 8 },
-    { x: 44, y: 42, rz: 14 },
-    { x: 55, y: 32, rz: 18 },
-    { x: 65, y: 24, rz: 22 },
-    { x: 75, y: 18, rz: 26 },
-  ];
   destChars.forEach((char, idx) => {
-    const v = blockVectors[idx % blockVectors.length];
+    const v = HERO_BLOCK_VECTORS[idx % HERO_BLOCK_VECTORS.length];
     const x = p * v.x;
     const y = p * v.y;
     const rz = p * v.rz;

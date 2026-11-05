@@ -14,6 +14,11 @@ const hero = $('main'),
   wBuilt = document.querySelector<HTMLElement>('.w-built'),
   subEl = document.querySelector<HTMLElement>('.sub');
 
+// Cached lazily on first frame (header / stepper nodes exist by then) so the loop never queries the DOM
+let siteHeaderEl: HTMLElement | null = null;
+let hcsEls: HTMLElement[] | null = null;
+let lastHcs = -1;
+
 if (!classic) {
   L.style.clipPath = 'none';
 }
@@ -46,9 +51,10 @@ export function updateHero({ t, P, e, q }: Progress) {
     hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
 
     // Header adapts color strictly when paper transitions to obsidian drafting table (q > 0.05)
-    const siteHeader = document.getElementById('site-header');
-    if (siteHeader) {
-      siteHeader.classList.toggle('header-dark-table', q > 0.05);
+    if (!siteHeaderEl) siteHeaderEl = document.getElementById('site-header');
+    const headerDark = q > 0.05;
+    if (siteHeaderEl && siteHeaderEl.classList.contains('header-dark-table') !== headerDark) {
+      siteHeaderEl.classList.toggle('header-dark-table', headerDark);
     }
 
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
@@ -72,16 +78,18 @@ export function updateHero({ t, P, e, q }: Progress) {
   }
   prog.style.transform = `scaleX(${P / 3})`;
 
-  const hcs01 = document.getElementById('hcs-01');
-  const hcs02 = document.getElementById('hcs-02');
-  const hcs03 = document.getElementById('hcs-03');
-  if (hcs01 && hcs02 && hcs03) {
-    const is01 = P < 0.9;
-    const is02 = P >= 0.9 && P < 1.9;
-    const is03 = P >= 1.9;
-    hcs01.classList.toggle('is-active', is01);
-    hcs02.classList.toggle('is-active', is02);
-    hcs03.classList.toggle('is-active', is03);
+  if (!hcsEls) {
+    const a = document.getElementById('hcs-01');
+    const b = document.getElementById('hcs-02');
+    const c = document.getElementById('hcs-03');
+    if (a && b && c) hcsEls = [a, b, c];
+  }
+  if (hcsEls) {
+    const active = P < 0.9 ? 0 : P < 1.9 ? 1 : 2;
+    if (active !== lastHcs) {
+      lastHcs = active;
+      for (let i = 0; i < 3; i++) hcsEls[i].classList.toggle('is-active', i === active);
+    }
   }
 }
 

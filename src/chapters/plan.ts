@@ -46,8 +46,66 @@ panels.forEach((p) =>
   }),
 );
 
+interface PanelRefs {
+  paths: SVGPathElement[];
+  texts: SVGTextElement[];
+  h2: HTMLElement | null;
+  eyebrow: HTMLElement | null;
+  desc: HTMLElement | null;
+  dl: HTMLElement | null;
+  cta: HTMLElement | null;
+  big: HTMLElement | null;
+  hasTxt: boolean;
+}
+
+// Cache every per-panel element once so the frame loop never queries the DOM
+const panelRefs: PanelRefs[] = panels.map((p) => {
+  const txt = p.querySelector<HTMLElement>('.txt');
+  return {
+    paths: [...p.querySelectorAll<SVGPathElement>('.drw path')],
+    texts: [...p.querySelectorAll<SVGTextElement>('.drw text')],
+    h2: p.querySelector<HTMLElement>('h2'),
+    hasTxt: !!txt,
+    eyebrow: txt ? txt.querySelector<HTMLElement>('.eyebrow') : null,
+    desc: txt ? txt.querySelector<HTMLElement>('p:not(.eyebrow)') : null,
+    dl: txt ? txt.querySelector<HTMLElement>('dl') : null,
+    cta: txt ? txt.querySelector<HTMLElement>('.cta') : null,
+    big: p.querySelector<HTMLElement>('.big'),
+  };
+});
+
+// Last-applied inputs: when none changed the frame is a no-op
+let kQ = NaN,
+  kC = NaN,
+  kQ2 = NaN,
+  kBq = NaN,
+  kCb = NaN,
+  kW = NaN;
+let lastOn = -1;
+let lastDisp = '';
+let lastVis = '';
+let lastLOp = NaN,
+  lastWOp = NaN;
+
 /** Plan / elevation / section panels, canvas crossfade and footer chapter label. */
 export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
+  if (
+    q === kQ &&
+    c === kC &&
+    q2 === kQ2 &&
+    bq === kBq &&
+    cb === kCb &&
+    st.w === kW &&
+    planEl.style.display === lastDisp &&
+    planEl.style.visibility === lastVis
+  )
+    return;
+  kQ = q;
+  kC = c;
+  kQ2 = q2;
+  kBq = bq;
+  kCb = cb;
+  kW = st.w;
   const isMobile = st.w < 768;
   const on = clamp((q - 0.26) * 7, 0, 1) * (1 - clamp(bq * 18, 0, 1)),
     sm = q2 * q2 * (3 - 2 * q2),
@@ -55,9 +113,19 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
   planEl.style.opacity = String(on);
   planEl.style.visibility = on > 0.001 ? 'visible' : 'hidden';
   planEl.style.display = on > 0.001 ? 'block' : 'none';
+  lastDisp = planEl.style.display;
+  lastVis = planEl.style.visibility;
   planEl.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
-  L.style.opacity = String(Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb));
-  W.style.opacity = String((1 - 0.32 * sm) * (1 - 0.7 * cb));
+  const lOp = Math.max(1 - clamp((q - 0.1) / 0.26, 0, 1), secShow * 0.78, cb);
+  const wOp = (1 - 0.32 * sm) * (1 - 0.7 * cb);
+  if (lOp !== lastLOp) {
+    lastLOp = lOp;
+    L.style.opacity = String(lOp);
+  }
+  if (wOp !== lastWOp) {
+    lastWOp = wOp;
+    W.style.opacity = String(wOp);
+  }
   if (isMobile) {
     track.style.transform = 'none';
     const op0 = clamp(1 - q2 * 3.5, 0, 1);
@@ -93,90 +161,88 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
     }
   }
 
-  panels.forEach((p, i) => {
-    const d = Math.abs(q2 * 2 - i),
-      dr = clamp(1.7 - d * 1.25, 0, 1),
-      ps = p.querySelectorAll<SVGPathElement>('.drw path');
+  const planVisible = on > 0.001;
+  if (planVisible || lastOn > 0.001) {
+    for (let i = 0; i < panels.length; i++) {
+      const p = panels[i];
+      const r = panelRefs[i];
+      const d = Math.abs(q2 * 2 - i),
+        dr = clamp(1.7 - d * 1.25, 0, 1);
 
-    // Drafting sound as lines sketch on
-    if (on > 0.25) {
-      if (dr > 0.42 && !panelDrawn[i]) {
-        panelDrawn[i] = true;
-        sound.playDraftingStroke();
-      } else if (dr < 0.2) {
-        panelDrawn[i] = false;
+      // Drafting sound as lines sketch on
+      if (on > 0.25) {
+        if (dr > 0.42 && !panelDrawn[i]) {
+          panelDrawn[i] = true;
+          sound.playDraftingStroke();
+        } else if (dr < 0.2) {
+          panelDrawn[i] = false;
+        }
+
+        // Measurement snap tick when dimensions appear
+        if (dr > 0.72 && !panelSnapped[i]) {
+          panelSnapped[i] = true;
+          sound.playMeasureSnap(i === 1 ? 2100 : 1850);
+        } else if (dr < 0.4) {
+          panelSnapped[i] = false;
+        }
+
+        // Heading kinetic drafting construction when panel enters
+        if (dr > 0.38 && !panelWordsAnimated[i]) {
+          panelWordsAnimated[i] = true;
+          animatePlanPanelHeading(i, p);
+        } else if (dr < 0.15) {
+          panelWordsAnimated[i] = false;
+          if (r.h2) delete r.h2.dataset.animated;
+        }
       }
 
-      // Measurement snap tick when dimensions appear
-      if (dr > 0.72 && !panelSnapped[i]) {
-        panelSnapped[i] = true;
-        sound.playMeasureSnap(i === 1 ? 2100 : 1850);
-      } else if (dr < 0.4) {
-        panelSnapped[i] = false;
+      const nPaths = r.paths.length;
+      for (let k = 0; k < nPaths; k++) {
+        r.paths[k].style.strokeDashoffset = String(1 - clamp(dr * 1.6 - (k / nPaths) * 0.6, 0, 1));
       }
+      const textOp = String(clamp(dr * 2 - 1, 0, 1));
+      for (let k = 0; k < r.texts.length; k++) r.texts[k].style.opacity = textOp;
 
-      // Heading kinetic drafting construction when panel enters
-      if (dr > 0.38 && !panelWordsAnimated[i]) {
-        panelWordsAnimated[i] = true;
-        animatePlanPanelHeading(i, p);
-      } else if (dr < 0.15) {
-        panelWordsAnimated[i] = false;
-        const h2El = p.querySelector<HTMLElement>('h2');
-        if (h2El) delete h2El.dataset.animated;
+      if (r.hasTxt) {
+        if (r.eyebrow) {
+          const eo = clamp(dr * 1.95 - 0.05, 0, 1);
+          const ey = (1 - eo) * (isMobile ? 8 : 14);
+          r.eyebrow.style.opacity = String(eo);
+          r.eyebrow.style.transform = `translateY(${ey.toFixed(1)}px)`;
+        }
+        if (r.h2) {
+          const h2o = clamp(dr * 1.82 - 0.1, 0, 1);
+          const h2y = (1 - h2o) * (isMobile ? 12 : 26);
+          r.h2.style.opacity = String(h2o);
+          r.h2.style.transform = `translateY(${h2y.toFixed(1)}px)`;
+        }
+        if (r.desc) {
+          const po = clamp(dr * 1.65 - 0.18, 0, 1);
+          const py = (1 - po) * (isMobile ? 10 : 20);
+          r.desc.style.opacity = String(po * 0.88);
+          r.desc.style.transform = `translateY(${py.toFixed(1)}px)`;
+        }
+        if (r.dl) {
+          const dlo = clamp(dr * 1.5 - 0.25, 0, 1);
+          const dly = (1 - dlo) * (isMobile ? 8 : 18);
+          r.dl.style.opacity = String(dlo);
+          r.dl.style.transform = `translateY(${dly.toFixed(1)}px)`;
+        }
+        if (r.cta) {
+          const ctao = clamp(dr * 1.6 - 0.2, 0, 1);
+          const ctay = (1 - ctao) * (isMobile ? 8 : 18);
+          r.cta.style.opacity = String(ctao);
+          r.cta.style.transform = `translateY(${ctay.toFixed(1)}px)`;
+          r.cta.style.pointerEvents = ctao > 0.4 ? 'auto' : 'none';
+        }
+      }
+      if (r.big) {
+        r.big.style.transform = `translateX(${-(q2 * 2 - i) * 22}vw)`;
+        r.big.style.opacity = String(clamp(1.2 - d * 0.9, 0, 0.22));
       }
     }
-
-    ps.forEach((a, k) => {
-      a.style.strokeDashoffset = String(1 - clamp(dr * 1.6 - (k / ps.length) * 0.6, 0, 1));
-    });
-    p.querySelectorAll<SVGTextElement>('.drw text').forEach((a) => {
-      a.style.opacity = String(clamp(dr * 2 - 1, 0, 1));
-    });
-    const txtEl = p.querySelector<HTMLElement>('.txt');
-    if (txtEl) {
-      const eyebrow = txtEl.querySelector<HTMLElement>('.eyebrow');
-      if (eyebrow) {
-        const eo = clamp(dr * 1.95 - 0.05, 0, 1);
-        const ey = (1 - eo) * (isMobile ? 8 : 14);
-        eyebrow.style.opacity = String(eo);
-        eyebrow.style.transform = `translateY(${ey.toFixed(1)}px)`;
-      }
-      const h2 = txtEl.querySelector<HTMLHeadingElement>('h2');
-      if (h2) {
-        const h2o = clamp(dr * 1.82 - 0.1, 0, 1);
-        const h2y = (1 - h2o) * (isMobile ? 12 : 26);
-        h2.style.opacity = String(h2o);
-        h2.style.transform = `translateY(${h2y.toFixed(1)}px)`;
-      }
-      const desc = txtEl.querySelector<HTMLParagraphElement>('p:not(.eyebrow)');
-      if (desc) {
-        const po = clamp(dr * 1.65 - 0.18, 0, 1);
-        const py = (1 - po) * (isMobile ? 10 : 20);
-        desc.style.opacity = String(po * 0.88);
-        desc.style.transform = `translateY(${py.toFixed(1)}px)`;
-      }
-      const dl = txtEl.querySelector<HTMLElement>('dl');
-      if (dl) {
-        const dlo = clamp(dr * 1.5 - 0.25, 0, 1);
-        const dly = (1 - dlo) * (isMobile ? 8 : 18);
-        dl.style.opacity = String(dlo);
-        dl.style.transform = `translateY(${dly.toFixed(1)}px)`;
-      }
-      const cta = txtEl.querySelector<HTMLElement>('.cta');
-      if (cta) {
-        const ctao = clamp(dr * 1.6 - 0.2, 0, 1);
-        const ctay = (1 - ctao) * (isMobile ? 8 : 18);
-        cta.style.opacity = String(ctao);
-        cta.style.transform = `translateY(${ctay.toFixed(1)}px)`;
-        cta.style.pointerEvents = ctao > 0.4 ? 'auto' : 'none';
-      }
-    }
-    const big = p.querySelector<HTMLElement>('.big');
-    if (big) {
-      big.style.transform = `translateX(${-(q2 * 2 - i) * 22}vw)`;
-      big.style.opacity = String(clamp(1.2 - d * 0.9, 0, 0.22));
-    }
-  });
+  }
+  lastOn = on;
   const n =
     bq > 0.1
       ? '03 — The build'
