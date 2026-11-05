@@ -53,8 +53,6 @@ export function updateHero({ t, P, e, q }: Progress) {
 
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
     vig.style.opacity = String(scrollFade);
-    const exitBlur = clamp((P - 0.2) * 8, 0, 4);
-    hero.style.filter = !isMobile && exitBlur > 0.1 ? `blur(${exitBlur.toFixed(1)}px)` : 'none';
   }
   hero.style.transform = isMobile ? '' : `translateY(${-P * 32}px)`;
 

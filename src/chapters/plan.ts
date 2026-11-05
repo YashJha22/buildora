@@ -145,19 +145,15 @@ export function updatePlan({ q, cs: c, q2, bq, cb }: Progress) {
       if (h2) {
         const h2o = clamp(dr * 1.82 - 0.1, 0, 1);
         const h2y = (1 - h2o) * (isMobile ? 12 : 26);
-        const h2b = isMobile ? 0 : (1 - h2o) * 6;
         h2.style.opacity = String(h2o);
         h2.style.transform = `translateY(${h2y.toFixed(1)}px)`;
-        h2.style.filter = h2b > 0.15 ? `blur(${h2b.toFixed(1)}px)` : 'none';
       }
       const desc = txtEl.querySelector<HTMLParagraphElement>('p:not(.eyebrow)');
       if (desc) {
         const po = clamp(dr * 1.65 - 0.18, 0, 1);
         const py = (1 - po) * (isMobile ? 10 : 20);
-        const pb = isMobile ? 0 : (1 - po) * 4;
         desc.style.opacity = String(po * 0.88);
         desc.style.transform = `translateY(${py.toFixed(1)}px)`;
-        desc.style.filter = pb > 0.15 ? `blur(${pb.toFixed(1)}px)` : 'none';
       }
       const dl = txtEl.querySelector<HTMLElement>('dl');
       if (dl) {
