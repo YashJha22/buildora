@@ -5,7 +5,7 @@ import { openSettingsPanel } from './settingsPanel';
 import { PROJECTS } from './data/content';
 import { S, st } from './state';
 import type { SceneApi } from './scene';
-import { initTypographyEngine } from './typography';
+import { initTypographyEngine, syncHeroRotator } from './typography';
 
 import { isValidProjectRoute } from './validation';
 export { isValidProjectRoute };
@@ -424,8 +424,10 @@ export function initRouter() {
   // Handle browser back and forward
   window.addEventListener('popstate', () => {
     handleRoute();
+    syncHeroRotator();
   });
 
   // Run on initial load
   handleRoute();
+  syncHeroRotator();
 }

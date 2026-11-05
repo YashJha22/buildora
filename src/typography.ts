@@ -521,6 +521,65 @@ export function updateHeroTypographyScroll(progress: number) {
 
 let activeRotTimeline: gsap.core.Timeline | null = null;
 
+/** Lifecycle state for the hero keyword rotator: initialised once per DOM instance, fully cleanable. */
+const rotatorState: {
+  root: HTMLElement | null;
+  heroVisible: boolean;
+  io: IntersectionObserver | null;
+  onResize: (() => void) | null;
+  onVisibility: (() => void) | null;
+} = { root: null, heroVisible: true, io: null, onResize: null, onVisibility: null };
+let rotatorTickFn: (() => void) | null = null;
+
+/** True while a case-study page, 404/status page or the studio panel covers the hero. */
+function isRotatorCovered(): boolean {
+  if (typeof window === 'undefined') return false;
+  const path = window.location.pathname;
+  if (path.startsWith('/projects/') || path === '/404' || path === '/status') return true;
+  const studio = document.getElementById('studio');
+  return !!studio && studio.classList.contains('open');
+}
+
+/**
+ * Starts or pauses the rotator interval and any in-flight timeline depending on whether the hero
+ * is on screen, the tab is visible and no modal covers it.
+ */
+export function syncHeroRotator() {
+  if (!rotatorTickFn) return;
+  const shouldRun = !document.hidden && rotatorState.heroVisible && !isRotatorCovered();
+  if (shouldRun) {
+    if (!rotatorTimer) rotatorTimer = window.setInterval(rotatorTickFn, 4000);
+    if (activeRotTimeline && activeRotTimeline.paused()) activeRotTimeline.resume();
+  } else {
+    if (rotatorTimer) {
+      clearInterval(rotatorTimer);
+      rotatorTimer = null;
+    }
+    if (activeRotTimeline && !activeRotTimeline.paused()) activeRotTimeline.pause();
+  }
+}
+
+/** Removes every listener, observer, interval and timeline owned by the hero keyword rotator. */
+export function destroyHeroKeywordRotator() {
+  if (rotatorTimer) {
+    clearInterval(rotatorTimer);
+    rotatorTimer = null;
+  }
+  if (activeRotTimeline) {
+    activeRotTimeline.kill();
+    activeRotTimeline = null;
+  }
+  if (rotatorState.io) rotatorState.io.disconnect();
+  if (rotatorState.onResize) window.removeEventListener('resize', rotatorState.onResize);
+  if (rotatorState.onVisibility) document.removeEventListener('visibilitychange', rotatorState.onVisibility);
+  rotatorState.io = null;
+  rotatorState.onResize = null;
+  rotatorState.onVisibility = null;
+  rotatorState.root = null;
+  rotatorState.heroVisible = true;
+  rotatorTickFn = null;
+}
+
 /**
  * 3. HERO WORD-FLOW KEYWORD ROTATOR WITH CHAR-LEVEL MORPHING
  * Transitions rotating keywords dynamically:
@@ -535,6 +594,13 @@ export function initHeroKeywordRotator() {
   const rotOrigin = document.getElementById('rotator-origin');
   const rotDest = document.getElementById('rotator-dest');
   if (!rotOrigin || !rotDest) return;
+
+  // Initialise once per DOM instance: repeat calls (every route change) only re-sync run state.
+  if (rotatorState.root === rotOrigin) {
+    syncHeroRotator();
+    return;
+  }
+  if (rotatorState.root) destroyHeroKeywordRotator();
 
   prepareHeroWords();
 
@@ -566,15 +632,17 @@ export function initHeroKeywordRotator() {
     });
   }
 
-  window.addEventListener('resize', () => {
+  const onResize = () => {
     const curActiveOrigin = rotOrigin.querySelector<HTMLElement>('.rot-item.is-active') || originItems[currentIdx];
     const curActiveDest = rotDest.querySelector<HTMLElement>('.rot-item.is-active') || destItems[currentIdx];
     if (curActiveOrigin) setInitialWidth(rotOrigin, curActiveOrigin);
     if (curActiveDest) setInitialWidth(rotDest, curActiveDest);
-  }, { passive: true });
+  };
+  window.addEventListener('resize', onResize, { passive: true });
+  rotatorState.onResize = onResize;
 
   const executeRotation = () => {
-    if (document.hidden) return;
+    if (document.hidden || !rotatorState.heroVisible || isRotatorCovered()) return;
 
     // Do not rotate while preloader is active
     const pre = document.getElementById('pre');
@@ -764,25 +832,25 @@ export function initHeroKeywordRotator() {
     currentIdx = nextIdx;
   };
 
-  const startRotatorLoop = () => {
-    if (rotatorTimer) clearInterval(rotatorTimer);
-    rotatorTimer = window.setInterval(executeRotation, 4000);
-  };
+  rotatorState.root = rotOrigin;
+  rotatorTickFn = executeRotation;
 
-  startRotatorLoop();
+  // Pause when the hero scrolls off-screen
+  if (typeof IntersectionObserver !== 'undefined') {
+    const io = new IntersectionObserver((entries) => {
+      for (let i = 0; i < entries.length; i++) rotatorState.heroVisible = entries[i].isIntersecting;
+      syncHeroRotator();
+    });
+    io.observe(rotOrigin);
+    rotatorState.io = io;
+  }
 
-  document.addEventListener('visibilitychange', () => {
-    if (document.hidden) {
-      if (rotatorTimer) {
-        clearInterval(rotatorTimer);
-        rotatorTimer = null;
-      }
-    } else {
-      if (!rotatorTimer) {
-        startRotatorLoop();
-      }
-    }
-  });
+  // Pause when the tab is hidden
+  const onVisibility = () => syncHeroRotator();
+  document.addEventListener('visibilitychange', onVisibility);
+  rotatorState.onVisibility = onVisibility;
+
+  syncHeroRotator();
 }
 
 /**
