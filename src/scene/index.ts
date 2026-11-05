@@ -210,8 +210,8 @@ function create(
   const size = () => {
     const isMobile = st.w < 768;
     const isLowEnd = typeof navigator !== 'undefined' && navigator.hardwareConcurrency > 0 && navigator.hardwareConcurrency <= 4;
-    const rawDpr = Math.min(window.devicePixelRatio || 1, 2);
-    const d = Math.min(rawDpr, isMobile ? 1.5 : isLowEnd ? 1.25 : 2);
+    const rawDpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    const d = Math.min(rawDpr, isLowEnd && !isMobile ? 1.25 : 1.5);
     rL.shadowMap.type = isMobile ? THREE.BasicShadowMap : THREE.PCFSoftShadowMap;
     [rW, rL].forEach((r) => {
       r.setPixelRatio(d);
