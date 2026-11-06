@@ -749,13 +749,13 @@ function create(
       sg[n++] = drawVal;
       sg[n++] = st.lx;
       sg[n++] = st.ly;
-      sg[n++] = st.lr;
+      sg[n++] = st.pointerSpeed > 0.2 ? st.lr : Math.round(st.lr * 0.2);
       sg[n++] = Math.round(st.solarHour * 60);
       sg[n++] = roomLightCurrent;
       sg[n++] = lampCurrent;
       sg[n++] = st.waveRadius;
       sg[n++] = st.paletteIdx;
-      sg[n++] = st.pointerSpeed;
+      sg[n++] = st.pointerSpeed > 0.2 ? st.pointerSpeed : 0;
       sg[n++] = st.w;
       sg[n++] = st.h;
       sg[n++] = inkColor.r + inkColor.g * 3 + inkColor.b * 7;
@@ -772,9 +772,7 @@ function create(
           lastRenderSig[i] = sg[i];
         }
       }
-      const dustMoving = dust.visible && (dust.material as InstanceType<ThreeNS['PointsMaterial']>).opacity > 0.01;
-      dustTick ^= 1;
-      if (!changed && !(dustMoving && dustTick === 1)) return;
+      if (!changed) return;
 
       // Skip rendering canvases that are not visible (opacity 0 / display none)
       if (wVisible) rW.render(sw, cam);
