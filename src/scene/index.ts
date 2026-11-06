@@ -750,7 +750,7 @@ function create(
       sg[n++] = st.lx;
       sg[n++] = st.ly;
       sg[n++] = st.lr;
-      sg[n++] = st.solarHour;
+      sg[n++] = Math.round(st.solarHour * 60);
       sg[n++] = roomLightCurrent;
       sg[n++] = lampCurrent;
       sg[n++] = st.waveRadius;
