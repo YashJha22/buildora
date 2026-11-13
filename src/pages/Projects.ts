@@ -689,6 +689,7 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
   const cardStates = Array.from(cards, () => ({ rotX: '', scale: '', bright: '', offset: -9999 }));
 
   const updatePlanksAndWatermarks = () => {
+    if (!targetEl.isConnected || targetEl.offsetParent === null) return;
     const vh = window.innerHeight || 900;
     const isDesktop = window.innerWidth > 960;
     const rects = Array.from(cards, (c) => c.getBoundingClientRect());

@@ -239,7 +239,7 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
     if (!scrollThrottle) {
       scrollThrottle = true;
       requestAnimationFrame(() => {
-        if (wrapEl && !isUnmounted) {
+        if (wrapEl && !isUnmounted && wrapEl.offsetParent !== null) {
           cachedWrapRect = wrapEl.getBoundingClientRect();
           ensurePhysicsRunning();
         }
