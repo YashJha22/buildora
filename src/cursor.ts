@@ -23,12 +23,27 @@ let hasImpacted = false;
 let isHoveringInteractive = false;
 let hasMovedPointer = false;
 
+let lastAppliedX = -9999;
+let lastAppliedY = -9999;
+let lastAppliedAngle = -9999;
+let lastAppliedOffX = -9999;
+let lastAppliedOffY = -9999;
+
 function applyCursorTransform() {
-  if (curWrap) {
-    curWrap.style.transform = `translate3d(${curX.toFixed(2)}px, ${curY.toFixed(2)}px, 0)`;
+  if (curWrap && (Math.abs(curX - lastAppliedX) > 0.15 || Math.abs(curY - lastAppliedY) > 0.15)) {
+    lastAppliedX = curX;
+    lastAppliedY = curY;
+    curWrap.style.transform = `translate3d(${curX.toFixed(1)}px, ${curY.toFixed(1)}px, 0)`;
   }
-  if (curHammer) {
-    // Base offset (-1.5px, -24.5px) places the flat striking face at (+4.9px, -2.8px), aimed dead-center at the (0,0) 3px dot
+  if (
+    curHammer &&
+    (Math.abs(hammerAngle - lastAppliedAngle) > 0.1 ||
+      Math.abs(hammerOffsetX - lastAppliedOffX) > 0.1 ||
+      Math.abs(hammerOffsetY - lastAppliedOffY) > 0.1)
+  ) {
+    lastAppliedAngle = hammerAngle;
+    lastAppliedOffX = hammerOffsetX;
+    lastAppliedOffY = hammerOffsetY;
     curHammer.style.transform = `translate3d(${(-1.5 + hammerOffsetX).toFixed(1)}px, ${(-24.5 + hammerOffsetY).toFixed(1)}px, 0) rotate(${hammerAngle.toFixed(1)}deg)`;
   }
 }
@@ -82,21 +97,27 @@ export function initCursor() {
     if (target === lastHoverTarget) return;
     lastHoverTarget = target;
 
+    const tag = target ? target.tagName : '';
+    const isDirectInteractive = tag === 'A' || tag === 'BUTTON' || tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || tag === 'LABEL';
+    const isDirectText = tag === 'P' || tag === 'H1' || tag === 'H2' || tag === 'H3' || tag === 'H4' || tag === 'H5' || tag === 'H6' || tag === 'LI' || tag === 'DT' || tag === 'DD';
+
     const isInsideSettings =
       !!target?.closest('#settings-panel, #settings-panel-overlay, .header-settings-btn') ||
       document.body.classList.contains('settings-open') ||
       document.body.classList.contains('settings-sheet-open');
 
     isHoveringInteractive =
+      isDirectInteractive ||
       isInsideSettings ||
       !!target?.closest(
         'a, button, input, textarea, select, [role="button"], [role="slider"], label, .slider-knob, .handle-knob, .ssc-btn, .lic-tab, .alc-btn, .vcc-step-btn, .quick-jump-btn, .st-beats button, .st-pals button, [data-link]'
       );
     const isHoveringText =
       !isHoveringInteractive &&
-      !!target?.closest(
-        'h1, h2, h3, h4, h5, h6, p, dl, dt, dd, li, blockquote, .cs-title, .cs-tagline, .cs-lead-desc, .cs-section-title, .cs-section-sub, .sub, .card-tagline, .card-concept, .card-project-title, .lic-title, .lic-desc, .closing-title, .closing-desc, .contact-manifesto-sub, .contact-hero-display, .heading-word, .word'
-      );
+      (isDirectText ||
+        !!target?.closest(
+          'h1, h2, h3, h4, h5, h6, p, dl, dt, dd, li, blockquote, .cs-title, .cs-tagline, .cs-lead-desc, .cs-section-title, .cs-section-sub, .sub, .card-tagline, .card-concept, .card-project-title, .lic-title, .lic-desc, .closing-title, .closing-desc, .contact-manifesto-sub, .contact-hero-display, .heading-word, .word'
+        ));
 
     if (curDot) {
       curDot.classList.toggle('hover', isHoveringInteractive);

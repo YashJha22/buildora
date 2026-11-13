@@ -476,6 +476,7 @@ const cachedHeroEl = document.querySelector<HTMLElement>('main');
 const cachedPullCordWrap = document.getElementById('pull-cord-wrap');
 const cachedHeroTelemetry = document.getElementById('hero-telemetry');
 let studioCanvasesCulled = false;
+let lastExitProgress = -999;
 
 function updateScrollProgress() {
   const scrollY = window.scrollY || window.pageYOffset;
@@ -501,6 +502,10 @@ function updateScrollProgress() {
 
   // Transition UI elements as user scrolls past the completed build journey into Selected Works
   const exitProgress = clamp((scrollY - jH) / 250, 0, 1);
+  if (exitProgress === lastExitProgress) return;
+  if (exitProgress === 0 && lastExitProgress === 0) return;
+  if (exitProgress === 1 && lastExitProgress === 1) return;
+  lastExitProgress = exitProgress;
 
   if (exitProgress > 0) {
     if (cachedFootEl) {
@@ -635,8 +640,8 @@ function frame(ms: number) {
     isIdle = reduce || t - st.last > idle.after;
   if (isIdle) {
     if (st.w < 768) {
-      st.tx = st.w * (0.54 + 0.08 * Math.sin(t * 0.5));
-      st.ty = st.h * (0.36 + 0.04 * Math.cos(t * 0.7));
+      st.tx = st.w * 0.54;
+      st.ty = st.h * 0.36;
     } else {
       st.tx = st.w * (0.66 + 0.06 * Math.sin(t * 0.5));
       st.ty = st.h * (0.5 + 0.05 * Math.cos(t * 0.7));

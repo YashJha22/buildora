@@ -368,58 +368,69 @@ export function initRouter() {
   });
 
   // Setup scroll-spy to update nav active state during natural scroll
+  let cachedContactTop = Infinity;
+  let cachedProjectsTop = Infinity;
+  let cachedApproachTop = Infinity;
+  let lastActiveNavSection = '';
+  let spyTicking = false;
+
+  const measureNavSectionOffsets = () => {
+    const contactSec = document.getElementById('contact-section');
+    const projectsSec = document.getElementById('projects-section');
+    const approachSec = document.getElementById('approach-section');
+    cachedContactTop = contactSec ? contactSec.offsetTop : Infinity;
+    cachedProjectsTop = projectsSec ? projectsSec.offsetTop : Infinity;
+    cachedApproachTop = approachSec ? approachSec.offsetTop : Infinity;
+  };
+
   const updateNavScrollSpy = () => {
     // Only spy on landing page routes
     const path = window.location.pathname.replace(/\/+$/, '') || '/';
     if (path.startsWith('/projects/') || path === '/404' || path === '/status') return;
 
     const scrollY = window.scrollY || window.pageYOffset;
-    const studioSec = document.getElementById('studio-section');
-    const approachSec = document.getElementById('approach-section');
-    const projectsSec = document.getElementById('projects-section');
-    const contactSec = document.getElementById('contact-section');
+    if (cachedContactTop === Infinity) {
+      measureNavSectionOffsets();
+    }
 
-    const contactTop = contactSec ? contactSec.offsetTop : Infinity;
-    const projectsTop = projectsSec ? projectsSec.offsetTop : Infinity;
-    const approachTop = approachSec ? approachSec.offsetTop : Infinity;
+    let activeSection = 'home';
+    if (scrollY >= cachedContactTop - 350) {
+      activeSection = 'contact';
+    } else if (scrollY >= cachedProjectsTop - 350) {
+      activeSection = 'projects';
+    } else if (scrollY >= cachedApproachTop - 350) {
+      activeSection = 'approach';
+    } else if (st.studioOpen) {
+      activeSection = 'studio';
+    }
 
-    if (scrollY >= contactTop - 350) {
-      navContactLink?.classList.add('active');
-      navProjectsLink?.classList.remove('active');
-      navApproachLink?.classList.remove('active');
-      navStudioLink?.classList.remove('active');
-      navHomeLink?.classList.remove('active');
-      navHomeLink?.removeAttribute('aria-current');
-    } else if (scrollY >= projectsTop - 350) {
-      navProjectsLink?.classList.add('active');
-      navContactLink?.classList.remove('active');
-      navApproachLink?.classList.remove('active');
-      navStudioLink?.classList.remove('active');
-      navHomeLink?.classList.remove('active');
-      navHomeLink?.removeAttribute('aria-current');
-    } else if (scrollY >= approachTop - 350) {
-      navApproachLink?.classList.add('active');
-      navProjectsLink?.classList.remove('active');
-      navContactLink?.classList.remove('active');
-      navStudioLink?.classList.remove('active');
-      navHomeLink?.classList.remove('active');
-      navHomeLink?.removeAttribute('aria-current');
+    if (activeSection === lastActiveNavSection) return;
+    lastActiveNavSection = activeSection;
+
+    navContactLink?.classList.toggle('active', activeSection === 'contact');
+    navProjectsLink?.classList.toggle('active', activeSection === 'projects');
+    navApproachLink?.classList.toggle('active', activeSection === 'approach');
+    navStudioLink?.classList.toggle('active', activeSection === 'studio');
+    navHomeLink?.classList.toggle('active', activeSection === 'home');
+    if (activeSection === 'home') {
+      navHomeLink?.setAttribute('aria-current', 'page');
     } else {
-      const isStudio = st.studioOpen;
-      navStudioLink?.classList.toggle('active', isStudio);
-      navHomeLink?.classList.toggle('active', !isStudio);
-      if (!isStudio) {
-        navHomeLink?.setAttribute('aria-current', 'page');
-      } else {
-        navHomeLink?.removeAttribute('aria-current');
-      }
-      navApproachLink?.classList.remove('active');
-      navProjectsLink?.classList.remove('active');
-      navContactLink?.classList.remove('active');
+      navHomeLink?.removeAttribute('aria-current');
     }
   };
 
-  window.addEventListener('scroll', updateNavScrollSpy, { passive: true });
+  const onScrollSpy = () => {
+    if (!spyTicking) {
+      spyTicking = true;
+      requestAnimationFrame(() => {
+        updateNavScrollSpy();
+        spyTicking = false;
+      });
+    }
+  };
+
+  window.addEventListener('scroll', onScrollSpy, { passive: true });
+  window.addEventListener('resize', measureNavSectionOffsets, { passive: true });
 
   // Handle browser back and forward
   window.addEventListener('popstate', () => {
@@ -430,4 +441,5 @@ export function initRouter() {
   // Run on initial load
   handleRoute();
   syncHeroRotator();
+  measureNavSectionOffsets();
 }

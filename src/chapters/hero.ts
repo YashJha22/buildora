@@ -18,6 +18,11 @@ const hero = $('main'),
 let siteHeaderEl: HTMLElement | null = null;
 let hcsEls: HTMLElement[] | null = null;
 let lastHcs = -1;
+let lastHeroOpacity = -1;
+let lastVigOpacity = -1;
+let lastProgP = -1;
+let lastCapOpacity = -1;
+let lastSubP = -1;
 
 if (!classic) {
   L.style.clipPath = 'none';
@@ -45,10 +50,17 @@ export function updateHero({ t, P, e, q }: Progress) {
     const scrollFade = clamp(1 - (P - 0.25) * 2, 0, 1);
     const introTextGate = debugFront !== null ? 1 : clamp((S.T - introClock.headlineAt) / 0.5, 0, 1);
     const heroOpacity = scrollFade * introTextGate;
-    hero.style.opacity = String(heroOpacity);
-    hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
-    hero.style.display = heroOpacity <= 0.001 ? 'none' : 'flex';
-    hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
+    if (
+      Math.abs(heroOpacity - lastHeroOpacity) > 0.005 ||
+      (heroOpacity <= 0.001 && lastHeroOpacity > 0.001) ||
+      (heroOpacity > 0.001 && lastHeroOpacity <= 0.001)
+    ) {
+      lastHeroOpacity = heroOpacity;
+      hero.style.opacity = String(heroOpacity);
+      hero.style.visibility = heroOpacity <= 0.001 ? 'hidden' : 'visible';
+      hero.style.display = heroOpacity <= 0.001 ? 'none' : 'flex';
+      hero.style.pointerEvents = heroOpacity <= 0.05 ? 'none' : 'auto';
+    }
 
     // Header adapts color strictly when paper transitions to obsidian drafting table (q > 0.05)
     if (!siteHeaderEl) siteHeaderEl = document.getElementById('site-header');
@@ -58,25 +70,41 @@ export function updateHero({ t, P, e, q }: Progress) {
     }
 
     // Ambient vignette remains stable and dark throughout intro and hero; only fades on scroll into Chapter 1
-    vig.style.opacity = String(scrollFade);
+    if (Math.abs(scrollFade - lastVigOpacity) > 0.005) {
+      lastVigOpacity = scrollFade;
+      vig.style.opacity = String(scrollFade);
+    }
   }
   hero.style.transform = isMobile ? '' : `translateY(${-P * 32}px)`;
 
   // Hero kinetic typography: physical 3D dispersion along orthogonal trajectories on scroll (desktop only)
   if (st.ready && !reduce && !isMobile) {
     updateHeroTypographyScroll(P);
-    if (subEl) subEl.style.transform = P > 0.001 ? `translateY(${(P * 14).toFixed(1)}px)` : '';
+    if (subEl && Math.abs(P - lastSubP) > 0.002) {
+      lastSubP = P;
+      subEl.style.transform = P > 0.001 ? `translateY(${(P * 14).toFixed(1)}px)` : '';
+    }
   }
 
   // On mobile, hide #cap completely to prevent superimposing over headline words
   if (st.w < 768) {
-    cap.style.opacity = '0';
-    cap.style.visibility = 'hidden';
+    if (lastCapOpacity !== 0) {
+      lastCapOpacity = 0;
+      cap.style.opacity = '0';
+      cap.style.visibility = 'hidden';
+    }
   } else {
-    cap.style.opacity = String(clamp((P - 0.65) * 3, 0, 1) * (1 - clamp(q * 6, 0, 1)));
-    cap.style.visibility = '';
+    const capOp = clamp((P - 0.65) * 3, 0, 1) * (1 - clamp(q * 6, 0, 1));
+    if (Math.abs(capOp - lastCapOpacity) > 0.005) {
+      lastCapOpacity = capOp;
+      cap.style.opacity = String(capOp);
+      cap.style.visibility = capOp <= 0.001 ? 'hidden' : '';
+    }
   }
-  prog.style.transform = `scaleX(${P / 3})`;
+  if (Math.abs(P - lastProgP) > 0.002) {
+    lastProgP = P;
+    prog.style.transform = `scaleX(${P / 3})`;
+  }
 
   if (!hcsEls) {
     const a = document.getElementById('hcs-01');

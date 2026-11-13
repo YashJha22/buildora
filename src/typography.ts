@@ -415,7 +415,7 @@ export function updateHeroTypographyScroll(progress: number) {
   const p = Math.max(0, Math.min(1.2, progress));
 
   const refreshed = refreshHeroTypeCache();
-  if (!refreshed && p > 0.001 && p === heroTypeLastP) return;
+  if (!refreshed && p === heroTypeLastP) return;
   heroTypeLastP = p;
 
   const { fromChars, toChars, originChars, destChars, destPeriod, bpLine, bpDatum } = heroTypeCache;

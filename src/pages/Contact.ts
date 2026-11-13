@@ -234,9 +234,18 @@ export function renderContactPage(targetEl: HTMLElement): () => void {
     ensurePhysicsRunning();
   };
 
+  let scrollThrottle = false;
   const onResizeOrScroll = () => {
-    if (wrapEl) cachedWrapRect = wrapEl.getBoundingClientRect();
-    ensurePhysicsRunning();
+    if (!scrollThrottle) {
+      scrollThrottle = true;
+      requestAnimationFrame(() => {
+        if (wrapEl && !isUnmounted) {
+          cachedWrapRect = wrapEl.getBoundingClientRect();
+          ensurePhysicsRunning();
+        }
+        scrollThrottle = false;
+      });
+    }
   };
 
   const updatePhysics = () => {

@@ -16,6 +16,7 @@ const bld = $('#bld'),
     ['Light.', 'And then the day comes through the window.'],
   ];
 let stg = -1;
+let lastBldOn = -1;
 
 function goToStep(index: number) {
   const clamped = clamp(index, 0, 3);
@@ -78,12 +79,19 @@ export function updateBuild(bq: number, cb: number) {
   const on = isMobile
     ? (cb < 0.04 ? 0 : clamp((cb - 0.04) * 2.8, 0, 1))
     : clamp((cb - 0.35) * 1.8, 0, 1);
-  bld.style.opacity = String(on);
-  bld.style.visibility = on > 0.001 ? 'visible' : 'hidden';
-  bld.style.display = on > 0.001 ? (isMobile ? 'flex' : 'block') : 'none';
-  bld.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
-  if (blt && !isMobile) {
-    blt.style.transform = `translateY(${((1 - on) * 20).toFixed(1)}px)`;
+  if (
+    Math.abs(on - lastBldOn) > 0.005 ||
+    (on <= 0.001 && lastBldOn > 0.001) ||
+    (on > 0.001 && lastBldOn <= 0.001)
+  ) {
+    lastBldOn = on;
+    bld.style.opacity = String(on);
+    bld.style.visibility = on > 0.001 ? 'visible' : 'hidden';
+    bld.style.display = on > 0.001 ? (isMobile ? 'flex' : 'block') : 'none';
+    bld.style.pointerEvents = on > 0.05 ? 'auto' : 'none';
+    if (blt && !isMobile) {
+      blt.style.transform = `translateY(${((1 - on) * 20).toFixed(1)}px)`;
+    }
   }
 
   // Reset stage tracker when scrolled back into prior chapters so forward entrance re-triggers cleanly

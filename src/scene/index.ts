@@ -251,6 +251,7 @@ function create(
   const renderSig = new Float64Array(40);
   const lastRenderSig = new Float64Array(40).fill(NaN);
   let dustTick = 0;
+  let dustFrame = 0;
 
   // Cursor velocity metaball wake history
   const trailPts = Array.from({ length: 4 }, () => ({ x: st.lx, y: st.ly, r: 0 }));
@@ -693,13 +694,16 @@ function create(
       }
 
       if (dust.visible && (dust.material as InstanceType<ThreeNS['PointsMaterial']>).opacity > 0.01) {
-        const windBoost = 1 + Math.min(3.5, st.pointerSpeed * 0.08);
-        for (let i = 0; i < N; i++) {
-          pa[i * 3 + 1] += 0.0014 * (1 + (i % 3)) * windBoost;
-          if (pa[i * 3 + 1] > 3) pa[i * 3 + 1] = 0;
-          pa[i * 3] += Math.sin(t + i) * 0.0008 * windBoost;
+        dustFrame++;
+        if ((dustFrame & 1) === 0) {
+          const windBoost = 1 + Math.min(3.5, st.pointerSpeed * 0.08);
+          for (let i = 0; i < N; i++) {
+            pa[i * 3 + 1] += 0.0028 * (1 + (i % 3)) * windBoost;
+            if (pa[i * 3 + 1] > 3) pa[i * 3 + 1] = 0;
+            pa[i * 3] += Math.sin(t + i) * 0.0016 * windBoost;
+          }
+          pg.attributes.position.needsUpdate = true;
         }
-        pg.attributes.position.needsUpdate = true;
       }
       // In Plan and Build chapters (c > 0.05 or cb > 0), ensure rL uses the deep obsidian drafting table clear color
       if (c > 0.05 || cb > 0) {
@@ -709,16 +713,11 @@ function create(
       }
 
       if (contextLost) return;
-      // Shadow map only needs a refresh when the sun or the animated parts move
+      // Shadow map only needs a refresh when the sun moves noticeably or animated build parts move
       const sh = shadowSig;
-      if (
-        sh[0] !== sun.position.y ||
-        sh[1] !== sun.position.z ||
-        sh[2] !== S.build ||
-        sh[3] !== bq ||
-        sh[4] !== cb ||
-        shadowWarmup > 0
-      ) {
+      const sunMoved = Math.abs(sh[0] - sun.position.y) > 0.08 || Math.abs(sh[1] - sun.position.z) > 0.08;
+      const partsMoved = Math.abs(sh[2] - S.build) > 0.005 || Math.abs(sh[3] - bq) > 0.005 || Math.abs(sh[4] - cb) > 0.005;
+      if (sunMoved || partsMoved || shadowWarmup > 0) {
         sh[0] = sun.position.y;
         sh[1] = sun.position.z;
         sh[2] = S.build;
@@ -731,13 +730,13 @@ function create(
       // When fully stationary, only the drifting dust motes keep the scene alive, at half rate.
       const sg = renderSig;
       let n = 0;
-      sg[n++] = cam.position.x;
-      sg[n++] = cam.position.y;
-      sg[n++] = cam.position.z;
-      sg[n++] = cam.quaternion.x;
-      sg[n++] = cam.quaternion.y;
-      sg[n++] = cam.quaternion.z;
-      sg[n++] = cam.quaternion.w;
+      sg[n++] = Math.round(cam.position.x * 200);
+      sg[n++] = Math.round(cam.position.y * 200);
+      sg[n++] = Math.round(cam.position.z * 200);
+      sg[n++] = Math.round(cam.quaternion.x * 500);
+      sg[n++] = Math.round(cam.quaternion.y * 500);
+      sg[n++] = Math.round(cam.quaternion.z * 500);
+      sg[n++] = Math.round(cam.quaternion.w * 500);
       sg[n++] = c;
       sg[n++] = cb;
       sg[n++] = bq;
@@ -747,8 +746,8 @@ function create(
       sg[n++] = S.build;
       sg[n++] = S.intro;
       sg[n++] = drawVal;
-      sg[n++] = st.lx;
-      sg[n++] = st.ly;
+      sg[n++] = st.pointerSpeed > 0.2 ? Math.round(st.lx) : Math.round(st.lx * 2) * 0.5;
+      sg[n++] = st.pointerSpeed > 0.2 ? Math.round(st.ly) : Math.round(st.ly * 2) * 0.5;
       sg[n++] = st.pointerSpeed > 0.2 ? st.lr : Math.round(st.lr * 0.2);
       sg[n++] = Math.round(st.solarHour * 60);
       sg[n++] = roomLightCurrent;

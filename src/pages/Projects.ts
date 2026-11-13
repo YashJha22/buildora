@@ -685,29 +685,43 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
   let ticking = false;
   let rafId: number | null = null;
   const stickyTops = [82, 108, 134];
+  const watermarks = Array.from(cards, (c) => c.querySelector<HTMLElement>('.card-watermark'));
+  const cardStates = Array.from(cards, () => ({ rotX: '', scale: '', bright: '', offset: -9999 }));
+
   const updatePlanksAndWatermarks = () => {
     const vh = window.innerHeight || 900;
     const isDesktop = window.innerWidth > 960;
     const rects = Array.from(cards, (c) => c.getBoundingClientRect());
 
-    cards.forEach((card, idx) => {
+    for (let idx = 0; idx < cards.length; idx++) {
+      const card = cards[idx];
       const rect = rects[idx];
-      if (!rect) return;
+      if (!rect) continue;
+
+      const state = cardStates[idx];
 
       // Watermark parallax when in or near viewport
       if (rect.bottom > -200 && rect.top < vh + 200) {
-        const offset = (rect.top - vh * 0.35) * 0.1;
-        const watermark = card.querySelector<HTMLElement>('.card-watermark');
-        if (watermark) {
-          watermark.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+        const offset = Math.round((rect.top - vh * 0.35) * 0.1);
+        if (offset !== state.offset) {
+          state.offset = offset;
+          const watermark = watermarks[idx];
+          if (watermark) {
+            watermark.style.transform = `translate3d(0, ${offset}px, 0)`;
+          }
         }
       }
 
       if (!isDesktop) {
-        card.style.removeProperty('--plank-scale');
-        card.style.removeProperty('--plank-rot-x');
-        card.style.removeProperty('--plank-bright');
-        return;
+        if (state.scale !== '') {
+          state.scale = '';
+          state.rotX = '';
+          state.bright = '';
+          card.style.removeProperty('--plank-scale');
+          card.style.removeProperty('--plank-rot-x');
+          card.style.removeProperty('--plank-bright');
+        }
+        continue;
       }
 
       // 1. Entry roll-down into sticky slot
@@ -729,10 +743,19 @@ export function renderProjectsPage(targetEl: HTMLElement): () => void {
       const scale = Math.max(0.92, 1 - overlapSum * 0.032).toFixed(4);
       const bright = Math.max(0.68, 1 - overlapSum * 0.15).toFixed(3);
 
-      card.style.setProperty('--plank-rot-x', `${rotX}deg`);
-      card.style.setProperty('--plank-scale', scale);
-      card.style.setProperty('--plank-bright', bright);
-    });
+      if (rotX !== state.rotX) {
+        state.rotX = rotX;
+        card.style.setProperty('--plank-rot-x', `${rotX}deg`);
+      }
+      if (scale !== state.scale) {
+        state.scale = scale;
+        card.style.setProperty('--plank-scale', scale);
+      }
+      if (bright !== state.bright) {
+        state.bright = bright;
+        card.style.setProperty('--plank-bright', bright);
+      }
+    }
   };
 
   const onScroll = () => {
