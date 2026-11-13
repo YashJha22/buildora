@@ -37,7 +37,7 @@ button:active,.cta:active{transform:scale(.97)}
 canvas{position:fixed;inset:0;width:100%;height:var(--stable-vh,100%);display:block;pointer-events:none;z-index:1}#w{background:transparent}#l{background:transparent;clip-path:circle(0px at 50% 50%)}
 #ring{position:fixed;left:0;top:0;border:1px solid rgba(223,186,115,.85);border-radius:50%;pointer-events:none;z-index:4}
 .vig{position:fixed;inset:0;pointer-events:none;z-index:2;background:linear-gradient(90deg,rgba(10,9,8,.76),transparent 58%),radial-gradient(ellipse at 60% 50%,transparent 42%,rgba(0,0,0,.65))}
-.grain{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.08;mix-blend-mode:overlay;background-image:url("/grain.png");background-size:160px 160px}
+.grain{position:fixed;inset:0;pointer-events:none;z-index:2;opacity:.08;mix-blend-mode:overlay;background-image:url("/grain.png");background-size:80px 80px}
 #site-header,header.site-header{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:40;display:flex;justify-content:space-between;align-items:center;padding:24px clamp(20px,4vw,56px);background:transparent;border-bottom:none;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;pointer-events:none}
 #site-header>*,header.site-header>*{pointer-events:auto}
 #site-header nav,.site-nav{display:flex;gap:clamp(18px,3vw,40px);align-items:center}

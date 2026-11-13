@@ -90,15 +90,25 @@ export function startIntro() {
     return;
   }
 
-  // If navigating directly to any subpage (e.g. /projects, /contact, /status), dismiss preloader immediately without delay
+  // If navigating directly to any subpage (e.g. /projects, /contact, /status) or already seen intro this session, dismiss preloader immediately
   const isDirectSubpage = window.location.pathname !== '/' && window.location.pathname !== '' && window.location.pathname !== '/studio';
-  if (isDirectSubpage) {
+  const hasSeenIntro = (() => {
+    try {
+      return sessionStorage.getItem('buildora_intro_seen') === '1';
+    } catch (_) {
+      return false;
+    }
+  })();
+  if (isDirectSubpage || hasSeenIntro) {
     pre.style.display = 'none';
     st.ready = true;
     S.T = introClock.total;
     syncIntroFromClock();
     return;
   }
+  try {
+    sessionStorage.setItem('buildora_intro_seen', '1');
+  } catch (_) {}
 
   // Phase 0B master clock + Animated Architectural Logo Preloader (~1.5s)
   const tl = gsap.timeline({
@@ -177,7 +187,7 @@ export function startIntro() {
     {
       yPercent: -100,
       opacity: 0.98,
-      duration: 0.65,
+      duration: 0.55,
       ease: 'expo.inOut',
       onStart() {
         pre.style.pointerEvents = 'none';
@@ -186,7 +196,7 @@ export function startIntro() {
         pre.style.display = 'none';
       },
     },
-    1.42
+    1.25
   );
 
   tl.to(

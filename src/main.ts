@@ -402,9 +402,8 @@ function layout() {
 addEventListener('resize', layout);
 layout();
 
-if (classic) {
-  startIntro();
-}
+// Start intro animation immediately so the architectural logo begins drawing on first frame
+startIntro();
 
 loadScene().then((api) => {
   gl = api;
@@ -419,9 +418,6 @@ loadScene().then((api) => {
       'position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%);z-index:9000;background:var(--surface);border:1px solid var(--bronze);color:var(--bone);padding:0.6rem 1.2rem;border-radius:6px;font-family:Manrope,sans-serif;font-size:0.75rem;letter-spacing:0.04em;backdrop-filter:blur(10px);pointer-events:none;';
     webglNotice.textContent = 'WebGL acceleration is unavailable in this environment. Showing architectural plan view.';
     document.body.appendChild(webglNotice);
-  }
-  if (!classic) {
-    startIntro();
   }
   const dbg = (
     window as unknown as {
